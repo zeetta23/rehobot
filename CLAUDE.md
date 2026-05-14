@@ -12,13 +12,15 @@ Dos partes:
 
 ## Stack
 
-- **Frontend**: Next.js 15 (App Router) + TypeScript + Tailwind CSS
+- **Frontend**: Next.js 16 (App Router) + TypeScript + Tailwind CSS — bundler Turbopack por defecto
 - **Backend/datos**: Firebase Firestore + Storage + Auth (email/password)
 - **Hosting**: Vercel (plan Hobby), deploy automático desde GitHub
 - **Dominio**: IONOS (DNS apuntando a Vercel)
 - **Email**: Resend o EmailJS · **Mapa**: Leaflet + OpenStreetMap · **Tour 360°**: embed Kuula
 
 Coste año 1 estimado: ~10 € (solo el dominio).
+
+> Nota: el documento técnico original menciona Next.js 15; arrancamos directamente con Next.js 16 porque era la última estable en el momento del scaffolding. Ver también `AGENTS.md` (generado por create-next-app) con advertencias específicas de esta versión.
 
 ## Identidad visual (resumen)
 
@@ -48,4 +50,7 @@ No en v1: login de clientes, favoritos, comparador, multiidioma, calculadora hip
 
 ## Estado actual
 
-Proyecto recién iniciado. Carpeta vacía salvo por los dos `.md` de referencia y este `CLAUDE.md`. Aún no hay `git init`, ni proyecto Next.js, ni Firebase, ni GitHub, ni Vercel.
+- Repo Git inicializado, conectado a GitHub: `https://github.com/zeetta23/rehobot` (privado).
+- Proyecto Next.js 16 scaffoldeado en la raíz (App Router, TypeScript, Tailwind, ESLint, `src/`, alias `@/*`).
+- Estructura típica: `src/app/`, `public/`, `package.json`. Dev server arranca con `npm run dev` en `http://localhost:3000`.
+- Pendiente: conectar Vercel, configurar paleta corporativa + tipografías, configurar Firebase.
