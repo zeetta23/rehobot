@@ -100,6 +100,9 @@ export default function AdminInmueblesPage() {
                 <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-widest text-gray-text">
                   Estado
                 </th>
+                <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-widest text-gray-text">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -132,6 +135,14 @@ export default function AdminInmueblesPage() {
                     >
                       {inm.estado}
                     </span>
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-right">
+                    <Link
+                      href={`/admin/inmuebles/${inm.id}/editar`}
+                      className="inline-flex rounded-full border border-navy/15 px-3 py-1.5 font-body text-xs font-medium text-navy hover:bg-navy hover:text-white"
+                    >
+                      Editar
+                    </Link>
                   </td>
                 </tr>
               ))}

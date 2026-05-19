@@ -2,6 +2,9 @@ import {
   collection,
   doc,
   setDoc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
   getDocs,
   query,
   orderBy,
@@ -12,7 +15,10 @@ import {
   type QueryConstraint,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { subirFotoInmueble } from "@/lib/firestore/fotos";
+import {
+  subirFotoInmueble,
+  eliminarFotoInmueble,
+} from "@/lib/firestore/fotos";
 import type {
   EstadoInmueble,
   Operacion,
@@ -339,6 +345,145 @@ export async function crearInmueble(
 
   await setDoc(docRef, docData);
   return docRef.id;
+}
+
+// ============================================================================
+// Edición y eliminación (admin)
+// ============================================================================
+
+export interface InmuebleAdminData {
+  id: string;
+  ref: string;
+  slug: string;
+  titulo: string;
+  operacion: Operacion;
+  tipo: TipoInmueble;
+  estado: EstadoInmueble;
+  destacado: boolean;
+  precio: number;
+  municipio: string;
+  zona: string;
+  habitaciones: number;
+  banos: number;
+  metrosConstruidos: number;
+  consumoEnergetico: CalificacionEnergetica;
+  emisionesEnergetico: CalificacionEnergetica;
+  descripcion: string;
+  agente: string;
+  fotos: FotoInmueble[];
+}
+
+export async function obtenerInmueblePorId(
+  id: string,
+): Promise<InmuebleAdminData | null> {
+  const snap = await getDoc(doc(db, COL, id));
+  if (!snap.exists()) return null;
+  const data = snap.data();
+  return {
+    id: snap.id,
+    ref: data.ref ?? "",
+    slug: data.slug ?? "",
+    titulo: data.titulo ?? "",
+    operacion: data.operacion ?? "venta",
+    tipo: data.tipo ?? "piso",
+    estado: data.estado ?? "borrador",
+    destacado: Boolean(data.destacado),
+    precio: data.precio ?? 0,
+    municipio: data.ubicacion?.municipio ?? "",
+    zona: data.ubicacion?.zona ?? "",
+    habitaciones: data.detalles?.habitaciones ?? 0,
+    banos: data.detalles?.banos ?? 0,
+    metrosConstruidos: data.detalles?.metrosConstruidos ?? 0,
+    consumoEnergetico: data.energetico?.consumo ?? "en_tramite",
+    emisionesEnergetico: data.energetico?.emisiones ?? "en_tramite",
+    descripcion: data.descripcion ?? "",
+    agente: data.agente ?? "",
+    fotos: ((data.multimedia?.fotos ?? []) as FotoInmueble[])
+      .slice()
+      .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)),
+  };
+}
+
+// Cada item del editor de fotos: o ya existe en Storage, o es nueva por subir.
+export type ItemFotoEditor =
+  | { tipo: "existente"; foto: FotoInmueble }
+  | { tipo: "nueva"; file: File };
+
+export async function actualizarInmueble(
+  id: string,
+  input: NuevoInmuebleInput,
+  fotosEditor: ItemFotoEditor[],
+  onProgreso?: (subidas: number, total: number) => void,
+): Promise<void> {
+  // 1. Leer estado actual para saber qué fotos hay que eliminar de Storage.
+  const docRef = doc(db, COL, id);
+  const snap = await getDoc(docRef);
+  if (!snap.exists()) throw new Error("El inmueble ya no existe.");
+  const data = snap.data();
+  const fotosBd = (data.multimedia?.fotos ?? []) as FotoInmueble[];
+
+  // 2. Subir fotos nuevas a Storage (manteniendo orden).
+  const nuevasPorSubir = fotosEditor.filter((f) => f.tipo === "nueva").length;
+  let subidas = 0;
+  const fotosFinales: FotoInmueble[] = [];
+  for (let i = 0; i < fotosEditor.length; i++) {
+    const item = fotosEditor[i];
+    const portada = i === 0;
+    if (item.tipo === "existente") {
+      fotosFinales.push({ ...item.foto, orden: i, portada });
+    } else {
+      const subida = await subirFotoInmueble(id, item.file, i, portada);
+      fotosFinales.push(subida);
+      subidas += 1;
+      onProgreso?.(subidas, nuevasPorSubir);
+    }
+  }
+
+  // 3. Calcular qué URLs había antes y no están ahora → eliminar de Storage.
+  const urlsFinales = new Set(fotosFinales.map((f) => f.url));
+  const urlsAEliminar = fotosBd
+    .map((f) => f.url)
+    .filter((u) => u && !urlsFinales.has(u));
+
+  // 4. updateDoc con todos los campos.
+  const slug = data.slug ?? "";
+  await updateDoc(docRef, {
+    titulo: input.titulo,
+    operacion: input.operacion,
+    tipo: input.tipo,
+    estado: input.estado,
+    destacado: input.destacado,
+    precio: input.precio,
+    "ubicacion.municipio": input.municipio,
+    "ubicacion.zona": input.zona,
+    "detalles.habitaciones": input.habitaciones,
+    "detalles.banos": input.banos,
+    "detalles.metrosConstruidos": input.metrosConstruidos,
+    "energetico.consumo": input.consumoEnergetico,
+    "energetico.emisiones": input.emisionesEnergetico,
+    descripcion: input.descripcion,
+    "multimedia.fotos": fotosFinales,
+    fechaActualizacion: serverTimestamp(),
+    fechaPublicacion:
+      input.estado === "activo" && !data.fechaPublicacion
+        ? serverTimestamp()
+        : (data.fechaPublicacion ?? null),
+    slug, // intacto
+  });
+
+  // 5. Tras éxito en Firestore, eliminar fotos huérfanas de Storage.
+  await Promise.all(urlsAEliminar.map((u) => eliminarFotoInmueble(u)));
+}
+
+export async function eliminarInmueble(id: string): Promise<void> {
+  const docRef = doc(db, COL, id);
+  const snap = await getDoc(docRef);
+  if (!snap.exists()) return;
+  const data = snap.data();
+  const fotos = (data.multimedia?.fotos ?? []) as FotoInmueble[];
+
+  await deleteDoc(docRef);
+  await Promise.all(fotos.map((f) => eliminarFotoInmueble(f.url)));
 }
 
 export function formatPrecio(precio: number): string {
