@@ -1,17 +1,30 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import {
+  obtenerInmueblePorSlug,
+  formatPrecio,
+} from "@/lib/firestore/inmuebles";
+import type { CalificacionEnergetica } from "@/lib/types";
 
-const CARACTERISTICAS_MOCK = [
-  "Ascensor",
-  "Garaje incluido",
-  "Trastero",
-  "Aire acondicionado",
-  "Calefacción individual",
-  "Terraza 12 m²",
-  "Armarios empotrados",
-  "Exterior",
-  "Luminoso",
-  "Reformado",
-];
+export const revalidate = 60;
+
+function colorCalificacion(c: CalificacionEnergetica): string {
+  const map: Record<CalificacionEnergetica, string> = {
+    A: "bg-green-700",
+    B: "bg-green-600",
+    C: "bg-green-500",
+    D: "bg-yellow-500",
+    E: "bg-orange-500",
+    F: "bg-red-500",
+    G: "bg-red-700",
+    en_tramite: "bg-gray-400",
+  };
+  return map[c];
+}
+
+function labelCalificacion(c: CalificacionEnergetica): string {
+  return c === "en_tramite" ? "—" : c;
+}
 
 export default async function FichaInmueblePage({
   params,
@@ -19,6 +32,11 @@ export default async function FichaInmueblePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const inmueble = await obtenerInmueblePorSlug(slug);
+
+  if (!inmueble) {
+    notFound();
+  }
 
   return (
     <article>
@@ -31,13 +49,20 @@ export default async function FichaInmueblePage({
         <Link href="/inmuebles" className="hover:text-navy">
           Inmuebles
         </Link>{" "}
-        · <span className="text-navy">{slug}</span>
+        · <span className="text-navy">{inmueble.ref}</span>
       </nav>
 
       {/* GALERÍA */}
       <section className="mx-auto mt-4 max-w-7xl px-6">
         <div className="grid grid-cols-4 gap-2">
-          <div className="col-span-4 aspect-[16/9] rounded-2xl bg-gradient-to-br from-navy/10 to-gold/20 sm:col-span-3 sm:row-span-2 sm:aspect-auto" />
+          <div
+            className="col-span-4 aspect-[16/9] rounded-2xl bg-gradient-to-br from-navy/10 to-gold/20 bg-cover bg-center sm:col-span-3 sm:row-span-2 sm:aspect-auto"
+            style={
+              inmueble.fotoPortada
+                ? { backgroundImage: `url(${inmueble.fotoPortada})` }
+                : undefined
+            }
+          />
           <div className="hidden aspect-square rounded-2xl bg-gradient-to-br from-navy/10 to-gold/20 sm:block" />
           <div className="hidden aspect-square rounded-2xl bg-gradient-to-br from-navy/10 to-gold/20 sm:block" />
         </div>
@@ -47,22 +72,43 @@ export default async function FichaInmueblePage({
         {/* CONTENIDO PRINCIPAL */}
         <div>
           <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
-            Alcalá de Henares · Ensanche
+            {inmueble.municipio}
+            {inmueble.zona && ` · ${inmueble.zona}`}
           </p>
           <h1 className="mt-3 font-display text-4xl font-semibold text-navy">
-            Piso reformado con 3 habitaciones
+            {inmueble.titulo}
           </h1>
           <p className="mt-4 font-display text-3xl font-semibold text-navy">
-            245.000 €
+            {formatPrecio(inmueble.precio)}
           </p>
+          {inmueble.estado !== "activo" && (
+            <p className="mt-3 inline-flex rounded-full bg-yellow-100 px-3 py-1 font-body text-xs font-medium uppercase tracking-widest text-yellow-800">
+              {inmueble.estado}
+            </p>
+          )}
 
           {/* Datos clave */}
           <ul className="mt-8 grid grid-cols-2 gap-4 border-y border-black/5 py-6 sm:grid-cols-4">
             {[
-              { label: "Habitaciones", value: "3" },
-              { label: "Baños", value: "2" },
-              { label: "Construidos", value: "95 m²" },
-              { label: "Planta", value: "3ª · Ext." },
+              {
+                label: "Habitaciones",
+                value: inmueble.habitaciones > 0 ? `${inmueble.habitaciones}` : "—",
+              },
+              {
+                label: "Baños",
+                value: inmueble.banos > 0 ? `${inmueble.banos}` : "—",
+              },
+              {
+                label: "Construidos",
+                value:
+                  inmueble.metrosConstruidos > 0
+                    ? `${inmueble.metrosConstruidos} m²`
+                    : "—",
+              },
+              {
+                label: "Planta",
+                value: inmueble.planta ?? "—",
+              },
             ].map((d) => (
               <li key={d.label}>
                 <p className="font-display text-xl font-semibold text-navy">
@@ -76,34 +122,33 @@ export default async function FichaInmueblePage({
           </ul>
 
           {/* Descripción */}
-          <section className="mt-10">
-            <h2 className="font-display text-2xl font-semibold text-navy">
-              Descripción
-            </h2>
-            <p className="mt-4 font-body text-base leading-relaxed text-dark">
-              Magnífico piso completamente reformado en el corazón de El
-              Ensanche, una de las zonas más demandadas de Alcalá de Henares.
-              La vivienda cuenta con tres dormitorios amplios y luminosos, dos
-              baños completos, salón con balcón a la calle y cocina office
-              totalmente equipada. Reforma integral del año pasado: suelo
-              laminado, ventanas con doble cristal, aire acondicionado por
-              conductos y armarios empotrados.
-            </p>
-          </section>
+          {inmueble.descripcion && (
+            <section className="mt-10">
+              <h2 className="font-display text-2xl font-semibold text-navy">
+                Descripción
+              </h2>
+              <p className="mt-4 whitespace-pre-line font-body text-base leading-relaxed text-dark">
+                {inmueble.descripcion}
+              </p>
+            </section>
+          )}
 
           {/* Características */}
-          <section className="mt-10">
-            <h2 className="font-display text-2xl font-semibold text-navy">
-              Características
-            </h2>
-            <ul className="mt-4 grid grid-cols-2 gap-y-2 font-body text-sm text-dark sm:grid-cols-3">
-              {CARACTERISTICAS_MOCK.map((c) => (
-                <li key={c} className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-gold" /> {c}
-                </li>
-              ))}
-            </ul>
-          </section>
+          {inmueble.caracteristicas.length > 0 && (
+            <section className="mt-10">
+              <h2 className="font-display text-2xl font-semibold text-navy">
+                Características
+              </h2>
+              <ul className="mt-4 grid grid-cols-2 gap-y-2 font-body text-sm capitalize text-dark sm:grid-cols-3">
+                {inmueble.caracteristicas.map((c) => (
+                  <li key={c} className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gold" />{" "}
+                    {c.replace(/_/g, " ")}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           {/* Certificado energético */}
           <section className="mt-10">
@@ -111,15 +156,31 @@ export default async function FichaInmueblePage({
               Certificado energético
             </h2>
             <div className="mt-4 flex gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-md bg-green-600 font-display text-3xl font-semibold text-white">
-                C
+              <div
+                className={`flex h-16 w-16 items-center justify-center rounded-md font-display text-3xl font-semibold text-white ${colorCalificacion(
+                  inmueble.energetico.consumo,
+                )}`}
+              >
+                {labelCalificacion(inmueble.energetico.consumo)}
               </div>
-              <div className="flex h-16 w-16 items-center justify-center rounded-md bg-yellow-500 font-display text-3xl font-semibold text-white">
-                D
+              <div
+                className={`flex h-16 w-16 items-center justify-center rounded-md font-display text-3xl font-semibold text-white ${colorCalificacion(
+                  inmueble.energetico.emisiones,
+                )}`}
+              >
+                {labelCalificacion(inmueble.energetico.emisiones)}
               </div>
               <div className="font-body text-xs text-gray-text">
-                <p>Consumo: C (98 kWh/m²·año)</p>
-                <p>Emisiones: D (22 kg CO₂/m²·año)</p>
+                <p>
+                  Consumo: {labelCalificacion(inmueble.energetico.consumo)}
+                  {inmueble.energetico.consumoKwh &&
+                    ` (${inmueble.energetico.consumoKwh} kWh/m²·año)`}
+                </p>
+                <p>
+                  Emisiones: {labelCalificacion(inmueble.energetico.emisiones)}
+                  {inmueble.energetico.emisionesKg &&
+                    ` (${inmueble.energetico.emisionesKg} kg CO₂/m²·año)`}
+                </p>
               </div>
             </div>
           </section>
@@ -137,16 +198,20 @@ export default async function FichaInmueblePage({
           </section>
 
           {/* Tour 360 */}
-          <section className="mt-10">
-            <h2 className="font-display text-2xl font-semibold text-navy">
-              Tour virtual 360°
-            </h2>
-            <div className="mt-4 aspect-[16/9] rounded-2xl border border-dashed border-navy/20 bg-cream">
-              <div className="flex h-full items-center justify-center font-body text-sm text-gray-text">
-                [ Embed Kuula · próximamente ]
+          {inmueble.tour360Url && (
+            <section className="mt-10">
+              <h2 className="font-display text-2xl font-semibold text-navy">
+                Tour virtual 360°
+              </h2>
+              <div className="mt-4 aspect-[16/9] overflow-hidden rounded-2xl">
+                <iframe
+                  src={inmueble.tour360Url}
+                  className="h-full w-full"
+                  allow="fullscreen; vr"
+                />
               </div>
-            </div>
-          </section>
+            </section>
+          )}
         </div>
 
         {/* FORMULARIO CONTACTO */}
@@ -177,7 +242,7 @@ export default async function FichaInmueblePage({
               />
               <textarea
                 rows={3}
-                defaultValue="Hola, estoy interesad@ en este inmueble. ¿Podríamos concertar una visita?"
+                defaultValue={`Hola, estoy interesad@ en el inmueble ${inmueble.ref} (${inmueble.titulo}). ¿Podríamos concertar una visita?`}
                 className="w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
               />
               <label className="flex items-start gap-2 font-body text-xs text-gray-text">
@@ -189,9 +254,10 @@ export default async function FichaInmueblePage({
               </label>
               <button
                 type="submit"
-                className="w-full rounded-full bg-navy py-3 font-body text-sm font-medium text-white transition-colors hover:bg-navy-medium"
+                disabled
+                className="w-full cursor-not-allowed rounded-full bg-navy py-3 font-body text-sm font-medium text-white opacity-70"
               >
-                Enviar consulta
+                Enviar consulta (próximamente)
               </button>
               <a
                 href="https://wa.me/34916000000"
@@ -203,34 +269,6 @@ export default async function FichaInmueblePage({
           </div>
         </aside>
       </div>
-
-      {/* SIMILARES */}
-      <section className="mx-auto max-w-7xl px-6 py-16">
-        <h2 className="font-display text-2xl font-semibold text-navy">
-          Inmuebles similares
-        </h2>
-        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="overflow-hidden rounded-2xl bg-white shadow-sm"
-            >
-              <div className="aspect-[4/3] bg-gradient-to-br from-navy/10 to-gold/20" />
-              <div className="p-5">
-                <p className="font-body text-xs uppercase tracking-widest text-gray-text">
-                  Alcalá · Ensanche
-                </p>
-                <h3 className="mt-2 font-display text-base font-semibold text-navy">
-                  Inmueble similar #{i}
-                </h3>
-                <p className="mt-3 font-display text-lg font-semibold text-navy">
-                  — €
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
     </article>
   );
 }

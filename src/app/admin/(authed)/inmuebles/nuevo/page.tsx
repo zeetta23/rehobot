@@ -96,6 +96,10 @@ export default function NuevoInmueblePage() {
             ? "Tu usuario no tiene permisos para crear inmuebles. ¿Has creado el documento usuarios/{tu UID} con rol admin?"
             : `Error de Firestore: ${err.code}`,
         );
+      } else if (err instanceof DOMException && err.name === "AbortError") {
+        setError(
+          "La operación se canceló (suele pasar con recarga del dev server). Verifica en el listado: si tu inmueble aparece, ya está creado. Si no, vuelve a intentarlo.",
+        );
       } else {
         setError("No se pudo crear el inmueble.");
       }
@@ -186,8 +190,11 @@ export default function NuevoInmueblePage() {
                 type="number"
                 required
                 min={0}
-                value={form.precio}
-                onChange={(e) => update("precio", Number(e.target.value))}
+                value={form.precio === 0 ? "" : form.precio}
+                onChange={(e) =>
+                  update("precio", e.target.value === "" ? 0 : Number(e.target.value))
+                }
+                placeholder="0"
                 className="mt-1.5 w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
               />
             </label>
@@ -257,10 +264,14 @@ export default function NuevoInmueblePage() {
               <input
                 type="number"
                 min={0}
-                value={form.habitaciones}
+                value={form.habitaciones === 0 ? "" : form.habitaciones}
                 onChange={(e) =>
-                  update("habitaciones", Number(e.target.value))
+                  update(
+                    "habitaciones",
+                    e.target.value === "" ? 0 : Number(e.target.value),
+                  )
                 }
+                placeholder="0"
                 className="mt-1.5 w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
               />
             </label>
@@ -272,8 +283,14 @@ export default function NuevoInmueblePage() {
               <input
                 type="number"
                 min={0}
-                value={form.banos}
-                onChange={(e) => update("banos", Number(e.target.value))}
+                value={form.banos === 0 ? "" : form.banos}
+                onChange={(e) =>
+                  update(
+                    "banos",
+                    e.target.value === "" ? 0 : Number(e.target.value),
+                  )
+                }
+                placeholder="0"
                 className="mt-1.5 w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
               />
             </label>
@@ -285,10 +302,14 @@ export default function NuevoInmueblePage() {
               <input
                 type="number"
                 min={0}
-                value={form.metrosConstruidos}
+                value={form.metrosConstruidos === 0 ? "" : form.metrosConstruidos}
                 onChange={(e) =>
-                  update("metrosConstruidos", Number(e.target.value))
+                  update(
+                    "metrosConstruidos",
+                    e.target.value === "" ? 0 : Number(e.target.value),
+                  )
                 }
+                placeholder="0"
                 className="mt-1.5 w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
               />
             </label>

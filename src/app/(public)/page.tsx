@@ -1,37 +1,17 @@
 import Link from "next/link";
+import {
+  listarDestacados,
+  listarInmueblesPublicos,
+  formatPrecio,
+} from "@/lib/firestore/inmuebles";
+
+export const revalidate = 60;
 
 const TIPOS = [
   { label: "Pisos", href: "/inmuebles?tipo=piso", count: "—" },
   { label: "Chalets", href: "/inmuebles?tipo=chalet", count: "—" },
   { label: "Locales", href: "/inmuebles?tipo=local", count: "—" },
   { label: "Garajes", href: "/inmuebles?tipo=garaje", count: "—" },
-];
-
-const DESTACADOS_MOCK = [
-  {
-    titulo: "Piso reformado en El Ensanche",
-    zona: "Alcalá de Henares · Ensanche",
-    precio: "245.000 €",
-    habitaciones: 3,
-    banos: 2,
-    metros: 95,
-  },
-  {
-    titulo: "Chalet adosado con jardín",
-    zona: "Torrejón de Ardoz · Zarzuela",
-    precio: "385.000 €",
-    habitaciones: 4,
-    banos: 3,
-    metros: 180,
-  },
-  {
-    titulo: "Ático con terraza panorámica",
-    zona: "Coslada · Centro",
-    precio: "298.000 €",
-    habitaciones: 2,
-    banos: 2,
-    metros: 88,
-  },
 ];
 
 const ZONAS = [
@@ -52,7 +32,14 @@ function slugifyZona(zona: string) {
     .replace(/ /g, "-");
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Trae destacados; si no hay aún, cae a los 3 más recientes publicados.
+  let destacados = await listarDestacados(3);
+  if (destacados.length === 0) {
+    const recientes = await listarInmueblesPublicos();
+    destacados = recientes.slice(0, 3);
+  }
+
   return (
     <>
       {/* HERO */}
@@ -203,34 +190,60 @@ export default function HomePage() {
               Ver listado completo →
             </Link>
           </div>
-          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {DESTACADOS_MOCK.map((p) => (
-              <article
-                key={p.titulo}
-                className="overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-xl"
-              >
-                <div className="aspect-[4/3] bg-gradient-to-br from-navy/10 to-gold/20" />
-                <div className="p-6">
-                  <p className="font-body text-xs uppercase tracking-widest text-gray-text">
-                    {p.zona}
-                  </p>
-                  <h3 className="mt-2 font-display text-lg font-semibold text-navy">
-                    {p.titulo}
-                  </h3>
-                  <p className="mt-3 font-display text-2xl font-semibold text-navy">
-                    {p.precio}
-                  </p>
-                  <div className="mt-4 flex items-center gap-4 border-t border-black/5 pt-4 font-body text-xs text-gray-text">
-                    <span>{p.habitaciones} hab.</span>
-                    <span>·</span>
-                    <span>{p.banos} baños</span>
-                    <span>·</span>
-                    <span>{p.metros} m²</span>
+          {destacados.length === 0 ? (
+            <div className="mt-10 rounded-2xl border border-dashed border-navy/20 bg-white p-12 text-center">
+              <p className="font-display text-xl font-semibold text-navy">
+                Pronto verás aquí nuestra selección
+              </p>
+              <p className="mt-3 font-body text-sm text-gray-text">
+                Estamos preparando los primeros inmuebles. Vuelve en breve.
+              </p>
+            </div>
+          ) : (
+            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {destacados.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/inmueble/${p.slug}`}
+                  className="overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-xl"
+                >
+                  <div
+                    className="aspect-[4/3] bg-gradient-to-br from-navy/10 to-gold/20 bg-cover bg-center"
+                    style={
+                      p.fotoPortada
+                        ? { backgroundImage: `url(${p.fotoPortada})` }
+                        : undefined
+                    }
+                  />
+                  <div className="p-6">
+                    <p className="font-body text-xs uppercase tracking-widest text-gray-text">
+                      {p.municipio}
+                      {p.zona && ` · ${p.zona}`}
+                    </p>
+                    <h3 className="mt-2 font-display text-lg font-semibold text-navy">
+                      {p.titulo}
+                    </h3>
+                    <p className="mt-3 font-display text-2xl font-semibold text-navy">
+                      {formatPrecio(p.precio)}
+                    </p>
+                    <div className="mt-4 flex items-center gap-4 border-t border-black/5 pt-4 font-body text-xs text-gray-text">
+                      {p.habitaciones > 0 && <span>{p.habitaciones} hab.</span>}
+                      {p.habitaciones > 0 && p.banos > 0 && <span>·</span>}
+                      {p.banos > 0 && <span>{p.banos} baños</span>}
+                      {p.metrosConstruidos > 0 && (
+                        <>
+                          {(p.habitaciones > 0 || p.banos > 0) && (
+                            <span>·</span>
+                          )}
+                          <span>{p.metrosConstruidos} m²</span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
