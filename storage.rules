@@ -1,0 +1,44 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    function isReasonableSize() {
+      // 10 MB máximo por archivo
+      return request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // ====== Fotos y multimedia de inmuebles ======
+    // Lectura pública (las fotos van en la web sin auth).
+    // Escritura solo para usuarios autenticados, validando tipo y tamaño.
+    match /inmuebles/{inmuebleId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isSignedIn() && isImage() && isReasonableSize();
+      allow delete: if isSignedIn();
+    }
+
+    // ====== Avatares y archivos de usuarios ======
+    // Lectura pública (las fotos del equipo se muestran en /nosotros).
+    // Cada usuario puede subir/borrar sus propios archivos.
+    match /usuarios/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isSignedIn()
+                   && request.auth.uid == userId
+                   && isImage()
+                   && isReasonableSize();
+    }
+
+    // ====== Default deny ======
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

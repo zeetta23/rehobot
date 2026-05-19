@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ====== Helpers ======
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
+        && userDoc().rol == 'admin'
+        && userDoc().activo == true;
+    }
+
+    function isStaff() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
+        && userDoc().rol in ['admin', 'agente']
+        && userDoc().activo == true;
+    }
+
+    function isOwnUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ====== Inmuebles ======
+    // Lectura pública SOLO si el estado es visible al público.
+    // Borradores y archivados solo los ve el staff.
+    match /inmuebles/{inmuebleId} {
+      allow read: if resource.data.estado in ['activo', 'reservado', 'vendido']
+                  || isStaff();
+      allow create, update, delete: if isStaff();
+    }
+
+    // ====== Leads ======
+    // Cualquiera puede crear (formularios públicos sin auth).
+    // Solo admin puede leer/editar/borrar todos.
+    // Un agente puede leer/editar leads donde está asignado.
+    match /leads/{leadId} {
+      allow create: if true;
+      allow read, update: if isAdmin()
+                          || (isStaff() && resource.data.agenteAsignado == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // ====== Usuarios ======
+    // Lectura: cualquiera staff puede ver los perfiles (para mostrar agentes en
+    // la ficha pública). Admin puede ver todos. Cada usuario puede ver el suyo.
+    // Escritura: solo admin (admin crea/edita usuarios y roles).
+    match /usuarios/{userId} {
+      allow read: if isOwnUser(userId)
+                  || isStaff();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ====== Configuración global ======
+    // Lectura pública (textos del sitio, datos de la empresa, etc.).
+    // Escritura solo admin.
+    match /configuracion/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ====== Default deny ======
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
