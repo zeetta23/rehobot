@@ -1,6 +1,7 @@
 import {
   collection,
-  addDoc,
+  doc,
+  setDoc,
   getDocs,
   query,
   orderBy,
@@ -11,11 +12,13 @@ import {
   type QueryConstraint,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { subirFotoInmueble } from "@/lib/firestore/fotos";
 import type {
   EstadoInmueble,
   Operacion,
   TipoInmueble,
   CalificacionEnergetica,
+  FotoInmueble,
 } from "@/lib/types";
 
 const ESTADOS_PUBLICOS: EstadoInmueble[] = ["activo", "reservado", "vendido"];
@@ -170,6 +173,7 @@ export interface InmuebleFichaData extends InmueblePublicoListado {
   videoUrl: string | null;
   tour360Url: string | null;
   planoUrl: string | null;
+  fotos: FotoInmueble[];
 }
 
 export async function obtenerInmueblePorSlug(
@@ -218,6 +222,9 @@ export async function obtenerInmueblePorSlug(
       videoUrl: data.multimedia?.videoUrl ?? null,
       tour360Url: data.multimedia?.tour360Url ?? null,
       planoUrl: data.multimedia?.planoUrl ?? null,
+      fotos: ((data.multimedia?.fotos ?? []) as FotoInmueble[])
+        .slice()
+        .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)),
     };
   }
 
@@ -263,9 +270,23 @@ function slugify(text: string): string {
 
 export async function crearInmueble(
   input: NuevoInmuebleInput,
+  fotos: File[] = [],
+  onProgreso?: (subidas: number, total: number) => void,
 ): Promise<string> {
   const ref = `R-${Date.now().toString().slice(-6)}`;
   const slug = `${slugify(input.titulo)}-${ref.toLowerCase()}`;
+
+  // Reservamos un ID de documento antes de subir nada, para usarlo como
+  // carpeta en Storage. setDoc(ref) creará el doc al final.
+  const docRef = doc(collection(db, COL));
+
+  // Subimos las fotos a Storage (la primera = portada).
+  const fotosSubidas: FotoInmueble[] = [];
+  for (let i = 0; i < fotos.length; i++) {
+    const subida = await subirFotoInmueble(docRef.id, fotos[i], i, i === 0);
+    fotosSubidas.push(subida);
+    onProgreso?.(i + 1, fotos.length);
+  }
 
   const docData = {
     ref,
@@ -303,7 +324,7 @@ export async function crearInmueble(
     descripcion: input.descripcion,
     caracteristicas: [],
     multimedia: {
-      fotos: [],
+      fotos: fotosSubidas,
       videoUrl: null,
       tour360Url: null,
       planoUrl: null,
@@ -316,7 +337,7 @@ export async function crearInmueble(
     fechaPublicacion: input.estado === "activo" ? serverTimestamp() : null,
   };
 
-  const docRef = await addDoc(collection(db, COL), docData);
+  await setDoc(docRef, docData);
   return docRef.id;
 }
 

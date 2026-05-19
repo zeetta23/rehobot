@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { FirebaseError } from "firebase/app";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import {
@@ -46,12 +47,24 @@ const CALIFICACIONES: CalificacionEnergetica[] = [
   "en_tramite",
 ];
 
+const MAX_FOTOS = 30;
+const TAMANO_MAX_MB = 10;
+
+interface FotoSeleccionada {
+  id: string;
+  file: File;
+  previewUrl: string;
+}
+
 export default function NuevoInmueblePage() {
   const router = useRouter();
   const { user } = useAuth();
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [progreso, setProgreso] = useState<{ subidas: number; total: number } | null>(null);
+
+  const [fotos, setFotos] = useState<FotoSeleccionada[]>([]);
 
   const [form, setForm] = useState<NuevoInmuebleInput>({
     titulo: "",
@@ -71,11 +84,74 @@ export default function NuevoInmueblePage() {
     agente: user?.uid ?? "",
   });
 
+  // Limpieza de URLs de preview al desmontar para evitar leak de memoria.
+  useEffect(() => {
+    return () => {
+      fotos.forEach((f) => URL.revokeObjectURL(f.previewUrl));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function update<K extends keyof NuevoInmuebleInput>(
     key: K,
     value: NuevoInmuebleInput[K],
   ) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  function handleAddFotos(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length === 0) return;
+
+    const nuevas: FotoSeleccionada[] = [];
+    const errores: string[] = [];
+
+    for (const file of files) {
+      if (fotos.length + nuevas.length >= MAX_FOTOS) {
+        errores.push(`Máximo ${MAX_FOTOS} fotos por inmueble.`);
+        break;
+      }
+      if (!file.type.startsWith("image/")) {
+        errores.push(`"${file.name}" no es una imagen.`);
+        continue;
+      }
+      if (file.size > TAMANO_MAX_MB * 1024 * 1024) {
+        errores.push(`"${file.name}" supera ${TAMANO_MAX_MB} MB.`);
+        continue;
+      }
+      nuevas.push({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+      });
+    }
+
+    if (errores.length > 0) setError(errores.join(" "));
+    else setError(null);
+
+    setFotos((prev) => [...prev, ...nuevas]);
+    // Resetea el input para poder volver a seleccionar el mismo archivo.
+    e.target.value = "";
+  }
+
+  function eliminarFoto(id: string) {
+    setFotos((prev) => {
+      const foto = prev.find((f) => f.id === id);
+      if (foto) URL.revokeObjectURL(foto.previewUrl);
+      return prev.filter((f) => f.id !== id);
+    });
+  }
+
+  function moverFoto(id: string, direccion: "izq" | "der") {
+    setFotos((prev) => {
+      const idx = prev.findIndex((f) => f.id === id);
+      if (idx === -1) return prev;
+      const nuevoIdx = direccion === "izq" ? idx - 1 : idx + 1;
+      if (nuevoIdx < 0 || nuevoIdx >= prev.length) return prev;
+      const copia = [...prev];
+      [copia[idx], copia[nuevoIdx]] = [copia[nuevoIdx], copia[idx]];
+      return copia;
+    });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -86,25 +162,33 @@ export default function NuevoInmueblePage() {
     }
     setError(null);
     setSubmitting(true);
+    setProgreso(fotos.length > 0 ? { subidas: 0, total: fotos.length } : null);
     try {
-      const id = await crearInmueble({ ...form, agente: user.uid });
+      const id = await crearInmueble(
+        { ...form, agente: user.uid },
+        fotos.map((f) => f.file),
+        (subidas, total) => setProgreso({ subidas, total }),
+      );
+      // Limpia URLs antes de navegar.
+      fotos.forEach((f) => URL.revokeObjectURL(f.previewUrl));
       router.push(`/admin/inmuebles?creado=${id}`);
     } catch (err) {
       if (err instanceof FirebaseError) {
         setError(
           err.code === "permission-denied"
             ? "Tu usuario no tiene permisos para crear inmuebles. ¿Has creado el documento usuarios/{tu UID} con rol admin?"
-            : `Error de Firestore: ${err.code}`,
+            : `Error de Firebase: ${err.code}`,
         );
       } else if (err instanceof DOMException && err.name === "AbortError") {
         setError(
-          "La operación se canceló (suele pasar con recarga del dev server). Verifica en el listado: si tu inmueble aparece, ya está creado. Si no, vuelve a intentarlo.",
+          "La operación se canceló. Verifica en el listado por si se guardó parcialmente. Si no aparece, vuelve a intentarlo.",
         );
       } else {
-        setError("No se pudo crear el inmueble.");
+        setError("No se pudo crear el inmueble. Revisa tu conexión y vuelve a intentar.");
       }
     } finally {
       setSubmitting(false);
+      setProgreso(null);
     }
   }
 
@@ -382,6 +466,94 @@ export default function NuevoInmueblePage() {
           />
         </section>
 
+        {/* Fotos */}
+        <section className="rounded-2xl border border-black/5 bg-white p-6">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 className="font-display text-lg font-semibold text-navy">
+                Fotos
+              </h2>
+              <p className="mt-1 font-body text-xs text-gray-text">
+                Máximo {MAX_FOTOS} fotos · hasta {TAMANO_MAX_MB} MB cada una ·
+                la primera será la portada.
+              </p>
+            </div>
+            <label className="cursor-pointer rounded-full border border-navy/15 px-4 py-2 font-body text-sm text-navy hover:bg-navy hover:text-white">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleAddFotos}
+                className="hidden"
+              />
+              + Añadir fotos
+            </label>
+          </div>
+
+          {fotos.length === 0 ? (
+            <div className="mt-6 rounded-xl border border-dashed border-navy/20 bg-cream/50 px-6 py-12 text-center">
+              <p className="font-body text-sm text-gray-text">
+                Sin fotos todavía. Añade al menos una para que el inmueble se
+                vea bien en la web.
+              </p>
+            </div>
+          ) : (
+            <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {fotos.map((foto, idx) => (
+                <li
+                  key={foto.id}
+                  className="group relative overflow-hidden rounded-xl border border-black/10"
+                >
+                  <div className="relative aspect-[4/3] w-full bg-cream">
+                    <Image
+                      src={foto.previewUrl}
+                      alt={`Foto ${idx + 1}`}
+                      fill
+                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                  {idx === 0 && (
+                    <span className="absolute left-2 top-2 rounded-full bg-gold px-2 py-0.5 font-body text-[10px] font-semibold uppercase tracking-wider text-navy">
+                      Portada
+                    </span>
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 flex justify-between gap-1 bg-gradient-to-t from-black/70 to-transparent px-2 py-2 opacity-0 transition-opacity group-hover:opacity-100">
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => moverFoto(foto.id, "izq")}
+                        disabled={idx === 0}
+                        className="rounded-md bg-white/90 px-2 py-1 font-body text-xs text-navy disabled:cursor-not-allowed disabled:opacity-50"
+                        aria-label="Mover izquierda"
+                      >
+                        ←
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moverFoto(foto.id, "der")}
+                        disabled={idx === fotos.length - 1}
+                        className="rounded-md bg-white/90 px-2 py-1 font-body text-xs text-navy disabled:cursor-not-allowed disabled:opacity-50"
+                        aria-label="Mover derecha"
+                      >
+                        →
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => eliminarFoto(foto.id)}
+                      className="rounded-md bg-red-600/90 px-2 py-1 font-body text-xs text-white"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
         {/* Publicación */}
         <section className="rounded-2xl border border-black/5 bg-white p-6">
           <h2 className="font-display text-lg font-semibold text-navy">
@@ -423,7 +595,11 @@ export default function NuevoInmueblePage() {
             disabled={submitting}
             className="rounded-full bg-navy px-6 py-3 font-body text-sm font-medium text-white transition-colors hover:bg-navy-medium disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {submitting ? "Guardando…" : "Guardar inmueble"}
+            {submitting
+              ? progreso
+                ? `Subiendo fotos… (${progreso.subidas}/${progreso.total})`
+                : "Guardando…"
+              : "Guardar inmueble"}
           </button>
           <Link
             href="/admin/inmuebles"

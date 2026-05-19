@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   listarInmueblesPublicos,
   formatPrecio,
@@ -152,14 +153,19 @@ export default async function InmueblesPage({
                   href={`/inmueble/${p.slug}`}
                   className="overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-xl"
                 >
-                  <div
-                    className="aspect-[4/3] bg-gradient-to-br from-navy/10 to-gold/20 bg-cover bg-center"
-                    style={
-                      p.fotoPortada
-                        ? { backgroundImage: `url(${p.fotoPortada})` }
-                        : undefined
-                    }
-                  />
+                  <div className="relative aspect-[4/3] bg-cream">
+                    {p.fotoPortada ? (
+                      <Image
+                        src={p.fotoPortada}
+                        alt={p.titulo}
+                        fill
+                        sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-navy/10 to-gold/20" />
+                    )}
+                  </div>
                   <div className="p-5">
                     <p className="font-body text-xs uppercase tracking-widest text-gray-text">
                       {p.municipio}

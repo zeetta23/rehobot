@@ -46,6 +46,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Claude Code (config local por usuario, no compartir)
+.claude/
+
 # IDEs / editores
 .vscode/*
 !.vscode/settings.json
