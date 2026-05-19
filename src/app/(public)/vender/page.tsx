@@ -1,4 +1,10 @@
-import Link from "next/link";
+import { ValoracionForm } from "@/components/forms/ValoracionForm";
+
+const HERO_BULLETS = [
+  "Valoración gratis y sin compromiso",
+  "Más de 15 años de experiencia en la zona",
+  "Honorarios solo al vender",
+];
 
 const PASOS = [
   {
@@ -37,21 +43,42 @@ const BENEFICIOS = [
 export default function VenderPage() {
   return (
     <>
-      {/* HERO */}
+      {/* HERO con formulario integrado */}
       <section className="bg-navy text-white">
-        <div className="mx-auto max-w-7xl px-6 py-20 sm:py-28">
-          <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
-            Para propietarios
-          </p>
-          <h1 className="mt-4 max-w-3xl font-display text-5xl font-semibold leading-tight sm:text-6xl">
-            Vendemos tu casa al{" "}
-            <span className="text-gold">mejor precio</span>
-          </h1>
-          <p className="mt-6 max-w-xl font-body text-base text-white/70 sm:text-lg">
-            Tasación gratuita y sin compromiso. Te acompañamos durante todo el
-            proceso de venta, desde la valoración inicial hasta la firma ante
-            notario.
-          </p>
+        <div className="mx-auto max-w-7xl px-6 py-16 lg:py-24">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_460px] lg:items-start">
+            {/* Texto */}
+            <div>
+              <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
+                Para propietarios
+              </p>
+              <h1 className="mt-4 max-w-2xl font-display text-5xl font-semibold leading-tight sm:text-6xl">
+                Vendemos tu casa al{" "}
+                <span className="text-gold">mejor precio</span>
+              </h1>
+              <p className="mt-6 max-w-xl font-body text-base text-white/70 sm:text-lg">
+                Tasación gratuita y sin compromiso. Te acompañamos durante todo
+                el proceso de venta, desde la valoración inicial hasta la firma
+                ante notario.
+              </p>
+              <ul className="mt-8 space-y-3">
+                {HERO_BULLETS.map((b) => (
+                  <li
+                    key={b}
+                    className="flex items-center gap-3 font-body text-base text-white/90"
+                  >
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gold/20 text-gold">
+                      ✓
+                    </span>
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Formulario */}
+            <ValoracionForm />
+          </div>
         </div>
       </section>
 
@@ -87,10 +114,7 @@ export default function VenderPage() {
           </h2>
           <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             {PASOS.map((p) => (
-              <div
-                key={p.num}
-                className="rounded-2xl bg-white p-6 shadow-sm"
-              >
+              <div key={p.num} className="rounded-2xl bg-white p-6 shadow-sm">
                 <p className="font-display text-3xl font-semibold text-gold">
                   {p.num}
                 </p>
@@ -106,80 +130,20 @@ export default function VenderPage() {
         </div>
       </section>
 
-      {/* FORM */}
-      <section className="mx-auto max-w-3xl px-6 py-24">
-        <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
-          Empieza ahora
-        </p>
-        <h2 className="mt-3 font-display text-3xl font-semibold text-navy sm:text-4xl">
-          Solicita tu valoración gratis
+      {/* CTA final con anchor al hero */}
+      <section className="mx-auto max-w-3xl px-6 py-16 text-center">
+        <h2 className="font-display text-2xl font-semibold text-navy">
+          ¿Listo para vender al mejor precio?
         </h2>
         <p className="mt-3 font-body text-sm text-gray-text">
-          Rellena estos datos y te contactamos en menos de 24 horas.
+          Sube arriba y rellena el formulario en menos de un minuto.
         </p>
-
-        <form className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <input
-            type="text"
-            placeholder="Nombre y apellidos"
-            className="rounded-lg border border-black/10 px-4 py-3 font-body text-sm outline-none focus:border-navy sm:col-span-2"
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            className="rounded-lg border border-black/10 px-4 py-3 font-body text-sm outline-none focus:border-navy"
-          />
-          <input
-            type="tel"
-            placeholder="Teléfono"
-            className="rounded-lg border border-black/10 px-4 py-3 font-body text-sm outline-none focus:border-navy"
-          />
-          <select className="rounded-lg border border-black/10 bg-white px-4 py-3 font-body text-sm outline-none focus:border-navy">
-            <option>Tipo de inmueble</option>
-            <option>Piso</option>
-            <option>Chalet</option>
-            <option>Local</option>
-            <option>Garaje</option>
-          </select>
-          <input
-            type="text"
-            placeholder="Municipio"
-            className="rounded-lg border border-black/10 px-4 py-3 font-body text-sm outline-none focus:border-navy"
-          />
-          <input
-            type="text"
-            placeholder="Dirección aproximada"
-            className="rounded-lg border border-black/10 px-4 py-3 font-body text-sm outline-none focus:border-navy sm:col-span-2"
-          />
-          <input
-            type="number"
-            placeholder="m² aproximados"
-            className="rounded-lg border border-black/10 px-4 py-3 font-body text-sm outline-none focus:border-navy"
-          />
-          <input
-            type="number"
-            placeholder="Habitaciones"
-            className="rounded-lg border border-black/10 px-4 py-3 font-body text-sm outline-none focus:border-navy"
-          />
-          <textarea
-            rows={3}
-            placeholder="Cuéntanos algo más (opcional)"
-            className="rounded-lg border border-black/10 px-4 py-3 font-body text-sm outline-none focus:border-navy sm:col-span-2"
-          />
-          <label className="flex items-start gap-2 font-body text-xs text-gray-text sm:col-span-2">
-            <input type="checkbox" className="mt-0.5 accent-gold" /> He leído
-            y acepto la{" "}
-            <Link href="/privacidad" className="underline">
-              política de privacidad
-            </Link>
-          </label>
-          <button
-            type="submit"
-            className="rounded-full bg-navy px-6 py-3 font-body text-sm font-medium text-white transition-colors hover:bg-navy-medium sm:col-span-2"
-          >
-            Solicitar valoración
-          </button>
-        </form>
+        <a
+          href="#top"
+          className="mt-6 inline-flex rounded-full bg-navy px-6 py-3 font-body text-sm font-medium text-white transition-colors hover:bg-navy-medium"
+        >
+          Solicitar valoración ↑
+        </a>
       </section>
     </>
   );

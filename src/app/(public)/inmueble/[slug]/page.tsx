@@ -5,6 +5,7 @@ import {
   obtenerInmueblePorSlug,
   formatPrecio,
 } from "@/lib/firestore/inmuebles";
+import { InteresInmuebleForm } from "@/components/forms/InteresInmuebleForm";
 import type { CalificacionEnergetica } from "@/lib/types";
 
 export const revalidate = 60;
@@ -265,57 +266,15 @@ export default async function FichaInmueblePage({
 
         {/* FORMULARIO CONTACTO */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
-            <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
-              Te interesa este inmueble
-            </p>
-            <h3 className="mt-2 font-display text-xl font-semibold text-navy">
-              Contacta con el agente
-            </h3>
-
-            <form className="mt-5 space-y-3">
-              <input
-                type="text"
-                placeholder="Tu nombre"
-                className="w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
-              />
-              <input
-                type="tel"
-                placeholder="Teléfono"
-                className="w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
-              />
-              <textarea
-                rows={3}
-                defaultValue={`Hola, estoy interesad@ en el inmueble ${inmueble.ref} (${inmueble.titulo}). ¿Podríamos concertar una visita?`}
-                className="w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
-              />
-              <label className="flex items-start gap-2 font-body text-xs text-gray-text">
-                <input type="checkbox" className="mt-0.5 accent-gold" />
-                He leído y acepto la{" "}
-                <Link href="/privacidad" className="underline">
-                  política de privacidad
-                </Link>
-              </label>
-              <button
-                type="submit"
-                disabled
-                className="w-full cursor-not-allowed rounded-full bg-navy py-3 font-body text-sm font-medium text-white opacity-70"
-              >
-                Enviar consulta (próximamente)
-              </button>
-              <a
-                href="https://wa.me/34916000000"
-                className="flex w-full items-center justify-center gap-2 rounded-full border border-gold py-3 font-body text-sm font-medium text-navy transition-colors hover:bg-gold/10"
-              >
-                WhatsApp directo
-              </a>
-            </form>
-          </div>
+          <InteresInmuebleForm
+            inmuebleId={inmueble.id}
+            inmuebleRef={inmueble.ref}
+            inmuebleTitulo={inmueble.titulo}
+            agenteAsignado={null}
+            whatsappUrl={`https://wa.me/34916000000?text=${encodeURIComponent(
+              `Hola, me interesa el inmueble ${inmueble.ref} (${inmueble.titulo}).`,
+            )}`}
+          />
         </aside>
       </div>
     </article>

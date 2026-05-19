@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { ContactoForm } from "@/components/forms/ContactoForm";
 
 export default function ContactoPage() {
   return (
@@ -78,56 +78,7 @@ export default function ContactoPage() {
 
         {/* FORM */}
         <aside>
-          <div className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
-            <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
-              Escríbenos
-            </p>
-            <h2 className="mt-2 font-display text-2xl font-semibold text-navy">
-              ¿En qué te ayudamos?
-            </h2>
-
-            <form className="mt-6 space-y-3">
-              <input
-                type="text"
-                placeholder="Tu nombre"
-                className="w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
-              />
-              <input
-                type="tel"
-                placeholder="Teléfono (opcional)"
-                className="w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
-              />
-              <select className="w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 font-body text-sm outline-none focus:border-navy">
-                <option>Motivo del contacto</option>
-                <option>Quiero comprar</option>
-                <option>Quiero vender</option>
-                <option>Otro</option>
-              </select>
-              <textarea
-                rows={4}
-                placeholder="Mensaje"
-                className="w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
-              />
-              <label className="flex items-start gap-2 font-body text-xs text-gray-text">
-                <input type="checkbox" className="mt-0.5 accent-gold" /> He
-                leído y acepto la{" "}
-                <Link href="/privacidad" className="underline">
-                  política de privacidad
-                </Link>
-              </label>
-              <button
-                type="submit"
-                className="w-full rounded-full bg-navy py-3 font-body text-sm font-medium text-white transition-colors hover:bg-navy-medium"
-              >
-                Enviar mensaje
-              </button>
-            </form>
-          </div>
+          <ContactoForm />
         </aside>
       </div>
     </>

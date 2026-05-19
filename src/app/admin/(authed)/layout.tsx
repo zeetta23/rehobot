@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 const NAV_ITEMS = [
   { href: "/admin", label: "Resumen", enabled: true },
   { href: "/admin/inmuebles", label: "Inmuebles", enabled: true },
-  { href: "/admin/leads", label: "Leads", enabled: false },
+  { href: "/admin/leads", label: "Leads", enabled: true },
   { href: "/admin/agentes", label: "Agentes", enabled: false },
   { href: "/admin/ajustes", label: "Ajustes", enabled: false },
 ];
