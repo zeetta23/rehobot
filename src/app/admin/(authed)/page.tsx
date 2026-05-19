@@ -1,10 +1,28 @@
 import Link from "next/link";
 import { contarInmueblesActivos } from "@/lib/firestore/inmuebles";
+import { obtenerKpisLeads } from "@/lib/firestore/leads";
 
 export const revalidate = 30;
 
+function formatearDuracion(ms: number): string {
+  if (ms <= 0) return "—";
+  const min = Math.floor(ms / 60_000);
+  if (min < 60) return `${min} min`;
+  const horas = Math.floor(min / 60);
+  if (horas < 24) return `${horas} h`;
+  const dias = Math.floor(horas / 24);
+  return `${dias} d`;
+}
+
 export default async function AdminDashboard() {
-  const activos = await contarInmueblesActivos().catch(() => 0);
+  const [activos, kpis] = await Promise.all([
+    contarInmueblesActivos().catch(() => 0),
+    obtenerKpisLeads().catch(() => ({
+      totalMes: 0,
+      totalNuevos: 0,
+      tiempoRespuestaMedioMs: null,
+    })),
+  ]);
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">
@@ -27,9 +45,27 @@ export default async function AdminDashboard() {
             value: String(activos),
             hint: "Publicados ahora mismo",
           },
-          { label: "Leads del mes", value: "0", hint: "Pendiente conectar" },
-          { label: "Vistas del mes", value: "0", hint: "Pendiente conectar" },
-          { label: "Ventas del año", value: "0", hint: "Pendiente conectar" },
+          {
+            label: "Leads del mes",
+            value: String(kpis.totalMes),
+            hint:
+              kpis.totalNuevos > 0
+                ? `${kpis.totalNuevos} sin contactar`
+                : "Mes en curso",
+          },
+          {
+            label: "Tiempo medio resp.",
+            value:
+              kpis.tiempoRespuestaMedioMs !== null
+                ? formatearDuracion(kpis.tiempoRespuestaMedioMs)
+                : "—",
+            hint: "Hasta el primer contacto",
+          },
+          {
+            label: "Ventas del año",
+            value: "0",
+            hint: "Pendiente conectar",
+          },
         ].map((kpi) => (
           <div
             key={kpi.label}
@@ -41,9 +77,7 @@ export default async function AdminDashboard() {
             <p className="mt-3 font-display text-3xl font-semibold text-navy">
               {kpi.value}
             </p>
-            <p className="mt-1 font-body text-xs text-gray-text">
-              {kpi.hint}
-            </p>
+            <p className="mt-1 font-body text-xs text-gray-text">{kpi.hint}</p>
           </div>
         ))}
       </div>
@@ -73,14 +107,22 @@ export default async function AdminDashboard() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-dashed border-navy/20 bg-white p-8">
+        <section className="rounded-2xl border border-black/5 bg-white p-8">
           <h2 className="font-display text-xl font-semibold text-navy">
-            Leads recibidos
+            Leads
           </h2>
           <p className="mt-2 font-body text-sm text-gray-text">
-            Aquí aparecerán los contactos que lleguen desde la web.
-            Próximamente disponible.
+            Revisa los contactos que han llegado desde la web. Cambia su
+            estado, añade notas y asígnalos a un agente.
           </p>
+          <div className="mt-6">
+            <Link
+              href="/admin/leads"
+              className="rounded-full bg-navy px-5 py-2.5 font-body text-sm font-medium text-white hover:bg-navy-medium"
+            >
+              Ver leads {kpis.totalNuevos > 0 && `(${kpis.totalNuevos} nuevos)`}
+            </Link>
+          </div>
         </section>
       </div>
     </div>

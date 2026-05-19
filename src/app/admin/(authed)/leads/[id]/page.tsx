@@ -8,11 +8,18 @@ import {
   obtenerLeadPorId,
   actualizarEstadoLead,
   anadirNotaLead,
+  asignarAgenteLead,
+  buscarDuplicadosPorContacto,
   labelTipoLead,
   labelEstadoLead,
   colorEstadoLead,
   type LeadDetalle,
+  type LeadListadoItem,
 } from "@/lib/firestore/leads";
+import {
+  listarStaff,
+  type UsuarioStaff,
+} from "@/lib/firestore/usuarios";
 import type { EstadoLead } from "@/lib/types";
 
 const ESTADOS: EstadoLead[] = [
@@ -46,6 +53,16 @@ function formatearFechaCorta(ms: number): string {
   }).format(new Date(ms));
 }
 
+function formatearDuracion(ms: number): string {
+  if (ms <= 0) return "—";
+  const min = Math.floor(ms / 60_000);
+  if (min < 60) return `${min} min`;
+  const horas = Math.floor(min / 60);
+  if (horas < 24) return `${horas} h ${min % 60} min`;
+  const dias = Math.floor(horas / 24);
+  return `${dias} d ${horas % 24} h`;
+}
+
 export default function FichaLeadPage({
   params,
 }: {
@@ -54,18 +71,34 @@ export default function FichaLeadPage({
   const { id } = use(params);
   const { user } = useAuth();
   const [lead, setLead] = useState<LeadDetalle | null>(null);
+  const [duplicados, setDuplicados] = useState<LeadListadoItem[]>([]);
+  const [staff, setStaff] = useState<UsuarioStaff[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [savingEstado, setSavingEstado] = useState(false);
+  const [savingAgente, setSavingAgente] = useState(false);
   const [notaTexto, setNotaTexto] = useState("");
   const [savingNota, setSavingNota] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function recargar() {
     obtenerLeadPorId(id)
-      .then((data) => {
-        if (!data) setNotFound(true);
-        else setLead(data);
+      .then(async (data) => {
+        if (!data) {
+          setNotFound(true);
+          return;
+        }
+        setLead(data);
+        try {
+          const dups = await buscarDuplicadosPorContacto(
+            data.email,
+            data.telefono,
+            data.id,
+          );
+          setDuplicados(dups);
+        } catch {
+          setDuplicados([]);
+        }
       })
       .catch((err: unknown) => {
         if (err instanceof FirebaseError) {
@@ -79,6 +112,9 @@ export default function FichaLeadPage({
 
   useEffect(() => {
     recargar();
+    listarStaff()
+      .then(setStaff)
+      .catch(() => setStaff([]));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -88,7 +124,13 @@ export default function FichaLeadPage({
     setError(null);
     try {
       await actualizarEstadoLead(id, nuevo);
-      setLead({ ...lead, estado: nuevo });
+      // Si pasamos de "nuevo" a otro estado, recargamos para coger
+      // fechaContactado actualizada.
+      if (lead.estado === "nuevo" && nuevo !== "nuevo") {
+        recargar();
+      } else {
+        setLead({ ...lead, estado: nuevo });
+      }
     } catch (err) {
       if (err instanceof FirebaseError) {
         setError(`No se pudo actualizar: ${err.code}`);
@@ -97,6 +139,24 @@ export default function FichaLeadPage({
       }
     } finally {
       setSavingEstado(false);
+    }
+  }
+
+  async function cambiarAgente(uid: string) {
+    if (!lead) return;
+    setSavingAgente(true);
+    setError(null);
+    try {
+      await asignarAgenteLead(id, uid || null);
+      setLead({ ...lead, agenteAsignado: uid || null });
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        setError(`No se pudo asignar agente: ${err.code}`);
+      } else {
+        setError("No se pudo asignar el agente.");
+      }
+    } finally {
+      setSavingAgente(false);
     }
   }
 
@@ -176,6 +236,34 @@ export default function FichaLeadPage({
         <p className="mt-6 rounded-lg bg-red-50 px-4 py-3 font-body text-sm text-red-700">
           {error}
         </p>
+      )}
+
+      {duplicados.length > 0 && (
+        <div className="mt-6 rounded-2xl border border-yellow-200 bg-yellow-50 p-4">
+          <p className="font-body text-xs font-semibold uppercase tracking-widest text-yellow-800">
+            ⚠ Posible duplicado
+          </p>
+          <p className="mt-2 font-body text-sm text-yellow-900">
+            Hay {duplicados.length} {duplicados.length === 1 ? "lead" : "leads"}{" "}
+            con el mismo email o teléfono:
+          </p>
+          <ul className="mt-3 space-y-1">
+            {duplicados.map((d) => (
+              <li key={d.id}>
+                <Link
+                  href={`/admin/leads/${d.id}`}
+                  className="font-body text-sm text-yellow-900 underline-offset-4 hover:underline"
+                >
+                  {d.nombre} · {labelTipoLead(d.tipo)} ·{" "}
+                  {formatearFechaCorta(d.fechaCreacionMs)} ·{" "}
+                  <span className="font-medium">
+                    {labelEstadoLead(d.estado)}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
@@ -344,7 +432,7 @@ export default function FichaLeadPage({
           </section>
         </div>
 
-        {/* Sidebar: estado y origen */}
+        {/* Sidebar: estado, agente, KPI, origen */}
         <aside className="space-y-6 lg:sticky lg:top-6 lg:self-start">
           <section className="rounded-2xl border border-black/5 bg-white p-6">
             <h2 className="font-display text-base font-semibold text-navy">
@@ -367,6 +455,46 @@ export default function FichaLeadPage({
                 </button>
               ))}
             </div>
+            {lead.fechaContactadoMs > 0 && (
+              <div className="mt-4 border-t border-black/5 pt-4">
+                <p className="font-body text-xs uppercase tracking-widest text-gray-text">
+                  Tiempo de respuesta
+                </p>
+                <p className="mt-1 font-display text-lg font-semibold text-navy">
+                  {formatearDuracion(
+                    lead.fechaContactadoMs - lead.fechaCreacionMs,
+                  )}
+                </p>
+                <p className="mt-0.5 font-body text-[10px] text-gray-text">
+                  Tiempo desde la entrada hasta el primer cambio de estado.
+                </p>
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-2xl border border-black/5 bg-white p-6">
+            <h2 className="font-display text-base font-semibold text-navy">
+              Agente asignado
+            </h2>
+            <select
+              value={lead.agenteAsignado ?? ""}
+              onChange={(e) => cambiarAgente(e.target.value)}
+              disabled={savingAgente}
+              className="mt-3 w-full rounded-lg border border-black/10 bg-white px-3 py-2 font-body text-sm outline-none focus:border-navy disabled:opacity-50"
+            >
+              <option value="">Sin asignar</option>
+              {staff.map((s) => (
+                <option key={s.uid} value={s.uid}>
+                  {s.nombre} ({s.rol})
+                </option>
+              ))}
+            </select>
+            {staff.length === 0 && (
+              <p className="mt-2 font-body text-xs text-gray-text">
+                Aún no hay otros usuarios staff. Cuando crees agentes, los
+                podrás asignar desde aquí.
+              </p>
+            )}
           </section>
 
           <section className="rounded-2xl border border-black/5 bg-white p-6">

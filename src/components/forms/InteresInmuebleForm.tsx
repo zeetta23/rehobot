@@ -145,8 +145,10 @@ export function InteresInmuebleForm({
         />
         <textarea
           rows={3}
+          required
           value={form.mensaje}
           onChange={(e) => update("mensaje", e.target.value)}
+          placeholder="Mensaje *"
           className="w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
         />
         <label className="flex items-start gap-2 font-body text-xs text-gray-text">

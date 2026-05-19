@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { FirebaseError } from "firebase/app";
 import {
@@ -10,6 +10,7 @@ import {
   colorEstadoLead,
   type LeadListadoItem,
 } from "@/lib/firestore/leads";
+import { aCsv, descargarCsv } from "@/lib/csv";
 import type { EstadoLead, TipoLead } from "@/lib/types";
 
 const ESTADOS: { value: EstadoLead | ""; label: string }[] = [
@@ -38,12 +39,20 @@ function formatearFecha(ms: number): string {
   }).format(new Date(ms));
 }
 
+function formatearFechaISO(ms: number): string {
+  if (!ms) return "";
+  return new Date(ms).toISOString();
+}
+
 export default function AdminLeadsPage() {
   const [leads, setLeads] = useState<LeadListadoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filtroEstado, setFiltroEstado] = useState<EstadoLead | "">("");
   const [filtroTipo, setFiltroTipo] = useState<TipoLead | "">("");
+  const [desde, setDesde] = useState("");
+  const [hasta, setHasta] = useState("");
+  const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -62,7 +71,63 @@ export default function AdminLeadsPage() {
       .finally(() => setLoading(false));
   }, [filtroEstado, filtroTipo]);
 
-  const nuevos = leads.filter((l) => l.estado === "nuevo").length;
+  // Filtrado adicional en cliente (rango fechas + búsqueda libre).
+  const leadsVisibles = useMemo(() => {
+    let res = leads;
+    if (desde) {
+      const desdeMs = new Date(desde + "T00:00:00").getTime();
+      res = res.filter((l) => l.fechaCreacionMs >= desdeMs);
+    }
+    if (hasta) {
+      const hastaMs = new Date(hasta + "T23:59:59").getTime();
+      res = res.filter((l) => l.fechaCreacionMs <= hastaMs);
+    }
+    const q = busqueda.trim().toLowerCase();
+    if (q) {
+      res = res.filter(
+        (l) =>
+          l.nombre.toLowerCase().includes(q) ||
+          l.email.toLowerCase().includes(q) ||
+          l.telefono.toLowerCase().includes(q),
+      );
+    }
+    return res;
+  }, [leads, desde, hasta, busqueda]);
+
+  const nuevos = leadsVisibles.filter((l) => l.estado === "nuevo").length;
+
+  function limpiarFiltros() {
+    setFiltroEstado("");
+    setFiltroTipo("");
+    setDesde("");
+    setHasta("");
+    setBusqueda("");
+  }
+
+  function exportarCsv() {
+    const csv = aCsv(
+      leadsVisibles.map((l) => ({
+        fecha: formatearFechaISO(l.fechaCreacionMs),
+        nombre: l.nombre,
+        email: l.email,
+        telefono: l.telefono,
+        tipo: labelTipoLead(l.tipo),
+        sobre: l.inmuebleTitulo ?? "",
+        estado: labelEstadoLead(l.estado),
+      })),
+      [
+        { key: "fecha", label: "Fecha" },
+        { key: "nombre", label: "Nombre" },
+        { key: "email", label: "Email" },
+        { key: "telefono", label: "Teléfono" },
+        { key: "tipo", label: "Tipo" },
+        { key: "sobre", label: "Inmueble" },
+        { key: "estado", label: "Estado" },
+      ],
+    );
+    const stamp = new Date().toISOString().slice(0, 10);
+    descargarCsv(csv, `rehobot-leads-${stamp}.csv`);
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">
@@ -77,15 +142,30 @@ export default function AdminLeadsPage() {
           <p className="mt-2 font-body text-sm text-gray-text">
             {loading
               ? "Cargando…"
-              : `${leads.length} ${leads.length === 1 ? "lead" : "leads"}${
-                  nuevos > 0 ? ` · ${nuevos} sin contactar` : ""
-                }`}
+              : `${leadsVisibles.length} ${
+                  leadsVisibles.length === 1 ? "lead" : "leads"
+                }${nuevos > 0 ? ` · ${nuevos} sin contactar` : ""}`}
           </p>
         </div>
+        <button
+          type="button"
+          onClick={exportarCsv}
+          disabled={leadsVisibles.length === 0}
+          className="rounded-full border border-navy/15 px-4 py-2 font-body text-sm font-medium text-navy hover:bg-navy hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          ↓ Exportar CSV
+        </button>
       </div>
 
       {/* Filtros */}
-      <div className="mt-8 flex flex-wrap items-center gap-3">
+      <div className="mt-8 grid grid-cols-1 gap-3 rounded-2xl border border-black/5 bg-white p-4 lg:grid-cols-[1fr_180px_180px_160px_160px_auto]">
+        <input
+          type="text"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder="Buscar por nombre, email o teléfono…"
+          className="rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
+        />
         <select
           value={filtroEstado}
           onChange={(e) => setFiltroEstado(e.target.value as EstadoLead | "")}
@@ -108,6 +188,31 @@ export default function AdminLeadsPage() {
             </option>
           ))}
         </select>
+        <label className="flex items-center gap-2">
+          <span className="font-body text-xs text-gray-text">Desde</span>
+          <input
+            type="date"
+            value={desde}
+            onChange={(e) => setDesde(e.target.value)}
+            className="flex-1 rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
+          />
+        </label>
+        <label className="flex items-center gap-2">
+          <span className="font-body text-xs text-gray-text">Hasta</span>
+          <input
+            type="date"
+            value={hasta}
+            onChange={(e) => setHasta(e.target.value)}
+            className="flex-1 rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={limpiarFiltros}
+          className="rounded-lg border border-navy/15 px-3 py-2 font-body text-sm text-navy hover:bg-cream"
+        >
+          Limpiar
+        </button>
       </div>
 
       {error && (
@@ -116,19 +221,22 @@ export default function AdminLeadsPage() {
         </p>
       )}
 
-      {!loading && !error && leads.length === 0 && (
+      {!loading && !error && leadsVisibles.length === 0 && (
         <div className="mt-12 rounded-2xl border border-dashed border-navy/20 bg-white p-16 text-center">
           <p className="font-display text-2xl font-semibold text-navy">
-            Sin leads todavía
+            {leads.length === 0
+              ? "Sin leads todavía"
+              : "Sin resultados para esos filtros"}
           </p>
           <p className="mt-3 font-body text-sm text-gray-text">
-            Aquí aparecerán los contactos que lleguen desde los formularios
-            de la web pública.
+            {leads.length === 0
+              ? "Aquí aparecerán los contactos que lleguen desde los formularios de la web pública."
+              : "Prueba a ampliar el rango de fechas o vaciar la búsqueda."}
           </p>
         </div>
       )}
 
-      {!loading && !error && leads.length > 0 && (
+      {!loading && !error && leadsVisibles.length > 0 && (
         <div className="mt-8 overflow-x-auto rounded-2xl border border-black/5 bg-white">
           <table className="w-full text-left">
             <thead className="border-b border-black/5 bg-cream/50">
@@ -155,7 +263,7 @@ export default function AdminLeadsPage() {
               </tr>
             </thead>
             <tbody>
-              {leads.map((l) => (
+              {leadsVisibles.map((l) => (
                 <tr
                   key={l.id}
                   className="border-b border-black/5 transition-colors hover:bg-cream/30"

@@ -138,11 +138,12 @@ export function ValoracionForm() {
           className="rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
         />
         <select
+          required
           value={form.tipoInmuebleVender}
           onChange={(e) => update("tipoInmuebleVender", e.target.value)}
           className="rounded-lg border border-black/10 bg-white px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
         >
-          <option value="">Tipo de inmueble</option>
+          <option value="">Tipo de inmueble *</option>
           <option value="piso">Piso</option>
           <option value="chalet">Chalet</option>
           <option value="local">Local</option>
@@ -150,15 +151,17 @@ export function ValoracionForm() {
         </select>
         <input
           type="text"
-          placeholder="Municipio"
+          placeholder="Municipio *"
+          required
           value={form.municipio}
           onChange={(e) => update("municipio", e.target.value)}
           className="rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
         />
         <input
           type="number"
-          min={0}
-          placeholder="m² aproximados"
+          min={1}
+          required
+          placeholder="m² aproximados *"
           value={form.metrosVender}
           onChange={(e) => update("metrosVender", e.target.value)}
           className="rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy sm:col-span-2"

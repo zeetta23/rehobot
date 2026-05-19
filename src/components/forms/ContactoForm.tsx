@@ -122,17 +122,19 @@ export function ContactoForm() {
         />
         <input
           type="tel"
-          placeholder="Teléfono (opcional)"
+          placeholder="Teléfono *"
+          required
           value={form.telefono}
           onChange={(e) => update("telefono", e.target.value)}
           className="w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
         />
         <select
+          required
           value={form.motivo}
           onChange={(e) => update("motivo", e.target.value)}
           className="w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
         >
-          <option value="">Motivo del contacto</option>
+          <option value="">Motivo del contacto *</option>
           <option value="Quiero comprar">Quiero comprar</option>
           <option value="Quiero vender">Quiero vender</option>
           <option value="Otro">Otro</option>

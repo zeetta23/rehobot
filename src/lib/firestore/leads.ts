@@ -157,6 +157,7 @@ export interface LeadDetalle extends LeadListadoItem {
   notas: NotaLead[];
   origen: { pagina: string; referer: string | null; userAgent: string | null };
   fechaActualizacionMs: number;
+  fechaContactadoMs: number;
 }
 
 export async function obtenerLeadPorId(
@@ -184,6 +185,10 @@ export async function obtenerLeadPorId(
       typeof data.fechaActualizacion?.toMillis === "function"
         ? data.fechaActualizacion.toMillis()
         : 0,
+    fechaContactadoMs:
+      typeof data.fechaContactado?.toMillis === "function"
+        ? data.fechaContactado.toMillis()
+        : 0,
   };
 }
 
@@ -191,10 +196,100 @@ export async function actualizarEstadoLead(
   id: string,
   estado: EstadoLead,
 ): Promise<void> {
-  await updateDoc(doc(db, COL, id), {
+  const payload: Record<string, unknown> = {
     estado,
     fechaActualizacion: serverTimestamp(),
+  };
+  // Si pasamos de "nuevo" a otro estado, registramos cuándo se contactó por
+  // primera vez para calcular el tiempo de respuesta.
+  if (estado !== "nuevo") {
+    payload.fechaContactado = serverTimestamp();
+  }
+  await updateDoc(doc(db, COL, id), payload);
+}
+
+export async function asignarAgenteLead(
+  id: string,
+  agenteUid: string | null,
+): Promise<void> {
+  await updateDoc(doc(db, COL, id), {
+    agenteAsignado: agenteUid,
+    fechaActualizacion: serverTimestamp(),
   });
+}
+
+export interface KpiLeads {
+  totalMes: number;
+  totalNuevos: number;
+  tiempoRespuestaMedioMs: number | null;
+}
+
+export async function obtenerKpisLeads(): Promise<KpiLeads> {
+  const snap = await getDocs(collection(db, COL));
+  const ahora = Date.now();
+  const inicioMes = new Date();
+  inicioMes.setDate(1);
+  inicioMes.setHours(0, 0, 0, 0);
+  const inicioMesMs = inicioMes.getTime();
+
+  let totalMes = 0;
+  let totalNuevos = 0;
+  let sumaResp = 0;
+  let countResp = 0;
+
+  snap.docs.forEach((d) => {
+    const data = d.data();
+    const creacionMs =
+      typeof data.fechaCreacion?.toMillis === "function"
+        ? data.fechaCreacion.toMillis()
+        : 0;
+    const contactoMs =
+      typeof data.fechaContactado?.toMillis === "function"
+        ? data.fechaContactado.toMillis()
+        : 0;
+
+    if (creacionMs >= inicioMesMs && creacionMs <= ahora) totalMes++;
+    if (data.estado === "nuevo") totalNuevos++;
+    if (contactoMs > 0 && creacionMs > 0 && contactoMs > creacionMs) {
+      sumaResp += contactoMs - creacionMs;
+      countResp++;
+    }
+  });
+
+  return {
+    totalMes,
+    totalNuevos,
+    tiempoRespuestaMedioMs: countResp > 0 ? sumaResp / countResp : null,
+  };
+}
+
+export async function buscarDuplicadosPorContacto(
+  email: string,
+  telefono: string,
+  excluyendoId: string,
+): Promise<LeadListadoItem[]> {
+  const resultados = new Map<string, LeadListadoItem>();
+
+  if (email) {
+    const snap = await getDocs(
+      query(collection(db, COL), where("email", "==", email.toLowerCase())),
+    );
+    snap.docs.forEach((d) => {
+      if (d.id !== excluyendoId) resultados.set(d.id, mapLeadListado(d));
+    });
+  }
+  if (telefono) {
+    const snap = await getDocs(
+      query(collection(db, COL), where("telefono", "==", telefono)),
+    );
+    snap.docs.forEach((d) => {
+      if (d.id !== excluyendoId) resultados.set(d.id, mapLeadListado(d));
+    });
+  }
+
+  return Array.from(resultados.values()).sort(
+    (a, b) => b.fechaCreacionMs - a.fechaCreacionMs,
+  );
 }
 
 export async function anadirNotaLead(
