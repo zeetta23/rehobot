@@ -53,4 +53,5 @@ No en v1: login de clientes, favoritos, comparador, multiidioma, calculadora hip
 - Repo Git inicializado, conectado a GitHub: `https://github.com/zeetta23/rehobot` (privado).
 - Proyecto Next.js 16 scaffoldeado en la raíz (App Router, TypeScript, Tailwind, ESLint, `src/`, alias `@/*`).
 - Estructura típica: `src/app/`, `public/`, `package.json`. Dev server arranca con `npm run dev` en `http://localhost:3000`.
-- Pendiente: conectar Vercel, configurar paleta corporativa + tipografías, configurar Firebase.
+- **Deploy en producción**: `https://rehobot-rose.vercel.app` (Vercel conectado al repo; cada push a `main` redespliega automáticamente en ~1-2 min).
+- Pendiente: configurar paleta corporativa + tipografías, configurar Firebase.
