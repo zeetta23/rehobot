@@ -34,6 +34,7 @@ const COL = "inmuebles";
 export interface InmuebleListadoItem {
   id: string;
   ref: string;
+  slug: string;
   titulo: string;
   operacion: Operacion;
   tipo: TipoInmueble;
@@ -48,6 +49,7 @@ function mapListadoItem(d: { id: string; data: () => DocumentData }): InmuebleLi
   return {
     id: d.id,
     ref: data.ref ?? "",
+    slug: data.slug ?? "",
     titulo: data.titulo ?? "(sin título)",
     operacion: data.operacion ?? "venta",
     tipo: data.tipo ?? "piso",

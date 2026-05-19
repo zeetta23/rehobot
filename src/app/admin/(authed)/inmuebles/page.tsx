@@ -115,7 +115,24 @@ export default function AdminInmueblesPage() {
                     {inm.ref}
                   </td>
                   <td className="px-4 py-3 font-body text-sm font-medium text-navy">
-                    {inm.titulo}
+                    <span className="inline-flex items-center gap-2">
+                      {inm.titulo}
+                      {inm.slug &&
+                        ["activo", "reservado", "vendido"].includes(
+                          inm.estado,
+                        ) && (
+                          <a
+                            href={`/inmueble/${inm.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Ver en la web pública"
+                            className="inline-flex h-5 w-5 items-center justify-center rounded-full text-gold transition-colors hover:bg-gold hover:text-navy"
+                            aria-label="Abrir ficha pública en nueva pestaña"
+                          >
+                            ↗
+                          </a>
+                        )}
+                    </span>
                   </td>
                   <td className="px-4 py-3 font-body text-sm text-dark">
                     {inm.municipio}
