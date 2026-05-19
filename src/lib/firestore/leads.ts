@@ -89,6 +89,19 @@ export async function crearLead(input: NuevoLeadInput): Promise<string> {
   }
 
   const ref = await addDoc(collection(db, COL), base);
+
+  // Notificación por email a los admins (fire-and-forget: si falla, el lead
+  // ya está guardado, no hacemos rollback).
+  if (typeof window !== "undefined") {
+    fetch("/api/leads/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ leadId: ref.id }),
+    }).catch(() => {
+      // Silencioso, no bloqueamos el flujo.
+    });
+  }
+
   return ref.id;
 }
 
