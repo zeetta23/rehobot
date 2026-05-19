@@ -1,6 +1,11 @@
 import Link from "next/link";
+import { contarInmueblesActivos } from "@/lib/firestore/inmuebles";
 
-export default function AdminDashboard() {
+export const revalidate = 30;
+
+export default async function AdminDashboard() {
+  const activos = await contarInmueblesActivos().catch(() => 0);
+
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">
       <div className="flex items-end justify-between">
@@ -17,8 +22,12 @@ export default function AdminDashboard() {
       {/* KPIs */}
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
-          { label: "Inmuebles activos", value: "0", hint: "Total publicados" },
-          { label: "Leads del mes", value: "0", hint: "Aún sin datos" },
+          {
+            label: "Inmuebles activos",
+            value: String(activos),
+            hint: "Publicados ahora mismo",
+          },
+          { label: "Leads del mes", value: "0", hint: "Pendiente conectar" },
           { label: "Vistas del mes", value: "0", hint: "Pendiente conectar" },
           { label: "Ventas del año", value: "0", hint: "Pendiente conectar" },
         ].map((kpi) => (

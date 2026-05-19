@@ -175,47 +175,62 @@ export interface InmuebleFichaData extends InmueblePublicoListado {
 export async function obtenerInmueblePorSlug(
   slug: string,
 ): Promise<InmuebleFichaData | null> {
-  let snap;
-  try {
-    snap = await getDocs(
-      query(collection(db, COL), where("slug", "==", slug), fbLimit(1)),
-    );
-  } catch {
-    // Si las reglas deniegan (slug de un borrador/archivado), devolvemos null.
-    return null;
-  }
-  if (snap.empty) return null;
+  // Las reglas Firestore exigen filtrar por estado para permitir la lectura.
+  // Hacemos una query por slug por cada estado público y devolvemos el primero.
+  for (const estado of ESTADOS_PUBLICOS) {
+    let snap;
+    try {
+      snap = await getDocs(
+        query(
+          collection(db, COL),
+          where("slug", "==", slug),
+          where("estado", "==", estado),
+          fbLimit(1),
+        ),
+      );
+    } catch {
+      continue;
+    }
+    if (snap.empty) continue;
 
-  const doc = snap.docs[0];
-  const estado = doc.data().estado as EstadoInmueble | undefined;
-  if (!estado || !ESTADOS_PUBLICOS.includes(estado)) {
-    return null;
-  }
-  const base = mapPublicoListado(doc);
-  const data = doc.data();
+    const doc = snap.docs[0];
+    const base = mapPublicoListado(doc);
+    const data = doc.data();
 
-  return {
-    ...base,
-    descripcion: data.descripcion ?? "",
-    caracteristicas: (data.caracteristicas ?? []) as string[],
-    metrosUtiles: data.detalles?.metrosUtiles ?? null,
-    planta: data.detalles?.planta ?? null,
-    anoConstruccion: data.detalles?.anoConstruccion ?? null,
-    orientacion: data.detalles?.orientacion ?? null,
-    energetico: {
-      consumo: data.energetico?.consumo ?? "en_tramite",
-      emisiones: data.energetico?.emisiones ?? "en_tramite",
-      consumoKwh: data.energetico?.consumoKwh ?? null,
-      emisionesKg: data.energetico?.emisionesKg ?? null,
-    },
-    coordenadas: {
-      lat: data.ubicacion?.coordenadas?.lat ?? 0,
-      lng: data.ubicacion?.coordenadas?.lng ?? 0,
-    },
-    videoUrl: data.multimedia?.videoUrl ?? null,
-    tour360Url: data.multimedia?.tour360Url ?? null,
-    planoUrl: data.multimedia?.planoUrl ?? null,
-  };
+    return {
+      ...base,
+      descripcion: data.descripcion ?? "",
+      caracteristicas: (data.caracteristicas ?? []) as string[],
+      metrosUtiles: data.detalles?.metrosUtiles ?? null,
+      planta: data.detalles?.planta ?? null,
+      anoConstruccion: data.detalles?.anoConstruccion ?? null,
+      orientacion: data.detalles?.orientacion ?? null,
+      energetico: {
+        consumo: data.energetico?.consumo ?? "en_tramite",
+        emisiones: data.energetico?.emisiones ?? "en_tramite",
+        consumoKwh: data.energetico?.consumoKwh ?? null,
+        emisionesKg: data.energetico?.emisionesKg ?? null,
+      },
+      coordenadas: {
+        lat: data.ubicacion?.coordenadas?.lat ?? 0,
+        lng: data.ubicacion?.coordenadas?.lng ?? 0,
+      },
+      videoUrl: data.multimedia?.videoUrl ?? null,
+      tour360Url: data.multimedia?.tour360Url ?? null,
+      planoUrl: data.multimedia?.planoUrl ?? null,
+    };
+  }
+
+  return null;
+}
+
+// Contador de inmuebles activos para el dashboard (no requiere auth gracias
+// a las reglas Firestore que permiten lectura pública de estado='activo').
+export async function contarInmueblesActivos(): Promise<number> {
+  const snap = await getDocs(
+    query(collection(db, COL), where("estado", "==", "activo")),
+  );
+  return snap.size;
 }
 
 export interface NuevoInmuebleInput {
