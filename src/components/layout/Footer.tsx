@@ -1,4 +1,9 @@
 import Link from "next/link";
+import {
+  obtenerConfiguracion,
+  urlRedSocial,
+  type RedesSociales,
+} from "@/lib/firestore/configuracion";
 
 const COLUMNAS = {
   Inmuebles: [
@@ -26,7 +31,30 @@ const LEGAL = [
   { href: "/cookies", label: "Cookies" },
 ];
 
-export function Footer() {
+function telHref(telefono: string) {
+  // Quitamos espacios para tel:
+  return `tel:${telefono.replace(/\s+/g, "")}`;
+}
+
+const RED_LABELS: { key: keyof RedesSociales; label: string }[] = [
+  { key: "instagram", label: "Instagram" },
+  { key: "facebook", label: "Facebook" },
+  { key: "linkedin", label: "LinkedIn" },
+  { key: "twitter", label: "Twitter" },
+  { key: "youtube", label: "YouTube" },
+  { key: "tiktok", label: "TikTok" },
+];
+
+export async function Footer() {
+  const config = await obtenerConfiguracion();
+  const { empresa, redesSociales } = config;
+
+  const redes = RED_LABELS.map(({ key, label }) => ({
+    key,
+    label,
+    url: urlRedSocial(key, redesSociales[key]),
+  })).filter((r) => r.url !== null);
+
   return (
     <footer className="bg-navy text-white">
       <div className="mx-auto max-w-7xl px-6 py-16">
@@ -34,7 +62,7 @@ export function Footer() {
           <div>
             <Link href="/" className="flex flex-col leading-none">
               <span className="font-display text-2xl font-semibold tracking-tight text-white">
-                Rehobot
+                {empresa.nombre.split(" ")[0] || "Rehobot"}
               </span>
               <span className="font-body text-[10px] uppercase tracking-[0.3em] text-gold">
                 Real Estate
@@ -45,20 +73,43 @@ export function Footer() {
               asesoramiento personalizado.
             </p>
             <p className="mt-4 font-body text-sm text-white/70">
-              <a
-                href="tel:+34916000000"
-                className="transition-colors hover:text-gold"
-              >
-                +34 916 00 00 00
-              </a>
-              <br />
-              <a
-                href="mailto:info@rehobotrealestate.es"
-                className="transition-colors hover:text-gold"
-              >
-                info@rehobotrealestate.es
-              </a>
+              {empresa.telefono && (
+                <>
+                  <a
+                    href={telHref(empresa.telefono)}
+                    className="transition-colors hover:text-gold"
+                  >
+                    {empresa.telefono}
+                  </a>
+                  <br />
+                </>
+              )}
+              {empresa.email && (
+                <a
+                  href={`mailto:${empresa.email}`}
+                  className="transition-colors hover:text-gold"
+                >
+                  {empresa.email}
+                </a>
+              )}
             </p>
+
+            {redes.length > 0 && (
+              <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-1">
+                {redes.map((r) => (
+                  <li key={r.key}>
+                    <a
+                      href={r.url!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-body text-xs text-white/60 transition-colors hover:text-gold"
+                    >
+                      {r.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {Object.entries(COLUMNAS).map(([titulo, items]) => (
@@ -84,8 +135,8 @@ export function Footer() {
 
         <div className="mt-16 flex flex-col items-start justify-between gap-6 border-t border-white/10 pt-8 md:flex-row md:items-center">
           <p className="font-body text-xs text-white/50">
-            © {new Date().getFullYear()} Rehobot Real Estate. Todos los
-            derechos reservados.
+            © {new Date().getFullYear()} {empresa.nombre}. Todos los derechos
+            reservados.
           </p>
           <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
             {LEGAL.map((item) => (

@@ -1,6 +1,39 @@
 import { ContactoForm } from "@/components/forms/ContactoForm";
+import { obtenerConfiguracion } from "@/lib/firestore/configuracion";
 
-export default function ContactoPage() {
+export const revalidate = 60;
+
+export default async function ContactoPage() {
+  const { empresa } = await obtenerConfiguracion();
+
+  const bloques: { titulo: string; lineas: string[] }[] = [
+    {
+      titulo: "Oficina",
+      lineas: empresa.direccion
+        ? empresa.direccion.split(/\s·\s|\s\|\s/)
+        : ["Sin dirección configurada"],
+    },
+    {
+      titulo: "Teléfono",
+      lineas: [
+        empresa.telefono || "Sin teléfono",
+        empresa.whatsappPrincipal
+          ? `WhatsApp: ${empresa.whatsappPrincipal}`
+          : "",
+      ].filter(Boolean),
+    },
+    {
+      titulo: "Email",
+      lineas: [empresa.email || "Sin email"],
+    },
+    {
+      titulo: "Horario",
+      lineas: empresa.horario
+        ? empresa.horario.split(/\s·\s|\s\|\s/)
+        : ["Sin horario configurado"],
+    },
+  ];
+
   return (
     <>
       {/* HERO */}
@@ -23,38 +56,14 @@ export default function ContactoPage() {
         {/* INFO + MAPA */}
         <div className="space-y-12">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-            {[
-              {
-                titulo: "Oficina",
-                lineas: [
-                  "Calle Mayor, 00",
-                  "28801 Alcalá de Henares",
-                  "Madrid",
-                ],
-              },
-              {
-                titulo: "Teléfono",
-                lineas: ["+34 916 00 00 00", "WhatsApp disponible"],
-              },
-              {
-                titulo: "Email",
-                lineas: ["info@rehobotrealestate.es"],
-              },
-              {
-                titulo: "Horario",
-                lineas: [
-                  "L-V: 10:00 - 14:00 / 17:00 - 20:00",
-                  "S: 10:00 - 14:00",
-                ],
-              },
-            ].map((b) => (
+            {bloques.map((b) => (
               <div key={b.titulo}>
                 <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
                   {b.titulo}
                 </p>
-                {b.lineas.map((l) => (
+                {b.lineas.map((l, idx) => (
                   <p
-                    key={l}
+                    key={`${b.titulo}-${idx}`}
                     className="mt-2 font-body text-sm text-dark"
                   >
                     {l}

@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { href: "/admin/inmuebles", label: "Inmuebles", enabled: true },
   { href: "/admin/leads", label: "Leads", enabled: true },
   { href: "/admin/agentes", label: "Agentes", enabled: true },
-  { href: "/admin/ajustes", label: "Ajustes", enabled: false },
+  { href: "/admin/ajustes", label: "Ajustes", enabled: true },
 ];
 
 export default function AuthedLayout({
