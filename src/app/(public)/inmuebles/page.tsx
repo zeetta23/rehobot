@@ -13,9 +13,9 @@ import { VistaToggle } from "@/components/public/VistaToggle";
 import { MapaInmuebles } from "@/components/maps/MapaInmuebles";
 
 export const metadata: Metadata = {
-  title: "Inmuebles en venta y alquiler en el Corredor del Henares",
+  title: "Inmuebles en venta y alquiler en Madrid",
   description:
-    "Catálogo completo de pisos, chalets, locales y garajes en Alcalá de Henares, Torrejón de Ardoz, Coslada y el resto del Corredor del Henares. Filtra por precio, habitaciones y zona.",
+    "Catálogo completo de pisos, chalets, locales y garajes en Madrid y el Corredor del Henares. Filtra por precio, habitaciones y zona para encontrar tu próximo hogar.",
   alternates: { canonical: "/inmuebles" },
 };
 

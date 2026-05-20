@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Quiénes somos — Rehobot Real Estate",
   description:
-    "Inmobiliaria de barrio con +15 años de experiencia en el Corredor del Henares. Conoce nuestro equipo y nuestros valores: cercanía, transparencia y compromiso.",
+    "Inmobiliaria de barrio con +15 años de experiencia en Madrid y el Corredor del Henares. Conoce nuestro equipo y nuestros valores: cercanía, transparencia y compromiso.",
   alternates: { canonical: "/nosotros" },
 };
 
@@ -42,9 +42,9 @@ export default function NosotrosPage() {
             <span className="text-gold">profesionalidad de gran ciudad</span>
           </h1>
           <p className="mt-6 max-w-2xl font-body text-base text-white/70 sm:text-lg">
-            Llevamos más de 15 años ayudando a familias del Corredor del
-            Henares a encontrar su casa o a vender la suya en las mejores
-            condiciones posibles.
+            Llevamos más de 15 años ayudando a familias de Madrid y el
+            Corredor del Henares a encontrar su casa o a vender la suya en
+            las mejores condiciones posibles.
           </p>
         </div>
       </section>

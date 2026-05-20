@@ -254,6 +254,15 @@ export interface Configuracion {
 // ============================================================================
 
 export const MUNICIPIOS_CORREDOR = [
+  // Madrid capital agrupado por zonas cardinales (más manejable que los 21
+  // distritos oficiales). Si en el futuro hace falta afinar a distritos
+  // concretos, se añaden a esta lista.
+  "Madrid Centro",
+  "Madrid Norte",
+  "Madrid Este",
+  "Madrid Sur",
+  "Madrid Oeste",
+  // Corredor del Henares
   "Alcalá de Henares",
   "Torrejón de Ardoz",
   "Coslada",

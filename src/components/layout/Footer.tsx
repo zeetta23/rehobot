@@ -69,8 +69,8 @@ export async function Footer() {
               </span>
             </Link>
             <p className="mt-6 max-w-xs font-body text-sm leading-relaxed text-white/70">
-              Inmobiliaria del Corredor del Henares. Compra, venta y
-              asesoramiento personalizado.
+              Tu inmobiliaria en Madrid y el Corredor del Henares. Compra,
+              venta y asesoramiento personalizado.
             </p>
             <p className="mt-4 font-body text-sm text-white/70">
               {empresa.telefono && (

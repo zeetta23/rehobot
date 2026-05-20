@@ -59,7 +59,7 @@ export async function generateMetadata({
   ].filter(Boolean);
   const fallbackDescripcion =
     `${partesDescripcion.join(" · ")} · ${formatPrecio(inmueble.precio)}. ` +
-    `Encuentra esta vivienda en Rehobot Real Estate, inmobiliaria del Corredor del Henares.`;
+    `Encuentra esta vivienda en Rehobot Real Estate, tu inmobiliaria en Madrid y el Corredor del Henares.`;
   const description =
     descripcionCorta(inmueble.descripcion) || descripcionCorta(fallbackDescripcion);
 

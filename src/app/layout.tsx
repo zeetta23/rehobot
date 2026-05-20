@@ -20,26 +20,28 @@ const APP_URL =
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: "Rehobot Real Estate — Inmobiliaria del Corredor del Henares",
+    default: "Rehobot Real Estate — Tu inmobiliaria en Madrid",
     template: "%s · Rehobot Real Estate",
   },
   description:
-    "Compra y venta de pisos, chalets y locales en Alcalá de Henares, Torrejón de Ardoz, Coslada y resto del Corredor del Henares. Inmobiliaria con +15 años de experiencia.",
+    "Compra y venta de pisos, chalets y locales en Madrid y el Corredor del Henares. Inmobiliaria con +15 años de experiencia, asesoramiento personalizado y trato cercano.",
   applicationName: "Rehobot Real Estate",
   authors: [{ name: "Rehobot Real Estate" }],
   keywords: [
-    "inmobiliaria Corredor del Henares",
+    "inmobiliaria Madrid",
+    "pisos en venta Madrid",
     "pisos en venta Alcalá de Henares",
     "pisos en venta Torrejón de Ardoz",
     "pisos en venta Coslada",
-    "vender mi casa Corredor del Henares",
-    "tasación gratis Alcalá",
-    "chalets Corredor del Henares",
+    "vender mi casa Madrid",
+    "tasación gratis Madrid",
+    "chalets Madrid",
+    "inmobiliaria Corredor del Henares",
   ],
   openGraph: {
-    title: "Rehobot Real Estate — Inmobiliaria del Corredor del Henares",
+    title: "Rehobot Real Estate — Tu inmobiliaria en Madrid",
     description:
-      "Compra y venta de viviendas en Alcalá de Henares, Torrejón, Coslada y alrededores.",
+      "Compra y venta de viviendas en Madrid y el Corredor del Henares.",
     type: "website",
     locale: "es_ES",
     siteName: "Rehobot Real Estate",
@@ -49,7 +51,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Rehobot Real Estate",
     description:
-      "Compra y venta de viviendas en el Corredor del Henares.",
+      "Compra y venta de viviendas en Madrid y el Corredor del Henares.",
   },
   robots: {
     index: true,

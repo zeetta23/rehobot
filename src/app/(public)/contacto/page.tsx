@@ -7,7 +7,7 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "Contacto — Rehobot Real Estate",
   description:
-    "Contacta con Rehobot Real Estate. Estamos en Alcalá de Henares y atendemos toda la zona del Corredor del Henares. Teléfono, WhatsApp, email y formulario.",
+    "Contacta con Rehobot Real Estate. Estamos en Alcalá de Henares y atendemos Madrid y todo el Corredor del Henares. Teléfono, WhatsApp, email y formulario.",
   alternates: { canonical: "/contacto" },
 };
 
@@ -54,7 +54,7 @@ export default async function ContactoPage() {
             Hablemos
           </h1>
           <p className="mt-4 max-w-xl font-body text-base text-white/70 sm:text-lg">
-            Estamos en Alcalá de Henares y atendemos toda la zona del
+            Estamos en Alcalá de Henares y atendemos Madrid y todo el
             Corredor del Henares.
           </p>
         </div>

@@ -51,15 +51,15 @@ export default async function HomePage() {
       <section className="relative bg-navy text-white">
         <div className="mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-20 lg:pt-28">
           <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
-            Inmobiliaria del Corredor del Henares
+            Tu inmobiliaria de confianza
           </p>
           <h1 className="mt-6 max-w-3xl font-display text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
-            Encuentra tu próximo hogar en el{" "}
-            <span className="text-gold">Corredor del Henares</span>
+            Encuentra tu próximo hogar en{" "}
+            <span className="text-gold">Rehobot</span>
           </h1>
           <p className="mt-6 max-w-xl font-body text-base text-white/70 sm:text-lg">
             Compra, venta y asesoramiento personalizado. Más de 15 años
-            acompañando a familias en Alcalá, Torrejón, Coslada y alrededores.
+            acompañando a familias en Madrid y el Corredor del Henares.
           </p>
 
           {/* BUSCADOR */}
@@ -269,8 +269,9 @@ export default async function HomePage() {
             </h2>
             <p className="mt-6 font-body text-base text-white/70">
               Tasamos tu vivienda <strong>gratis</strong> y sin compromiso.
-              Conocemos el mercado del Corredor del Henares como nadie y te
-              ayudamos a vender al mejor precio en el menor tiempo posible.
+              Conocemos el mercado de Madrid y el Corredor del Henares como
+              nadie y te ayudamos a vender al mejor precio en el menor tiempo
+              posible.
             </p>
             <Link
               href="/vender"
@@ -309,8 +310,8 @@ export default async function HomePage() {
                 Explora los inmuebles en el mapa
               </h2>
               <p className="mt-3 max-w-2xl font-body text-sm text-gray-text">
-                Visualiza nuestra cartera en el Corredor del Henares. Haz
-                clic en los marcadores para ver cada vivienda.
+                Visualiza nuestra cartera por zonas. Haz clic en los
+                marcadores para ver cada vivienda.
               </p>
             </div>
             <Link

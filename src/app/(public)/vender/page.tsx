@@ -4,7 +4,7 @@ import { ValoracionForm } from "@/components/forms/ValoracionForm";
 export const metadata: Metadata = {
   title: "Vende tu casa con Rehobot — Valoración gratuita",
   description:
-    "Tasación gratuita y sin compromiso de tu vivienda en el Corredor del Henares. +15 años de experiencia, reportaje fotográfico profesional y honorarios solo al vender.",
+    "Tasación gratuita y sin compromiso de tu vivienda en Madrid y el Corredor del Henares. +15 años de experiencia, reportaje fotográfico profesional y honorarios solo al vender.",
   alternates: { canonical: "/vender" },
 };
 
