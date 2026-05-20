@@ -9,6 +9,8 @@ import {
 import type { Operacion, TipoInmueble } from "@/lib/types";
 import { MUNICIPIOS_CORREDOR } from "@/lib/types";
 import { OrdenarSelect } from "@/components/public/OrdenarSelect";
+import { VistaToggle } from "@/components/public/VistaToggle";
+import { MapaInmuebles } from "@/components/maps/MapaInmuebles";
 
 export const metadata: Metadata = {
   title: "Inmuebles en venta y alquiler en el Corredor del Henares",
@@ -29,6 +31,7 @@ type SearchParamsShape = {
   banos?: string;
   m2?: string;
   orden?: string;
+  vista?: string;
 };
 
 const OPERACIONES_VALIDAS: Operacion[] = ["venta", "alquiler"];
@@ -81,6 +84,10 @@ export default async function InmueblesPage({
   }
 
   const inmuebles = await listarInmueblesPublicos(filtros);
+  const vista: "grid" | "mapa" = sp.vista === "mapa" ? "mapa" : "grid";
+  const inmueblesConCoords = inmuebles.filter(
+    (i) => i.coordenadas.lat !== 0 && i.coordenadas.lng !== 0,
+  );
 
   // Cuenta cuántos filtros activos hay (para badge "Filtros aplicados: N")
   const filtrosActivos = [
@@ -310,14 +317,20 @@ export default async function InmueblesPage({
           </details>
         </aside>
 
-        {/* GRID */}
+        {/* GRID o MAPA */}
         <section>
-          {/* Barra de ordenación */}
-          <div className="mb-6 flex items-center justify-between gap-3 rounded-xl bg-white p-3 shadow-sm">
-            <OrdenarSelect valor={filtros.orden ?? "recientes"} />
+          {/* Barra superior */}
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white p-3 shadow-sm">
+            <div className="flex flex-wrap items-center gap-3">
+              <VistaToggle vista={vista} />
+              <OrdenarSelect valor={filtros.orden ?? "recientes"} />
+            </div>
             <p className="font-body text-xs text-gray-text">
               {inmuebles.length}{" "}
               {inmuebles.length === 1 ? "resultado" : "resultados"}
+              {vista === "mapa" &&
+                inmueblesConCoords.length !== inmuebles.length &&
+                ` · ${inmueblesConCoords.length} con ubicación`}
             </p>
           </div>
 
@@ -336,6 +349,24 @@ export default async function InmueblesPage({
               >
                 Ver todos los inmuebles →
               </Link>
+            </div>
+          ) : vista === "mapa" ? (
+            <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+              {inmueblesConCoords.length === 0 ? (
+                <div className="flex h-[500px] items-center justify-center bg-cream text-center">
+                  <div className="px-6">
+                    <p className="font-display text-lg font-semibold text-navy">
+                      Ningún inmueble tiene ubicación todavía
+                    </p>
+                    <p className="mt-2 font-body text-sm text-gray-text">
+                      El equipo está añadiendo las coordenadas. Mientras tanto
+                      puedes usar la vista cuadrícula.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <MapaInmuebles inmuebles={inmuebles} altura="600px" />
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">

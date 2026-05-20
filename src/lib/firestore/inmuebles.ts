@@ -89,6 +89,7 @@ export interface InmueblePublicoListado extends InmuebleListadoItem {
   metrosConstruidos: number;
   destacado: boolean;
   fotoPortada: string | null;
+  coordenadas: { lat: number; lng: number };
   fechaCreacionMs: number;
 }
 
@@ -127,6 +128,10 @@ function mapPublicoListado(d: {
     metrosConstruidos: data.detalles?.metrosConstruidos ?? 0,
     destacado: Boolean(data.destacado),
     fotoPortada: portada?.urlMedium ?? portada?.url ?? null,
+    coordenadas: {
+      lat: data.ubicacion?.coordenadas?.lat ?? 0,
+      lng: data.ubicacion?.coordenadas?.lng ?? 0,
+    },
     fechaCreacionMs,
   };
 }

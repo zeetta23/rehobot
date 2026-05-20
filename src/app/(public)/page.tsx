@@ -5,6 +5,7 @@ import {
   listarInmueblesPublicos,
   formatPrecio,
 } from "@/lib/firestore/inmuebles";
+import { MapaInmuebles } from "@/components/maps/MapaInmuebles";
 
 export const revalidate = 60;
 
@@ -35,11 +36,14 @@ function slugifyZona(zona: string) {
 
 export default async function HomePage() {
   // Trae destacados; si no hay aún, cae a los 3 más recientes publicados.
+  const todosPublicos = await listarInmueblesPublicos();
   let destacados = await listarDestacados(3);
   if (destacados.length === 0) {
-    const recientes = await listarInmueblesPublicos();
-    destacados = recientes.slice(0, 3);
+    destacados = todosPublicos.slice(0, 3);
   }
+  const inmueblesConCoords = todosPublicos.filter(
+    (i) => i.coordenadas.lat !== 0 && i.coordenadas.lng !== 0,
+  );
 
   return (
     <>
@@ -293,26 +297,72 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ZONAS */}
-      <section className="mx-auto max-w-7xl px-6 py-24">
-        <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
-          Donde operamos
-        </p>
-        <h2 className="mt-3 font-display text-3xl font-semibold text-navy sm:text-4xl">
-          Buscar por zona
-        </h2>
-        <ul className="mt-10 flex flex-wrap gap-3">
-          {ZONAS.map((zona) => (
-            <li key={zona}>
-              <Link
-                href={`/zonas/${slugifyZona(zona)}`}
-                className="inline-flex rounded-full border border-navy/15 px-5 py-2.5 font-body text-sm text-navy transition-colors hover:border-navy hover:bg-navy hover:text-white"
-              >
-                {zona}
-              </Link>
-            </li>
-          ))}
-        </ul>
+      {/* MAPA DE INMUEBLES */}
+      <section className="bg-cream">
+        <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
+                Donde operamos
+              </p>
+              <h2 className="mt-3 font-display text-3xl font-semibold text-navy sm:text-4xl">
+                Explora los inmuebles en el mapa
+              </h2>
+              <p className="mt-3 max-w-2xl font-body text-sm text-gray-text">
+                Visualiza nuestra cartera en el Corredor del Henares. Haz
+                clic en los marcadores para ver cada vivienda.
+              </p>
+            </div>
+            <Link
+              href="/inmuebles?vista=mapa"
+              className="hidden rounded-full bg-navy px-5 py-2.5 font-body text-sm font-medium text-white hover:bg-navy-medium sm:inline-flex"
+            >
+              Ver mapa completo →
+            </Link>
+          </div>
+
+          <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm">
+            {inmueblesConCoords.length === 0 ? (
+              <div className="flex h-[360px] items-center justify-center bg-cream text-center">
+                <div className="px-6">
+                  <p className="font-display text-lg font-semibold text-navy">
+                    Próximamente verás aquí nuestra cartera
+                  </p>
+                  <p className="mt-2 font-body text-sm text-gray-text">
+                    Estamos preparando los primeros inmuebles para mostrar en
+                    el mapa.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <MapaInmuebles
+                inmuebles={todosPublicos}
+                altura="420px"
+              />
+            )}
+          </div>
+
+          {/* Atajos por zona (para los que prefieren clicar) */}
+          <ul className="mt-8 flex flex-wrap gap-2">
+            {ZONAS.map((zona) => (
+              <li key={zona}>
+                <Link
+                  href={`/inmuebles?zona=${encodeURIComponent(zona)}`}
+                  className="inline-flex rounded-full border border-navy/15 bg-white px-4 py-2 font-body text-xs text-navy transition-colors hover:border-navy hover:bg-navy hover:text-white"
+                >
+                  {zona}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <Link
+            href="/inmuebles?vista=mapa"
+            className="mt-8 inline-flex rounded-full bg-navy px-5 py-2.5 font-body text-sm font-medium text-white hover:bg-navy-medium sm:hidden"
+          >
+            Ver mapa completo →
+          </Link>
+        </div>
       </section>
     </>
   );
