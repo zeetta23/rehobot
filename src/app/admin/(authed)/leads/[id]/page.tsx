@@ -2,6 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FirebaseError } from "firebase/app";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import {
@@ -9,6 +10,7 @@ import {
   actualizarEstadoLead,
   anadirNotaLead,
   asignarAgenteLead,
+  eliminarLead,
   buscarDuplicadosPorContacto,
   labelTipoLead,
   labelEstadoLead,
@@ -69,6 +71,7 @@ export default function FichaLeadPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
   const { user } = useAuth();
   const [lead, setLead] = useState<LeadDetalle | null>(null);
   const [duplicados, setDuplicados] = useState<LeadListadoItem[]>([]);
@@ -77,6 +80,7 @@ export default function FichaLeadPage({
   const [notFound, setNotFound] = useState(false);
   const [savingEstado, setSavingEstado] = useState(false);
   const [savingAgente, setSavingAgente] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [notaTexto, setNotaTexto] = useState("");
   const [savingNota, setSavingNota] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -160,6 +164,27 @@ export default function FichaLeadPage({
     }
   }
 
+  async function handleDelete() {
+    if (!lead) return;
+    const confirmado = window.confirm(
+      `¿Eliminar el lead de "${lead.nombre}"? Esta acción no se puede deshacer.`,
+    );
+    if (!confirmado) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      await eliminarLead(id);
+      router.push("/admin/leads?eliminado=1");
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        setError(`No se pudo eliminar: ${err.code}`);
+      } else {
+        setError("No se pudo eliminar el lead.");
+      }
+      setDeleting(false);
+    }
+  }
+
   async function enviarNota(e: React.FormEvent) {
     e.preventDefault();
     if (!notaTexto.trim() || !user) return;
@@ -225,11 +250,21 @@ export default function FichaLeadPage({
             Recibido el {formatearFechaLarga(lead.fechaCreacionMs)}
           </p>
         </div>
-        <span
-          className={`rounded-full px-4 py-1.5 font-body text-xs font-medium ${colorEstadoLead(lead.estado)}`}
-        >
-          {labelEstadoLead(lead.estado)}
-        </span>
+        <div className="flex items-center gap-3">
+          <span
+            className={`rounded-full px-4 py-1.5 font-body text-xs font-medium ${colorEstadoLead(lead.estado)}`}
+          >
+            {labelEstadoLead(lead.estado)}
+          </span>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="rounded-full border border-red-600 px-4 py-1.5 font-body text-xs font-medium text-red-600 transition-colors hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {deleting ? "Eliminando…" : "Eliminar lead"}
+          </button>
+        </div>
       </header>
 
       {error && (

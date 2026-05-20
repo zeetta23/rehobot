@@ -2,6 +2,7 @@ import {
   collection,
   doc,
   addDoc,
+  deleteDoc,
   getDoc,
   getDocs,
   query,
@@ -229,6 +230,10 @@ export async function asignarAgenteLead(
     agenteAsignado: agenteUid,
     fechaActualizacion: serverTimestamp(),
   });
+}
+
+export async function eliminarLead(id: string): Promise<void> {
+  await deleteDoc(doc(db, COL, id));
 }
 
 export interface KpiLeads {
