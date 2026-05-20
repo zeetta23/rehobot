@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -81,15 +82,18 @@ export function Header() {
 
           <Link
             href="/"
-            className="flex flex-col leading-none"
+            className="block"
             onClick={() => setOpen(false)}
+            aria-label="Rehobot Real Estate — Inicio"
           >
-            <span className="font-display text-xl font-semibold tracking-tight text-navy sm:text-2xl">
-              Rehobot
-            </span>
-            <span className="font-body text-[9px] uppercase tracking-[0.3em] text-gold sm:text-[10px]">
-              Real Estate
-            </span>
+            <Image
+              src="/logo.png"
+              alt="Rehobot Real Estate"
+              width={1536}
+              height={1024}
+              priority
+              className="h-12 w-auto sm:h-14"
+            />
           </Link>
         </div>
 
