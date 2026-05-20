@@ -37,51 +37,15 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5">
-        <Link
-          href="/"
-          className="flex flex-col leading-none"
-          onClick={() => setOpen(false)}
-        >
-          <span className="font-display text-xl font-semibold tracking-tight text-navy sm:text-2xl">
-            Rehobot
-          </span>
-          <span className="font-body text-[9px] uppercase tracking-[0.3em] text-gold sm:text-[10px]">
-            Real Estate
-          </span>
-        </Link>
-
-        <nav className="hidden items-center gap-8 md:flex">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="font-body text-sm font-medium text-dark transition-colors hover:text-navy"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2 sm:gap-3">
-          <a
-            href="tel:+34916000000"
-            className="hidden font-body text-sm font-medium text-gray-text transition-colors hover:text-navy lg:inline"
-          >
-            +34 916 00 00 00
-          </a>
-          <Link
-            href="/vender"
-            className="hidden rounded-full bg-gold px-4 py-2 font-body text-xs font-medium text-navy transition-colors hover:bg-gold-light sm:inline-flex sm:px-5 sm:py-2.5 sm:text-sm"
-          >
-            Valoración gratis
-          </Link>
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-4 sm:px-6 sm:py-5">
+        {/* Izquierda: hamburguesa (móvil) + logo */}
+        <div className="flex items-center gap-3">
           <button
             type="button"
             aria-label={open ? "Cerrar menú" : "Abrir menú"}
             aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-navy md:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-black/10 text-navy md:hidden"
           >
             {open ? (
               <svg
@@ -114,6 +78,49 @@ export function Header() {
               </svg>
             )}
           </button>
+
+          <Link
+            href="/"
+            className="flex flex-col leading-none"
+            onClick={() => setOpen(false)}
+          >
+            <span className="font-display text-xl font-semibold tracking-tight text-navy sm:text-2xl">
+              Rehobot
+            </span>
+            <span className="font-body text-[9px] uppercase tracking-[0.3em] text-gold sm:text-[10px]">
+              Real Estate
+            </span>
+          </Link>
+        </div>
+
+        {/* Centro: nav (solo desktop) */}
+        <nav className="hidden items-center gap-8 md:flex">
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="font-body text-sm font-medium text-dark transition-colors hover:text-navy"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Derecha: teléfono (desktop) + CTA (siempre) */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <a
+            href="tel:+34916000000"
+            className="hidden font-body text-sm font-medium text-gray-text transition-colors hover:text-navy lg:inline"
+          >
+            +34 916 00 00 00
+          </a>
+          <Link
+            href="/vender"
+            className="shrink-0 whitespace-nowrap rounded-full bg-gold px-3 py-1.5 font-body text-xs font-medium text-navy transition-colors hover:bg-gold-light sm:px-5 sm:py-2.5 sm:text-sm"
+          >
+            <span className="sm:hidden">Valorar</span>
+            <span className="hidden sm:inline">Valoración gratis</span>
+          </Link>
         </div>
       </div>
 
