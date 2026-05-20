@@ -67,6 +67,15 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // ====== Analytics (pageviews) ======
+    // Cualquier visitante puede crear (necesario para registrar visitas);
+    // sólo el staff puede leer y borrar (no exponer datos de visitas).
+    match /pageviews/{docId} {
+      allow create: if true;
+      allow read: if isStaff();
+      allow update, delete: if isAdmin();
+    }
+
     // ====== Default deny ======
     match /{document=**} {
       allow read, write: if false;

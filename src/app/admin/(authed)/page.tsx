@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { contarInmueblesActivos } from "@/lib/firestore/inmuebles";
 import { obtenerKpisLeads } from "@/lib/firestore/leads";
+import { AnalyticsWidget } from "@/components/admin/AnalyticsWidget";
 
 export const revalidate = 30;
 
@@ -125,6 +126,8 @@ export default async function AdminDashboard() {
           </div>
         </section>
       </div>
+
+      <AnalyticsWidget />
     </div>
   );
 }
