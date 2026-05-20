@@ -14,11 +14,53 @@ import { SelectorCoordenadas } from "@/components/maps/SelectorCoordenadas";
 import { BuscadorDireccion } from "@/components/maps/BuscadorDireccion";
 import {
   MUNICIPIOS_CORREDOR,
+  CARACTERISTICAS_DISPONIBLES,
   type Operacion,
   type TipoInmueble,
   type EstadoInmueble,
   type CalificacionEnergetica,
 } from "@/lib/types";
+
+const TIPOS_COCINA = [
+  { value: "", label: "—" },
+  { value: "independiente", label: "Independiente" },
+  { value: "americana", label: "Americana" },
+  { value: "office", label: "Office (con barra)" },
+];
+
+const TIPOS_CALEFACCION = [
+  { value: "", label: "—" },
+  { value: "sin", label: "Sin calefacción" },
+  { value: "electrica", label: "Eléctrica" },
+  { value: "gas_natural", label: "Gas natural" },
+  { value: "gas_propano", label: "Gas propano/butano" },
+  { value: "gasoil", label: "Gasoil" },
+  { value: "suelo_radiante", label: "Suelo radiante" },
+];
+
+const ETIQUETAS_CARACTERISTICAS: Record<
+  (typeof CARACTERISTICAS_DISPONIBLES)[number],
+  string
+> = {
+  ascensor: "Ascensor",
+  garaje: "Garaje",
+  trastero: "Trastero",
+  ac: "Aire acondicionado",
+  calefaccion: "Calefacción",
+  terraza: "Terraza",
+  balcon: "Balcón",
+  jardin: "Jardín",
+  piscina: "Piscina",
+  amueblado: "Amueblado",
+  armarios_empotrados: "Armarios empotrados",
+  exterior: "Exterior",
+  luminoso: "Luminoso",
+  obra_nueva: "Obra nueva",
+  reformado: "Reformado",
+  portero: "Portero",
+  alarma: "Alarma",
+  puerta_blindada: "Puerta blindada",
+};
 
 const TIPOS: TipoInmueble[] = [
   "piso",
@@ -81,11 +123,25 @@ export default function NuevoInmueblePage() {
     habitaciones: 0,
     banos: 0,
     metrosConstruidos: 0,
+    anoConstruccion: null,
+    tipoCocina: null,
+    gastosComunidad: null,
+    tipoCalefaccion: null,
     consumoEnergetico: "en_tramite",
     emisionesEnergetico: "en_tramite",
     descripcion: "",
+    caracteristicas: [],
     agente: user?.uid ?? "",
   });
+
+  function toggleCaracteristica(c: string) {
+    setForm((f) => ({
+      ...f,
+      caracteristicas: f.caracteristicas.includes(c)
+        ? f.caracteristicas.filter((x) => x !== c)
+        : [...f.caracteristicas, c],
+    }));
+  }
 
   // Limpieza de URLs de preview al desmontar para evitar leak de memoria.
   useEffect(() => {
@@ -443,6 +499,124 @@ export default function NuevoInmueblePage() {
                 className="mt-1.5 w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
               />
             </label>
+          </div>
+        </section>
+
+        {/* Características y equipamiento */}
+        <section className="rounded-2xl border border-black/5 bg-white p-6">
+          <h2 className="font-display text-lg font-semibold text-navy">
+            Características y equipamiento
+          </h2>
+          <p className="mt-2 font-body text-xs text-gray-text">
+            Datos extra que aparecerán en la sección &ldquo;Características&rdquo; de
+            la ficha pública.
+          </p>
+
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <label className="block">
+              <span className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+                Año de construcción
+              </span>
+              <input
+                type="number"
+                min={1800}
+                max={new Date().getFullYear() + 5}
+                placeholder="Ej. 1979"
+                value={form.anoConstruccion ?? ""}
+                onChange={(e) =>
+                  update(
+                    "anoConstruccion",
+                    e.target.value === "" ? null : Number(e.target.value),
+                  )
+                }
+                className="mt-1.5 w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
+              />
+            </label>
+
+            <label className="block">
+              <span className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+                Tipo de cocina
+              </span>
+              <select
+                value={form.tipoCocina ?? ""}
+                onChange={(e) =>
+                  update("tipoCocina", e.target.value || null)
+                }
+                className="mt-1.5 w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
+              >
+                {TIPOS_COCINA.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+                Gastos comunidad (€/mes)
+              </span>
+              <input
+                type="number"
+                min={0}
+                placeholder="0"
+                value={form.gastosComunidad ?? ""}
+                onChange={(e) =>
+                  update(
+                    "gastosComunidad",
+                    e.target.value === "" ? null : Number(e.target.value),
+                  )
+                }
+                className="mt-1.5 w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
+              />
+            </label>
+
+            <label className="block sm:col-span-3">
+              <span className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+                Tipo de calefacción
+              </span>
+              <select
+                value={form.tipoCalefaccion ?? ""}
+                onChange={(e) =>
+                  update("tipoCalefaccion", e.target.value || null)
+                }
+                className="mt-1.5 w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
+              >
+                {TIPOS_CALEFACCION.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-6 border-t border-black/5 pt-6">
+            <p className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+              Equipamiento
+            </p>
+            <p className="mt-1 font-body text-xs text-gray-text">
+              Marca las características que tiene el inmueble.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {CARACTERISTICAS_DISPONIBLES.map((c) => {
+                const isActive = form.caracteristicas.includes(c);
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => toggleCaracteristica(c)}
+                    className={`rounded-full border px-3 py-1.5 font-body text-xs transition-colors ${
+                      isActive
+                        ? "border-navy bg-navy text-white"
+                        : "border-navy/15 text-navy hover:bg-navy/10"
+                    }`}
+                  >
+                    {ETIQUETAS_CARACTERISTICAS[c]}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </section>
 

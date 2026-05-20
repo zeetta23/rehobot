@@ -54,6 +54,9 @@ export interface DetallesInmueble {
   anoConstruccion: number | null;
   orientacion: string | null;
   estado: string | null;
+  tipoCocina: string | null;
+  gastosComunidad: number | null;
+  tipoCalefaccion: string | null;
 }
 
 export interface CertificadoEnergetico {

@@ -222,13 +222,15 @@ export interface InmuebleFichaData extends InmueblePublicoListado {
   planta: string | null;
   anoConstruccion: number | null;
   orientacion: string | null;
+  tipoCocina: string | null;
+  gastosComunidad: number | null;
+  tipoCalefaccion: string | null;
   energetico: {
     consumo: CalificacionEnergetica;
     emisiones: CalificacionEnergetica;
     consumoKwh: number | null;
     emisionesKg: number | null;
   };
-  coordenadas: { lat: number; lng: number };
   videoUrl: string | null;
   tour360Url: string | null;
   planoUrl: string | null;
@@ -268,6 +270,9 @@ export async function obtenerInmueblePorSlug(
       planta: data.detalles?.planta ?? null,
       anoConstruccion: data.detalles?.anoConstruccion ?? null,
       orientacion: data.detalles?.orientacion ?? null,
+      tipoCocina: data.detalles?.tipoCocina ?? null,
+      gastosComunidad: data.detalles?.gastosComunidad ?? null,
+      tipoCalefaccion: data.detalles?.tipoCalefaccion ?? null,
       energetico: {
         consumo: data.energetico?.consumo ?? "en_tramite",
         emisiones: data.energetico?.emisiones ?? "en_tramite",
@@ -312,9 +317,14 @@ export interface NuevoInmuebleInput {
   habitaciones: number;
   banos: number;
   metrosConstruidos: number;
+  anoConstruccion: number | null;
+  tipoCocina: string | null;
+  gastosComunidad: number | null;
+  tipoCalefaccion: string | null;
   consumoEnergetico: CalificacionEnergetica;
   emisionesEnergetico: CalificacionEnergetica;
   descripcion: string;
+  caracteristicas: string[];
   agente: string;
 }
 
@@ -371,9 +381,12 @@ export async function crearInmueble(
       metrosConstruidos: input.metrosConstruidos,
       metrosUtiles: null,
       planta: null,
-      anoConstruccion: null,
+      anoConstruccion: input.anoConstruccion,
       orientacion: null,
       estado: null,
+      tipoCocina: input.tipoCocina,
+      gastosComunidad: input.gastosComunidad,
+      tipoCalefaccion: input.tipoCalefaccion,
     },
     energetico: {
       consumo: input.consumoEnergetico,
@@ -382,7 +395,7 @@ export async function crearInmueble(
       emisionesKg: null,
     },
     descripcion: input.descripcion,
-    caracteristicas: [],
+    caracteristicas: input.caracteristicas ?? [],
     multimedia: {
       fotos: fotosSubidas,
       videoUrl: null,
@@ -421,9 +434,14 @@ export interface InmuebleAdminData {
   habitaciones: number;
   banos: number;
   metrosConstruidos: number;
+  anoConstruccion: number | null;
+  tipoCocina: string | null;
+  gastosComunidad: number | null;
+  tipoCalefaccion: string | null;
   consumoEnergetico: CalificacionEnergetica;
   emisionesEnergetico: CalificacionEnergetica;
   descripcion: string;
+  caracteristicas: string[];
   agente: string;
   fotos: FotoInmueble[];
 }
@@ -453,9 +471,14 @@ export async function obtenerInmueblePorId(
     habitaciones: data.detalles?.habitaciones ?? 0,
     banos: data.detalles?.banos ?? 0,
     metrosConstruidos: data.detalles?.metrosConstruidos ?? 0,
+    anoConstruccion: data.detalles?.anoConstruccion ?? null,
+    tipoCocina: data.detalles?.tipoCocina ?? null,
+    gastosComunidad: data.detalles?.gastosComunidad ?? null,
+    tipoCalefaccion: data.detalles?.tipoCalefaccion ?? null,
     consumoEnergetico: data.energetico?.consumo ?? "en_tramite",
     emisionesEnergetico: data.energetico?.emisiones ?? "en_tramite",
     descripcion: data.descripcion ?? "",
+    caracteristicas: (data.caracteristicas ?? []) as string[],
     agente: data.agente ?? "",
     fotos: ((data.multimedia?.fotos ?? []) as FotoInmueble[])
       .slice()
@@ -519,9 +542,14 @@ export async function actualizarInmueble(
     "detalles.habitaciones": input.habitaciones,
     "detalles.banos": input.banos,
     "detalles.metrosConstruidos": input.metrosConstruidos,
+    "detalles.anoConstruccion": input.anoConstruccion,
+    "detalles.tipoCocina": input.tipoCocina,
+    "detalles.gastosComunidad": input.gastosComunidad,
+    "detalles.tipoCalefaccion": input.tipoCalefaccion,
     "energetico.consumo": input.consumoEnergetico,
     "energetico.emisiones": input.emisionesEnergetico,
     descripcion: input.descripcion,
+    caracteristicas: input.caracteristicas ?? [],
     "multimedia.fotos": fotosFinales,
     fechaActualizacion: serverTimestamp(),
     fechaPublicacion:

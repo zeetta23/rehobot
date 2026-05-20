@@ -94,6 +94,37 @@ export async function generateMetadata({
   };
 }
 
+const LABELS_TIPO_COCINA: Record<string, string> = {
+  independiente: "Independiente",
+  americana: "Americana",
+  office: "Office",
+};
+
+const LABELS_TIPO_CALEFACCION: Record<string, string> = {
+  sin: "Sin calefacción",
+  electrica: "Eléctrica",
+  gas_natural: "Gas natural",
+  gas_propano: "Gas propano/butano",
+  gasoil: "Gasoil",
+  suelo_radiante: "Suelo radiante",
+};
+
+const LABELS_TIPO: Record<string, string> = {
+  piso: "Piso",
+  chalet: "Chalet",
+  local: "Local comercial",
+  garaje: "Garaje",
+  trastero: "Trastero",
+  terreno: "Terreno",
+  oficina: "Oficina",
+};
+
+interface CardCarac {
+  icono: string;
+  label: string;
+  value: string;
+}
+
 function colorCalificacion(c: CalificacionEnergetica): string {
   const map: Record<CalificacionEnergetica, string> = {
     A: "bg-green-700",
@@ -330,22 +361,139 @@ export default async function FichaInmueblePage({
             </section>
           )}
 
-          {/* Características */}
-          {inmueble.caracteristicas.length > 0 && (
-            <section className="mt-10">
-              <h2 className="font-display text-2xl font-semibold text-navy">
-                Características
-              </h2>
-              <ul className="mt-4 grid grid-cols-2 gap-y-2 font-body text-sm capitalize text-dark sm:grid-cols-3">
-                {inmueble.caracteristicas.map((c) => (
-                  <li key={c} className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-gold" />{" "}
-                    {c.replace(/_/g, " ")}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+          {/* Características — sección con cards (estilo competencia) */}
+          {(() => {
+            const tieneAC = inmueble.caracteristicas.includes("ac");
+            const tieneTerraza =
+              inmueble.caracteristicas.includes("terraza") ||
+              inmueble.caracteristicas.includes("balcon");
+            const cards: CardCarac[] = [];
+
+            cards.push({
+              icono: "🏠",
+              label: "Tipo de propiedad",
+              value: LABELS_TIPO[inmueble.tipo] ?? inmueble.tipo,
+            });
+            cards.push({
+              icono: "🏷️",
+              label: "Operación",
+              value:
+                inmueble.operacion === "venta" ? "Venta" : "Alquiler",
+            });
+            if (inmueble.anoConstruccion) {
+              cards.push({
+                icono: "📅",
+                label: "Año de construcción",
+                value: String(inmueble.anoConstruccion),
+              });
+            }
+            cards.push({
+              icono: "🌿",
+              label: "Terraza / balcón",
+              value: tieneTerraza ? "Sí" : "No",
+            });
+            cards.push({
+              icono: "❄️",
+              label: "Aire acondicionado",
+              value: tieneAC ? "Sí" : "No",
+            });
+            if (inmueble.tipoCalefaccion) {
+              cards.push({
+                icono: "🔥",
+                label: "Calefacción",
+                value:
+                  LABELS_TIPO_CALEFACCION[inmueble.tipoCalefaccion] ??
+                  inmueble.tipoCalefaccion,
+              });
+            }
+            cards.push({
+              icono: "⚡",
+              label: "Certificado energético",
+              value: labelCalificacion(inmueble.energetico.consumo),
+            });
+            if (
+              inmueble.gastosComunidad !== null &&
+              inmueble.gastosComunidad > 0
+            ) {
+              cards.push({
+                icono: "💶",
+                label: "Gastos de comunidad",
+                value: `${inmueble.gastosComunidad} €/mes`,
+              });
+            }
+            if (inmueble.tipoCocina) {
+              cards.push({
+                icono: "🍴",
+                label: "Cocina",
+                value:
+                  LABELS_TIPO_COCINA[inmueble.tipoCocina] ??
+                  inmueble.tipoCocina,
+              });
+            }
+            if (inmueble.planta) {
+              cards.push({
+                icono: "🛗",
+                label: "Planta",
+                value: inmueble.planta,
+              });
+            }
+            if (inmueble.orientacion) {
+              cards.push({
+                icono: "🧭",
+                label: "Orientación",
+                value: inmueble.orientacion,
+              });
+            }
+
+            return (
+              <section className="mt-10">
+                <h2 className="font-display text-2xl font-semibold text-navy">
+                  Características
+                </h2>
+                <ul className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {cards.map((c) => (
+                    <li
+                      key={c.label}
+                      className="flex items-start gap-3 rounded-xl border-l-2 border-gold bg-cream/40 p-4"
+                    >
+                      <span className="text-2xl" aria-hidden>
+                        {c.icono}
+                      </span>
+                      <div>
+                        <p className="font-body text-xs uppercase tracking-widest text-gray-text">
+                          {c.label}
+                        </p>
+                        <p className="mt-1 font-body text-sm font-medium text-navy">
+                          {c.value}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Otras características destacadas como chips */}
+                {(() => {
+                  const ignoradas = new Set(["ac", "terraza", "balcon"]);
+                  const chips = inmueble.caracteristicas.filter(
+                    (c) => !ignoradas.has(c),
+                  );
+                  if (chips.length === 0) return null;
+                  return (
+                    <ul className="mt-6 flex flex-wrap gap-2">
+                      {chips.map((c) => (
+                        <li
+                          key={c}
+                          className="rounded-full border border-navy/15 bg-white px-3 py-1.5 font-body text-xs capitalize text-navy"
+                        >
+                          {c.replace(/_/g, " ")}
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                })()}
+              </section>
+            );
+          })()}
 
           {/* Certificado energético */}
           <section className="mt-10">
