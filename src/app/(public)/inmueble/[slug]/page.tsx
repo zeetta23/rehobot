@@ -120,7 +120,7 @@ export default async function FichaInmueblePage({
         )}
       </section>
 
-      <div className="mx-auto mt-10 grid max-w-7xl grid-cols-1 gap-10 px-4 pb-20 sm:px-6 lg:grid-cols-[1fr_360px] lg:gap-12 lg:pb-64">
+      <div className="mx-auto mt-10 grid max-w-7xl grid-cols-1 gap-10 px-4 pb-20 sm:px-6 lg:grid-cols-[1fr_360px] lg:gap-12 lg:pb-32">
         {/* CONTENIDO PRINCIPAL */}
         <div>
           <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
