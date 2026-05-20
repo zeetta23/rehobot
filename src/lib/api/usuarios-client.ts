@@ -50,9 +50,16 @@ export interface CrearUsuarioPayload {
   };
 }
 
+export interface CrearUsuarioResult {
+  uid: string;
+  email: string;
+  emailEnviado: boolean;
+  emailError: string | null;
+}
+
 export async function crearUsuario(
   payload: CrearUsuarioPayload,
-): Promise<{ uid: string; email: string }> {
+): Promise<CrearUsuarioResult> {
   return jsonFetch("/api/admin/usuarios", {
     method: "POST",
     body: payload,

@@ -110,6 +110,8 @@ export async function POST(request: Request) {
   }
 
   // 3. Email de bienvenida (opcional, no bloquea si falla)
+  let emailEnviado = false;
+  let emailError: string | null = null;
   if (body.enviarEmail !== false && process.env.RESEND_API_KEY) {
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
@@ -134,14 +136,19 @@ export async function POST(request: Request) {
           </div>
         </div>
       `;
-      await resend.emails.send({
+      const result = await resend.emails.send({
         from: FROM,
         to: body.email,
         subject: "Bienvenido al panel de Rehobot Real Estate",
         html,
       });
-    } catch {
-      // Silencioso, el usuario ya está creado
+      if (result.error) {
+        emailError = result.error.message;
+      } else {
+        emailEnviado = true;
+      }
+    } catch (err) {
+      emailError = err instanceof Error ? err.message : "Error desconocido";
     }
   }
 
@@ -149,5 +156,7 @@ export async function POST(request: Request) {
     ok: true,
     uid: userRecord.uid,
     email: userRecord.email,
+    emailEnviado,
+    emailError,
   });
 }

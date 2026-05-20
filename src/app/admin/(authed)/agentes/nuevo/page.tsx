@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { crearUsuario } from "@/lib/api/usuarios-client";
+import {
+  crearUsuario,
+  type CrearUsuarioResult,
+} from "@/lib/api/usuarios-client";
 import { MUNICIPIOS_CORREDOR } from "@/lib/types";
 
 interface FormState {
@@ -53,6 +56,9 @@ export default function NuevoAgentePage() {
   const [form, setForm] = useState<FormState>(INICIAL);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [creado, setCreado] = useState<
+    (CrearUsuarioResult & { passwordUsada: string }) | null
+  >(null);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -91,12 +97,105 @@ export default function NuevoAgentePage() {
           zonas: form.zonas,
         },
       });
-      router.push(`/admin/agentes?creado=${result.uid}`);
+      // Guardamos las credenciales y el resultado para enseñárselas al admin
+      // por si el email no llegó (sandbox de Resend).
+      setCreado({ ...result, passwordUsada: form.password });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al crear usuario.");
     } finally {
       setSubmitting(false);
     }
+  }
+
+  // Pantalla de éxito (con credenciales por si el email no llegó)
+  if (creado) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <div className="rounded-2xl border border-black/5 bg-white p-8">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gold/20 text-3xl text-gold">
+            ✓
+          </div>
+          <h1 className="mt-5 font-display text-3xl font-semibold text-navy">
+            Usuario creado
+          </h1>
+          <p className="mt-3 font-body text-sm text-dark">
+            La cuenta de <strong>{form.nombre}</strong> ya está activa en el
+            panel.
+          </p>
+
+          {creado.emailEnviado ? (
+            <p className="mt-6 rounded-lg bg-green-50 px-4 py-3 font-body text-sm text-green-800">
+              ✓ Email de bienvenida enviado a {creado.email}. Pídele que revise
+              su bandeja de entrada (y Spam la primera vez).
+            </p>
+          ) : (
+            <div className="mt-6 rounded-lg bg-yellow-50 px-4 py-4 font-body text-sm text-yellow-900">
+              <p className="font-semibold">
+                ⚠ El email automático no se pudo enviar
+              </p>
+              {creado.emailError && (
+                <p className="mt-1 text-xs text-yellow-800">
+                  Motivo: {creado.emailError}
+                </p>
+              )}
+              <p className="mt-2 text-xs">
+                Esto suele pasar porque Resend está en modo sandbox y solo
+                envía a tu propio email hasta que verifiques un dominio.{" "}
+                <strong>
+                  Pásale las credenciales al usuario por WhatsApp u otro
+                  canal:
+                </strong>
+              </p>
+              <dl className="mt-4 space-y-2 rounded-md bg-white p-4">
+                <div>
+                  <dt className="font-body text-xs uppercase tracking-widest text-gray-text">
+                    Email
+                  </dt>
+                  <dd className="mt-1 select-all font-mono text-sm text-navy">
+                    {creado.email}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-body text-xs uppercase tracking-widest text-gray-text">
+                    Contraseña inicial
+                  </dt>
+                  <dd className="mt-1 select-all font-mono text-sm text-navy">
+                    {creado.passwordUsada}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-body text-xs uppercase tracking-widest text-gray-text">
+                    Acceso
+                  </dt>
+                  <dd className="mt-1 font-body text-sm text-navy">
+                    https://rehobot-rose.vercel.app/admin/login
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          )}
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setCreado(null);
+                setForm(INICIAL);
+              }}
+              className="rounded-full bg-navy px-6 py-3 font-body text-sm font-medium text-white hover:bg-navy-medium"
+            >
+              Crear otro usuario
+            </button>
+            <Link
+              href="/admin/agentes"
+              className="rounded-full border border-navy/15 px-6 py-3 font-body text-sm text-navy hover:bg-cream"
+            >
+              Volver al equipo
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
