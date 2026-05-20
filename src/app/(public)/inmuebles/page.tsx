@@ -223,11 +223,7 @@ export default async function InmueblesPage({
                     return (
                       <label
                         key={n || "any"}
-                        className={`cursor-pointer rounded-md border px-3 py-1.5 font-body text-xs transition-colors ${
-                          isActive
-                            ? "border-navy bg-navy text-white"
-                            : "border-navy/15 text-navy hover:bg-navy hover:text-white"
-                        }`}
+                        className="cursor-pointer rounded-md border border-navy/15 px-3 py-1.5 font-body text-xs text-navy transition-colors hover:bg-navy/10 has-checked:border-navy has-checked:bg-navy has-checked:text-white"
                       >
                         <input
                           type="radio"
@@ -253,11 +249,7 @@ export default async function InmueblesPage({
                     return (
                       <label
                         key={n || "any"}
-                        className={`cursor-pointer rounded-md border px-3 py-1.5 font-body text-xs transition-colors ${
-                          isActive
-                            ? "border-navy bg-navy text-white"
-                            : "border-navy/15 text-navy hover:bg-navy hover:text-white"
-                        }`}
+                        className="cursor-pointer rounded-md border border-navy/15 px-3 py-1.5 font-body text-xs text-navy transition-colors hover:bg-navy/10 has-checked:border-navy has-checked:bg-navy has-checked:text-white"
                       >
                         <input
                           type="radio"
