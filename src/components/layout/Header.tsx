@@ -92,7 +92,7 @@ export function Header() {
               width={1536}
               height={1024}
               priority
-              className="h-24 w-auto sm:h-32"
+              className="h-20 w-auto sm:h-28"
             />
           </Link>
         </div>
@@ -130,7 +130,7 @@ export function Header() {
       {/* Drawer móvil */}
       {open && (
         <div
-          className="fixed inset-x-0 top-[112px] z-40 max-h-[calc(100vh-112px)] overflow-y-auto border-t border-black/5 bg-white shadow-2xl md:hidden"
+          className="fixed inset-x-0 top-[96px] z-40 max-h-[calc(100vh-96px)] overflow-y-auto border-t border-black/5 bg-white shadow-2xl md:hidden"
           role="dialog"
           aria-label="Menú principal"
         >
