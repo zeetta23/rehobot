@@ -113,10 +113,10 @@ export function Header() {
         {/* Derecha: teléfono (desktop) + CTA (siempre) */}
         <div className="flex items-center gap-2 sm:gap-3">
           <a
-            href="tel:+34916000000"
+            href="tel:+34643089984"
             className="hidden font-body text-sm font-medium text-gray-text transition-colors hover:text-navy lg:inline"
           >
-            +34 916 00 00 00
+            +34 643 08 99 84
           </a>
           <Link
             href="/vender"
@@ -150,10 +150,10 @@ export function Header() {
 
             <div className="mt-6 space-y-3 border-t border-black/5 pt-6">
               <a
-                href="tel:+34916000000"
+                href="tel:+34643089984"
                 className="flex items-center justify-center gap-2 rounded-full border border-navy/15 px-5 py-3 font-body text-sm font-medium text-navy"
               >
-                Llamar +34 916 00 00 00
+                Llamar +34 643 08 99 84
               </a>
               <Link
                 href="/vender"

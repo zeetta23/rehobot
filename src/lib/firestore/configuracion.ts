@@ -34,10 +34,10 @@ export const CONFIG_DEFAULTS: ConfiguracionSitio = {
     nombre: "Rehobot Real Estate",
     cif: "",
     direccion: "Calle Mayor, 00 · 28801 Alcalá de Henares",
-    telefono: "+34 916 00 00 00",
+    telefono: "+34 643 08 99 84",
     email: "info@rehobotrealestate.es",
     emailLeads: "",
-    whatsappPrincipal: "+34 916 00 00 00",
+    whatsappPrincipal: "+34 643 08 99 84",
     horario:
       "Lunes a Viernes: 10:00 - 14:00 / 17:00 - 20:00 · Sábados: 10:00 - 14:00",
   },

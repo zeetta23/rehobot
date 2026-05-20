@@ -39,7 +39,7 @@ export default function PrivacidadPage() {
           </a>
         </li>
         <li>
-          <strong>Teléfono:</strong> +34 916 00 00 00
+          <strong>Teléfono:</strong> +34 643 08 99 84
         </li>
       </ul>
 

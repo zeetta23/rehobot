@@ -127,7 +127,7 @@ export default function AjustesPage() {
                 type="tel"
                 value={config.empresa.telefono}
                 onChange={(e) => updateEmpresa("telefono", e.target.value)}
-                placeholder="+34 916 00 00 00"
+                placeholder="+34 643 08 99 84"
                 className="mt-1.5 w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
               />
             </label>

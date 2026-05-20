@@ -37,7 +37,7 @@ export default function AvisoLegalPage() {
           </a>
         </li>
         <li>
-          <strong>Teléfono:</strong> +34 916 00 00 00
+          <strong>Teléfono:</strong> +34 643 08 99 84
         </li>
         <li>
           <strong>Datos registrales:</strong> [Registro Mercantil de Madrid,

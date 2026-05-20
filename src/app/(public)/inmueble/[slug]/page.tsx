@@ -530,7 +530,7 @@ export default async function FichaInmueblePage({
             inmuebleRef={inmueble.ref}
             inmuebleTitulo={inmueble.titulo}
             agenteAsignado={null}
-            whatsappUrl={`https://wa.me/34916000000?text=${encodeURIComponent(
+            whatsappUrl={`https://wa.me/34643089984?text=${encodeURIComponent(
               `Hola, me interesa el inmueble ${inmueble.ref} (${inmueble.titulo}).`,
             )}`}
           />
