@@ -5,6 +5,7 @@ import {
   listarInmueblesPublicos,
   formatPrecio,
 } from "@/lib/firestore/inmuebles";
+import { MUNICIPIOS_CORREDOR } from "@/lib/types";
 import { MapaInmuebles } from "@/components/maps/MapaInmuebles";
 
 export const revalidate = 60;
@@ -16,15 +17,7 @@ const TIPOS = [
   { label: "Garajes", href: "/inmuebles?tipo=garaje", count: "—" },
 ];
 
-const ZONAS = [
-  "Alcalá de Henares",
-  "Torrejón de Ardoz",
-  "Coslada",
-  "San Fernando de Henares",
-  "Mejorada del Campo",
-  "Velilla de San Antonio",
-  "Loeches",
-];
+const ZONAS = MUNICIPIOS_CORREDOR;
 
 function slugifyZona(zona: string) {
   return zona

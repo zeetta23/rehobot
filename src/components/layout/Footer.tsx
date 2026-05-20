@@ -13,10 +13,10 @@ const COLUMNAS = {
     { href: "/inmuebles?operacion=alquiler", label: "Alquileres" },
   ],
   Zonas: [
-    { href: "/zonas/alcala-de-henares", label: "Alcalá de Henares" },
-    { href: "/zonas/torrejon-de-ardoz", label: "Torrejón de Ardoz" },
-    { href: "/zonas/coslada", label: "Coslada" },
-    { href: "/zonas/san-fernando", label: "San Fernando de Henares" },
+    { href: "/inmuebles?zona=Madrid+Centro", label: "Madrid Centro" },
+    { href: "/inmuebles?zona=Madrid+Norte", label: "Madrid Norte" },
+    { href: "/inmuebles?zona=Alcal%C3%A1+de+Henares", label: "Alcalá de Henares" },
+    { href: "/inmuebles?zona=Torrej%C3%B3n+de+Ardoz", label: "Torrejón de Ardoz" },
   ],
   Empresa: [
     { href: "/nosotros", label: "Quiénes somos" },
