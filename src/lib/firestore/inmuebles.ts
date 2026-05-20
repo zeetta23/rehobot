@@ -303,6 +303,7 @@ export interface NuevoInmuebleInput {
   destacado: boolean;
   municipio: string;
   zona: string;
+  coordenadas: { lat: number; lng: number };
   habitaciones: number;
   banos: number;
   metrosConstruidos: number;
@@ -356,7 +357,7 @@ export async function crearInmueble(
       municipio: input.municipio,
       zona: input.zona,
       direccion: "",
-      coordenadas: { lat: 0, lng: 0 },
+      coordenadas: input.coordenadas ?? { lat: 0, lng: 0 },
       radioPrivacidad: 100,
     },
     detalles: {
@@ -411,6 +412,7 @@ export interface InmuebleAdminData {
   precio: number;
   municipio: string;
   zona: string;
+  coordenadas: { lat: number; lng: number };
   habitaciones: number;
   banos: number;
   metrosConstruidos: number;
@@ -439,6 +441,10 @@ export async function obtenerInmueblePorId(
     precio: data.precio ?? 0,
     municipio: data.ubicacion?.municipio ?? "",
     zona: data.ubicacion?.zona ?? "",
+    coordenadas: {
+      lat: data.ubicacion?.coordenadas?.lat ?? 0,
+      lng: data.ubicacion?.coordenadas?.lng ?? 0,
+    },
     habitaciones: data.detalles?.habitaciones ?? 0,
     banos: data.detalles?.banos ?? 0,
     metrosConstruidos: data.detalles?.metrosConstruidos ?? 0,
@@ -504,6 +510,7 @@ export async function actualizarInmueble(
     precio: input.precio,
     "ubicacion.municipio": input.municipio,
     "ubicacion.zona": input.zona,
+    "ubicacion.coordenadas": input.coordenadas ?? { lat: 0, lng: 0 },
     "detalles.habitaciones": input.habitaciones,
     "detalles.banos": input.banos,
     "detalles.metrosConstruidos": input.metrosConstruidos,

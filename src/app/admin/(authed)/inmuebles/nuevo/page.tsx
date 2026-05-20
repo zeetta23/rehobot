@@ -10,6 +10,7 @@ import {
   crearInmueble,
   type NuevoInmuebleInput,
 } from "@/lib/firestore/inmuebles";
+import { SelectorCoordenadas } from "@/components/maps/SelectorCoordenadas";
 import {
   MUNICIPIOS_CORREDOR,
   type Operacion,
@@ -75,6 +76,7 @@ export default function NuevoInmueblePage() {
     destacado: false,
     municipio: MUNICIPIOS_CORREDOR[0],
     zona: "",
+    coordenadas: { lat: 0, lng: 0 },
     habitaciones: 0,
     banos: 0,
     metrosConstruidos: 0,
@@ -332,6 +334,44 @@ export default function NuevoInmueblePage() {
                 className="mt-1.5 w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
               />
             </label>
+          </div>
+
+          {/* Selector de coordenadas en mapa */}
+          <div className="mt-6">
+            <h3 className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+              Ubicación en el mapa
+            </h3>
+            <p className="mt-2 font-body text-xs text-gray-text">
+              Haz clic en el mapa donde está el inmueble. Mostraremos un
+              círculo de privacidad (no la ubicación exacta) en la web pública.
+            </p>
+            <div className="mt-3 overflow-hidden rounded-lg border border-black/10">
+              <SelectorCoordenadas
+                lat={form.coordenadas.lat}
+                lng={form.coordenadas.lng}
+                onChange={(lat, lng) =>
+                  update("coordenadas", { lat, lng })
+                }
+              />
+            </div>
+            {form.coordenadas.lat !== 0 && form.coordenadas.lng !== 0 ? (
+              <p className="mt-2 font-body text-xs text-gray-text">
+                Coordenadas: {form.coordenadas.lat.toFixed(6)},{" "}
+                {form.coordenadas.lng.toFixed(6)}{" "}
+                <button
+                  type="button"
+                  onClick={() => update("coordenadas", { lat: 0, lng: 0 })}
+                  className="ml-2 text-red-600 underline-offset-4 hover:underline"
+                >
+                  Quitar
+                </button>
+              </p>
+            ) : (
+              <p className="mt-2 font-body text-xs text-gray-text">
+                Sin coordenadas seleccionadas. Haz clic en el mapa para
+                establecerlas.
+              </p>
+            )}
           </div>
         </section>
 

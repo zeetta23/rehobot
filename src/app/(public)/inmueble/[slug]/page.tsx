@@ -6,6 +6,7 @@ import {
   formatPrecio,
 } from "@/lib/firestore/inmuebles";
 import { InteresInmuebleForm } from "@/components/forms/InteresInmuebleForm";
+import { MapaUbicacion } from "@/components/maps/MapaUbicacion";
 import type { CalificacionEnergetica } from "@/lib/types";
 
 export const revalidate = 60;
@@ -236,16 +237,23 @@ export default async function FichaInmueblePage({
           </section>
 
           {/* Mapa */}
-          <section className="mt-10">
-            <h2 className="font-display text-2xl font-semibold text-navy">
-              Ubicación aproximada
-            </h2>
-            <div className="mt-4 aspect-[16/9] rounded-2xl border border-dashed border-navy/20 bg-cream">
-              <div className="flex h-full items-center justify-center font-body text-sm text-gray-text">
-                [ Mapa Leaflet · próximamente ]
+          {inmueble.coordenadas.lat !== 0 && inmueble.coordenadas.lng !== 0 && (
+            <section className="mt-10">
+              <h2 className="font-display text-2xl font-semibold text-navy">
+                Ubicación aproximada
+              </h2>
+              <p className="mt-2 font-body text-xs text-gray-text">
+                Mostramos un radio de privacidad. La dirección exacta se
+                facilita en la visita.
+              </p>
+              <div className="mt-4 aspect-[16/9] overflow-hidden rounded-2xl">
+                <MapaUbicacion
+                  lat={inmueble.coordenadas.lat}
+                  lng={inmueble.coordenadas.lng}
+                />
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* Tour 360 */}
           {inmueble.tour360Url && (
