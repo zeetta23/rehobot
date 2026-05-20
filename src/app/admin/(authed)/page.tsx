@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { contarInmueblesActivos } from "@/lib/firestore/inmuebles";
 import { obtenerKpisLeads } from "@/lib/firestore/leads";
+import { obtenerUsoFirebase, formatBytes } from "@/lib/admin/uso";
 import { AnalyticsWidget } from "@/components/admin/AnalyticsWidget";
 
 export const revalidate = 30;
@@ -16,13 +17,14 @@ function formatearDuracion(ms: number): string {
 }
 
 export default async function AdminDashboard() {
-  const [activos, kpis] = await Promise.all([
+  const [activos, kpis, uso] = await Promise.all([
     contarInmueblesActivos().catch(() => 0),
     obtenerKpisLeads().catch(() => ({
       totalMes: 0,
       totalNuevos: 0,
       tiempoRespuestaMedioMs: null,
     })),
+    obtenerUsoFirebase().catch(() => null),
   ]);
 
   return (
@@ -128,6 +130,118 @@ export default async function AdminDashboard() {
       </div>
 
       <AnalyticsWidget />
+
+      {/* Uso de Firebase */}
+      <section className="mt-10 rounded-2xl border border-black/5 bg-white p-8">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 className="font-display text-xl font-semibold text-navy">
+              Uso de Firebase
+            </h2>
+            <p className="mt-1 font-body text-sm text-gray-text">
+              Almacenamiento y documentos consumidos sobre el plan gratuito.
+            </p>
+          </div>
+          <a
+            href="https://console.firebase.google.com/"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden font-body text-xs text-gray-text hover:text-navy sm:inline"
+          >
+            Consola Firebase ↗
+          </a>
+        </div>
+
+        {uso ? (
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
+            {/* Cloud Storage */}
+            <div>
+              <div className="flex items-baseline justify-between">
+                <p className="font-body text-sm font-semibold text-navy">
+                  Cloud Storage (fotos)
+                </p>
+                <p className="font-body text-xs text-gray-text">
+                  {uso.storage.archivos}{" "}
+                  {uso.storage.archivos === 1 ? "archivo" : "archivos"}
+                </p>
+              </div>
+              <div className="mt-2 flex items-baseline justify-between">
+                <p className="font-display text-2xl font-semibold text-navy">
+                  {formatBytes(uso.storage.bytes)}
+                </p>
+                <p className="font-body text-xs text-gray-text">
+                  de {formatBytes(uso.storage.limiteBytes)} ·{" "}
+                  <span
+                    className={
+                      uso.storage.porcentaje >= 80
+                        ? "font-semibold text-red-600"
+                        : uso.storage.porcentaje >= 50
+                          ? "font-semibold text-yellow-700"
+                          : "text-gray-text"
+                    }
+                  >
+                    {uso.storage.porcentaje.toFixed(2)}%
+                  </span>
+                </p>
+              </div>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-cream">
+                <div
+                  className={`h-full rounded-full transition-all ${
+                    uso.storage.porcentaje >= 80
+                      ? "bg-red-500"
+                      : uso.storage.porcentaje >= 50
+                        ? "bg-yellow-500"
+                        : "bg-gold"
+                  }`}
+                  style={{
+                    width: `${Math.min(uso.storage.porcentaje, 100).toFixed(2)}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Firestore docs */}
+            <div>
+              <div className="flex items-baseline justify-between">
+                <p className="font-body text-sm font-semibold text-navy">
+                  Firestore (documentos)
+                </p>
+                <p className="font-body text-xs text-gray-text">
+                  Cuota gratuita: 1 GB
+                </p>
+              </div>
+              <p className="mt-2 font-display text-2xl font-semibold text-navy">
+                {uso.firestore.totalDocs.toLocaleString("es-ES")} docs
+              </p>
+              <ul className="mt-3 grid grid-cols-3 gap-3 font-body text-xs">
+                <li className="rounded-lg bg-cream/60 px-3 py-2">
+                  <p className="text-gray-text">Inmuebles</p>
+                  <p className="mt-0.5 font-semibold text-navy">
+                    {uso.firestore.docs.inmuebles}
+                  </p>
+                </li>
+                <li className="rounded-lg bg-cream/60 px-3 py-2">
+                  <p className="text-gray-text">Leads</p>
+                  <p className="mt-0.5 font-semibold text-navy">
+                    {uso.firestore.docs.leads}
+                  </p>
+                </li>
+                <li className="rounded-lg bg-cream/60 px-3 py-2">
+                  <p className="text-gray-text">Usuarios</p>
+                  <p className="mt-0.5 font-semibold text-navy">
+                    {uso.firestore.docs.usuarios}
+                  </p>
+                </li>
+              </ul>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-6 rounded-lg bg-yellow-50 px-4 py-3 font-body text-sm text-yellow-800">
+            No se pudo obtener el uso actual. Verifica que el service account
+            tenga permiso sobre Storage y Firestore.
+          </p>
+        )}
+      </section>
     </div>
   );
 }
