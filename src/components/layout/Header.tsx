@@ -118,8 +118,7 @@ export function Header() {
             href="/vender"
             className="shrink-0 whitespace-nowrap rounded-full bg-gold px-3 py-1.5 font-body text-xs font-medium text-navy transition-colors hover:bg-gold-light sm:px-5 sm:py-2.5 sm:text-sm"
           >
-            <span className="sm:hidden">Valorar</span>
-            <span className="hidden sm:inline">Valoración gratis</span>
+            Valoración gratis
           </Link>
         </div>
       </div>
