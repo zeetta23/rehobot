@@ -4,6 +4,24 @@ import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FirebaseError } from "firebase/app";
+import {
+  DndContext,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import {
   obtenerInmueblePorId,
@@ -124,6 +142,14 @@ export default function EditarInmueblePage({
   const [form, setForm] = useState<NuevoInmuebleInput | null>(null);
   const [fotos, setFotos] = useState<FotoEditorItem[]>([]);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 5 },
+    }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
   useEffect(() => {
     let cancelado = false;
     obtenerInmueblePorId(id)
@@ -242,15 +268,14 @@ export default function EditarInmueblePage({
     });
   }
 
-  function moverFoto(id: string, direccion: "izq" | "der") {
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
     setFotos((prev) => {
-      const idx = prev.findIndex((f) => f.id === id);
-      if (idx === -1) return prev;
-      const nuevoIdx = direccion === "izq" ? idx - 1 : idx + 1;
-      if (nuevoIdx < 0 || nuevoIdx >= prev.length) return prev;
-      const copia = [...prev];
-      [copia[idx], copia[nuevoIdx]] = [copia[nuevoIdx], copia[idx]];
-      return copia;
+      const oldIdx = prev.findIndex((f) => f.id === active.id);
+      const newIdx = prev.findIndex((f) => f.id === over.id);
+      if (oldIdx === -1 || newIdx === -1) return prev;
+      return arrayMove(prev, oldIdx, newIdx);
     });
   }
 
@@ -822,62 +847,33 @@ export default function EditarInmueblePage({
               </p>
             </div>
           ) : (
-            <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {fotos.map((foto, idx) => (
-                <li
-                  key={foto.id}
-                  className="group relative overflow-hidden rounded-xl border border-black/10"
+            <>
+              <p className="mt-4 font-body text-xs text-gray-text">
+                Arrastra las fotos para reordenarlas. La primera será la
+                portada.
+              </p>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={fotos.map((f) => f.id)}
+                  strategy={rectSortingStrategy}
                 >
-                  <div className="relative aspect-[4/3] w-full bg-cream">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={foto.previewUrl}
-                      alt={`Foto ${idx + 1}`}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  {idx === 0 && (
-                    <span className="absolute left-2 top-2 rounded-full bg-gold px-2 py-0.5 font-body text-[10px] font-semibold uppercase tracking-wider text-navy">
-                      Portada
-                    </span>
-                  )}
-                  {foto.item.tipo === "nueva" && (
-                    <span className="absolute right-2 top-2 rounded-full bg-navy px-2 py-0.5 font-body text-[10px] font-semibold uppercase tracking-wider text-white">
-                      Nueva
-                    </span>
-                  )}
-                  <div className="absolute inset-x-0 bottom-0 flex justify-between gap-1 bg-gradient-to-t from-black/70 to-transparent px-2 py-2 opacity-0 transition-opacity group-hover:opacity-100">
-                    <div className="flex gap-1">
-                      <button
-                        type="button"
-                        onClick={() => moverFoto(foto.id, "izq")}
-                        disabled={idx === 0}
-                        className="rounded-md bg-white/90 px-2 py-1 font-body text-xs text-navy disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label="Mover izquierda"
-                      >
-                        ←
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => moverFoto(foto.id, "der")}
-                        disabled={idx === fotos.length - 1}
-                        className="rounded-md bg-white/90 px-2 py-1 font-body text-xs text-navy disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label="Mover derecha"
-                      >
-                        →
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => eliminarFoto(foto.id)}
-                      className="rounded-md bg-red-600/90 px-2 py-1 font-body text-xs text-white"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                    {fotos.map((foto, idx) => (
+                      <FotoSortableItem
+                        key={foto.id}
+                        foto={foto}
+                        idx={idx}
+                        onEliminar={eliminarFoto}
+                      />
+                    ))}
+                  </ul>
+                </SortableContext>
+              </DndContext>
+            </>
           )}
         </section>
 
@@ -933,5 +929,70 @@ export default function EditarInmueblePage({
         </div>
       </form>
     </div>
+  );
+}
+
+interface FotoSortableItemProps {
+  foto: FotoEditorItem;
+  idx: number;
+  onEliminar: (id: string) => void;
+}
+
+function FotoSortableItem({ foto, idx, onEliminar }: FotoSortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: foto.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+    opacity: isDragging ? 0.4 : 1,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className="group relative overflow-hidden rounded-xl border border-black/10 bg-white"
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="relative aspect-[4/3] w-full cursor-grab touch-none bg-cream active:cursor-grabbing"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={foto.previewUrl}
+          alt={`Foto ${idx + 1}`}
+          className="pointer-events-none h-full w-full object-cover"
+          draggable={false}
+        />
+      </div>
+      {idx === 0 && (
+        <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-gold px-2 py-0.5 font-body text-[10px] font-semibold uppercase tracking-wider text-navy">
+          Portada
+        </span>
+      )}
+      {foto.item.tipo === "nueva" && (
+        <span className="pointer-events-none absolute right-2 top-2 rounded-full bg-navy px-2 py-0.5 font-body text-[10px] font-semibold uppercase tracking-wider text-white">
+          Nueva
+        </span>
+      )}
+      <div className="absolute inset-x-0 bottom-0 flex justify-end bg-gradient-to-t from-black/70 to-transparent px-2 py-2 opacity-0 transition-opacity group-hover:opacity-100">
+        <button
+          type="button"
+          onClick={() => onEliminar(foto.id)}
+          className="rounded-md bg-red-600/90 px-2 py-1 font-body text-xs text-white"
+        >
+          Eliminar
+        </button>
+      </div>
+    </li>
   );
 }
