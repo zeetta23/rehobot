@@ -1,12 +1,13 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
   Circle,
   useMapEvents,
+  useMap,
 } from "react-leaflet";
 
 interface Props {
@@ -31,6 +32,18 @@ function ClickHandler({
   return null;
 }
 
+// Cuando lat/lng cambian desde fuera (p.ej. buscador de dirección), vuela
+// el mapa al nuevo punto sin recargar el componente.
+function VolarA({ lat, lng }: { lat: number; lng: number }) {
+  const map = useMap();
+  useEffect(() => {
+    if (lat !== 0 || lng !== 0) {
+      map.flyTo([lat, lng], 17, { duration: 0.6 });
+    }
+  }, [lat, lng, map]);
+  return null;
+}
+
 export default function SelectorCoordenadasInner({
   lat,
   lng,
@@ -42,7 +55,9 @@ export default function SelectorCoordenadasInner({
   const [centroInicial] = useState<[number, number]>(
     tieneCoordenadas ? [lat, lng] : ALCALA,
   );
-  const posicion: [number, number] | null = tieneCoordenadas ? [lat, lng] : null;
+  const posicion: [number, number] | null = tieneCoordenadas
+    ? [lat, lng]
+    : null;
 
   return (
     <MapContainer
@@ -55,9 +70,8 @@ export default function SelectorCoordenadasInner({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <ClickHandler
-        onClick={(lat, lng) => onChange(lat, lng)}
-      />
+      <ClickHandler onClick={(lat, lng) => onChange(lat, lng)} />
+      <VolarA lat={lat} lng={lng} />
       {posicion && (
         <Circle
           center={posicion}

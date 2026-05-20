@@ -13,6 +13,7 @@ import {
   type ItemFotoEditor,
 } from "@/lib/firestore/inmuebles";
 import { SelectorCoordenadas } from "@/components/maps/SelectorCoordenadas";
+import { BuscadorDireccion } from "@/components/maps/BuscadorDireccion";
 import {
   MUNICIPIOS_CORREDOR,
   type Operacion,
@@ -443,9 +444,14 @@ export default function EditarInmueblePage({
               Ubicación en el mapa
             </h3>
             <p className="mt-2 font-body text-xs text-gray-text">
-              Haz clic en el mapa donde está el inmueble. Mostraremos un
-              círculo de privacidad (no la ubicación exacta) en la web pública.
+              Busca la dirección (puedes poner solo calle, barrio o ciudad) o
+              haz clic directamente en el mapa para ajustar manualmente.
             </p>
+            <div className="mt-3">
+              <BuscadorDireccion
+                onSelect={(lat, lng) => update("coordenadas", { lat, lng })}
+              />
+            </div>
             <div className="mt-3 overflow-hidden rounded-lg border border-black/10">
               <SelectorCoordenadas
                 lat={form.coordenadas.lat}
