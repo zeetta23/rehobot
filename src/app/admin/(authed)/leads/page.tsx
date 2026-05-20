@@ -147,14 +147,22 @@ export default function AdminLeadsPage() {
                 }${nuevos > 0 ? ` · ${nuevos} sin contactar` : ""}`}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={exportarCsv}
-          disabled={leadsVisibles.length === 0}
-          className="rounded-full border border-navy/15 px-4 py-2 font-body text-sm font-medium text-navy hover:bg-navy hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          ↓ Exportar CSV
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/admin/leads/nuevo"
+            className="rounded-full bg-navy px-4 py-2 font-body text-sm font-medium text-white hover:bg-navy-medium"
+          >
+            + Nuevo lead
+          </Link>
+          <button
+            type="button"
+            onClick={exportarCsv}
+            disabled={leadsVisibles.length === 0}
+            className="rounded-full border border-navy/15 px-4 py-2 font-body text-sm font-medium text-navy hover:bg-navy hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            ↓ Exportar CSV
+          </button>
+        </div>
       </div>
 
       {/* Filtros */}

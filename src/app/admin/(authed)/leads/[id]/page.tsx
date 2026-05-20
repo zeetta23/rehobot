@@ -537,6 +537,16 @@ export default function FichaLeadPage({
               Origen
             </h2>
             <dl className="mt-4 space-y-3 font-body text-xs">
+              {lead.origen.fuente && (
+                <div>
+                  <dt className="text-gray-text">Fuente</dt>
+                  <dd className="mt-0.5">
+                    <span className="inline-flex rounded-full bg-gold/20 px-2.5 py-0.5 font-semibold text-navy">
+                      {lead.origen.fuente}
+                    </span>
+                  </dd>
+                </div>
+              )}
               <div>
                 <dt className="text-gray-text">Página</dt>
                 <dd className="mt-0.5 break-all text-dark">

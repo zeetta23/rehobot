@@ -144,6 +144,7 @@ export interface OrigenLead {
   pagina: string;
   referer: string | null;
   userAgent: string | null;
+  fuente: string | null;
 }
 
 export interface Lead {
@@ -296,3 +297,21 @@ export const CARACTERISTICAS_DISPONIBLES = [
 ] as const;
 
 export type CaracteristicaInmueble = (typeof CARACTERISTICAS_DISPONIBLES)[number];
+
+export const FUENTES_LEAD = [
+  "Web",
+  "Facebook",
+  "Instagram",
+  "Idealista",
+  "Fotocasa",
+  "Habitaclia",
+  "WhatsApp",
+  "Llamada",
+  "Email",
+  "Presencial",
+  "Cartel/Comercial",
+  "Recomendación",
+  "Otro",
+] as const;
+
+export type FuenteLead = (typeof FUENTES_LEAD)[number];

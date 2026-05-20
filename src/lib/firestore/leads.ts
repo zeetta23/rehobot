@@ -22,6 +22,7 @@ export interface OrigenLeadInput {
   pagina: string;
   referer: string | null;
   userAgent: string | null;
+  fuente: string | null;
 }
 
 interface BaseLeadInput {
@@ -30,6 +31,10 @@ interface BaseLeadInput {
   telefono: string;
   mensaje: string | null;
   origen: OrigenLeadInput;
+  /** Si se indica, sobrescribe la fecha de creación (alta manual retroactiva). */
+  fechaCreacion?: Date | null;
+  /** Solo para alta manual: notifyEmail=false evita disparar la notificación. */
+  notificarEmail?: boolean;
 }
 
 export interface NuevoLeadInteresInput extends BaseLeadInput {
@@ -57,6 +62,10 @@ export type NuevoLeadInput =
   | NuevoLeadContactoInput;
 
 export async function crearLead(input: NuevoLeadInput): Promise<string> {
+  const fechaCreacion = input.fechaCreacion
+    ? Timestamp.fromDate(input.fechaCreacion)
+    : serverTimestamp();
+
   const base = {
     nombre: input.nombre.trim(),
     email: input.email.trim().toLowerCase(),
@@ -66,8 +75,8 @@ export async function crearLead(input: NuevoLeadInput): Promise<string> {
     estado: "nuevo" as EstadoLead,
     notas: [] as NotaLead[],
     origen: input.origen,
-    fechaCreacion: serverTimestamp(),
-    fechaActualizacion: serverTimestamp(),
+    fechaCreacion,
+    fechaActualizacion: fechaCreacion,
     inmuebleId: null as string | null,
     inmuebleRef: null as string | null,
     inmuebleTitulo: null as string | null,
@@ -91,9 +100,8 @@ export async function crearLead(input: NuevoLeadInput): Promise<string> {
 
   const ref = await addDoc(collection(db, COL), base);
 
-  // Notificación por email a los admins (fire-and-forget: si falla, el lead
-  // ya está guardado, no hacemos rollback).
-  if (typeof window !== "undefined") {
+  const debeNotificar = input.notificarEmail !== false;
+  if (debeNotificar && typeof window !== "undefined") {
     fetch("/api/leads/notify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -169,7 +177,14 @@ export interface LeadDetalle extends LeadListadoItem {
   metrosVender: number | null;
   agenteAsignado: string | null;
   notas: NotaLead[];
-  origen: { pagina: string; referer: string | null; userAgent: string | null };
+  origen: {
+    pagina: string;
+    referer: string | null;
+    userAgent: string | null;
+    fuente: string | null;
+  };
+  inmuebleId: string | null;
+  inmuebleTitulo: string | null;
   fechaActualizacionMs: number;
   fechaContactadoMs: number;
 }
@@ -194,7 +209,10 @@ export async function obtenerLeadPorId(
       pagina: data.origen?.pagina ?? "",
       referer: data.origen?.referer ?? null,
       userAgent: data.origen?.userAgent ?? null,
+      fuente: data.origen?.fuente ?? null,
     },
+    inmuebleId: data.inmuebleId ?? null,
+    inmuebleTitulo: data.inmuebleTitulo ?? null,
     fechaActualizacionMs:
       typeof data.fechaActualizacion?.toMillis === "function"
         ? data.fechaActualizacion.toMillis()
@@ -361,11 +379,12 @@ export function colorEstadoLead(estado: EstadoLead): string {
 
 export function obtenerOrigenDelBrowser(pagina: string): OrigenLeadInput {
   if (typeof window === "undefined") {
-    return { pagina, referer: null, userAgent: null };
+    return { pagina, referer: null, userAgent: null, fuente: null };
   }
   return {
     pagina,
     referer: document.referrer || null,
     userAgent: navigator.userAgent,
+    fuente: null,
   };
 }
