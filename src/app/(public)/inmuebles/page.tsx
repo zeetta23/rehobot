@@ -6,6 +6,8 @@ import {
   type FiltrosPublicos,
 } from "@/lib/firestore/inmuebles";
 import type { Operacion, TipoInmueble } from "@/lib/types";
+import { MUNICIPIOS_CORREDOR } from "@/lib/types";
+import { OrdenarSelect } from "@/components/public/OrdenarSelect";
 
 export const revalidate = 60;
 
@@ -13,6 +15,12 @@ type SearchParamsShape = {
   operacion?: string;
   tipo?: string;
   zona?: string;
+  pmin?: string;
+  pmax?: string;
+  habs?: string;
+  banos?: string;
+  m2?: string;
+  orden?: string;
 };
 
 const OPERACIONES_VALIDAS: Operacion[] = ["venta", "alquiler"];
@@ -25,6 +33,20 @@ const TIPOS_VALIDOS: TipoInmueble[] = [
   "terreno",
   "oficina",
 ];
+const ORDENES_VALIDOS: NonNullable<FiltrosPublicos["orden"]>[] = [
+  "recientes",
+  "precio_asc",
+  "precio_desc",
+  "metros_asc",
+  "metros_desc",
+];
+
+function parseNum(value: string | undefined): number | undefined {
+  if (!value) return undefined;
+  const n = Number(value);
+  if (Number.isFinite(n) && n >= 0) return n;
+  return undefined;
+}
 
 export default async function InmueblesPage({
   searchParams,
@@ -41,8 +63,28 @@ export default async function InmueblesPage({
     filtros.tipo = sp.tipo as TipoInmueble;
   }
   if (sp.zona) filtros.municipio = sp.zona;
+  filtros.precioMin = parseNum(sp.pmin);
+  filtros.precioMax = parseNum(sp.pmax);
+  filtros.habitacionesMin = parseNum(sp.habs);
+  filtros.banosMin = parseNum(sp.banos);
+  filtros.metrosMin = parseNum(sp.m2);
+  if (sp.orden && ORDENES_VALIDOS.includes(sp.orden as NonNullable<FiltrosPublicos["orden"]>)) {
+    filtros.orden = sp.orden as FiltrosPublicos["orden"];
+  }
 
   const inmuebles = await listarInmueblesPublicos(filtros);
+
+  // Cuenta cuántos filtros activos hay (para badge "Filtros aplicados: N")
+  const filtrosActivos = [
+    filtros.operacion,
+    filtros.tipo,
+    filtros.municipio,
+    filtros.precioMin,
+    filtros.precioMax,
+    filtros.habitacionesMin,
+    filtros.banosMin,
+    filtros.metrosMin,
+  ].filter((v) => v !== undefined && v !== "").length;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
@@ -59,78 +101,228 @@ export default async function InmueblesPage({
           {inmuebles.length === 1
             ? "inmueble encontrado"
             : "inmuebles encontrados"}
+          {filtrosActivos > 0 &&
+            ` · ${filtrosActivos} ${filtrosActivos === 1 ? "filtro" : "filtros"} aplicado${filtrosActivos === 1 ? "" : "s"}`}
         </p>
       </header>
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[280px_1fr]">
-        {/* FILTROS (UI estática de momento - filtros reales vía URL) */}
-        <aside className="space-y-8">
-          <form className="space-y-6" action="/inmuebles" method="get">
-            <div>
-              <h2 className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
-                Operación
-              </h2>
-              <select
-                name="operacion"
-                defaultValue={sp.operacion ?? ""}
-                className="mt-3 w-full rounded-lg border border-black/10 bg-white px-3 py-2 font-body text-sm"
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr] lg:gap-10">
+        {/* FILTROS */}
+        <aside>
+          <details
+            className="group rounded-2xl border border-black/5 bg-white open:pb-0 lg:open:[&]:!block lg:border-0 lg:bg-transparent"
+            open
+          >
+            <summary className="flex cursor-pointer items-center justify-between rounded-2xl px-4 py-3 font-body text-sm font-medium text-navy lg:hidden">
+              <span>
+                Filtros
+                {filtrosActivos > 0 ? ` (${filtrosActivos})` : ""}
+              </span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-transform group-open:rotate-180"
               >
-                <option value="">Todas</option>
-                <option value="venta">Venta</option>
-                <option value="alquiler">Alquiler</option>
-              </select>
-            </div>
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </summary>
 
-            <div>
-              <h2 className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
-                Tipo
-              </h2>
-              <select
-                name="tipo"
-                defaultValue={sp.tipo ?? ""}
-                className="mt-3 w-full rounded-lg border border-black/10 bg-white px-3 py-2 font-body text-sm capitalize"
+            <form
+              className="space-y-6 px-4 pb-4 lg:px-0 lg:pb-0"
+              action="/inmuebles"
+              method="get"
+            >
+              <div>
+                <h2 className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+                  Operación
+                </h2>
+                <select
+                  name="operacion"
+                  defaultValue={sp.operacion ?? ""}
+                  className="mt-3 w-full rounded-lg border border-black/10 bg-white px-3 py-2 font-body text-sm"
+                >
+                  <option value="">Todas</option>
+                  <option value="venta">Venta</option>
+                  <option value="alquiler">Alquiler</option>
+                </select>
+              </div>
+
+              <div>
+                <h2 className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+                  Tipo
+                </h2>
+                <select
+                  name="tipo"
+                  defaultValue={sp.tipo ?? ""}
+                  className="mt-3 w-full rounded-lg border border-black/10 bg-white px-3 py-2 font-body text-sm capitalize"
+                >
+                  <option value="">Todos</option>
+                  {TIPOS_VALIDOS.map((t) => (
+                    <option key={t} value={t} className="capitalize">
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <h2 className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+                  Municipio
+                </h2>
+                <select
+                  name="zona"
+                  defaultValue={sp.zona ?? ""}
+                  className="mt-3 w-full rounded-lg border border-black/10 bg-white px-3 py-2 font-body text-sm"
+                >
+                  <option value="">Todos</option>
+                  {MUNICIPIOS_CORREDOR.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <h2 className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+                  Precio (€)
+                </h2>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    name="pmin"
+                    min={0}
+                    placeholder="Desde"
+                    defaultValue={sp.pmin ?? ""}
+                    className="w-full rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
+                  />
+                  <input
+                    type="number"
+                    name="pmax"
+                    min={0}
+                    placeholder="Hasta"
+                    defaultValue={sp.pmax ?? ""}
+                    className="w-full rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <h2 className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+                  Habitaciones (mín.)
+                </h2>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {["", "1", "2", "3", "4", "5"].map((n) => {
+                    const isActive = (sp.habs ?? "") === n;
+                    return (
+                      <label
+                        key={n || "any"}
+                        className={`cursor-pointer rounded-md border px-3 py-1.5 font-body text-xs transition-colors ${
+                          isActive
+                            ? "border-navy bg-navy text-white"
+                            : "border-navy/15 text-navy hover:bg-navy hover:text-white"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="habs"
+                          value={n}
+                          defaultChecked={isActive}
+                          className="sr-only"
+                        />
+                        {n === "" ? "Cualquiera" : n === "5" ? "5+" : n}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <h2 className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+                  Baños (mín.)
+                </h2>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {["", "1", "2", "3"].map((n) => {
+                    const isActive = (sp.banos ?? "") === n;
+                    return (
+                      <label
+                        key={n || "any"}
+                        className={`cursor-pointer rounded-md border px-3 py-1.5 font-body text-xs transition-colors ${
+                          isActive
+                            ? "border-navy bg-navy text-white"
+                            : "border-navy/15 text-navy hover:bg-navy hover:text-white"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="banos"
+                          value={n}
+                          defaultChecked={isActive}
+                          className="sr-only"
+                        />
+                        {n === "" ? "Cualquiera" : n === "3" ? "3+" : n}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <h2 className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+                  m² (mín.)
+                </h2>
+                <input
+                  type="number"
+                  name="m2"
+                  min={0}
+                  placeholder="Cualquiera"
+                  defaultValue={sp.m2 ?? ""}
+                  className="mt-3 w-full rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
+                />
+              </div>
+
+              {/* Mantener orden al aplicar filtros */}
+              {sp.orden && (
+                <input type="hidden" name="orden" value={sp.orden} />
+              )}
+
+              <button
+                type="submit"
+                className="w-full rounded-full bg-navy px-5 py-2.5 font-body text-sm font-medium text-white hover:bg-navy-medium"
               >
-                <option value="">Todos</option>
-                {TIPOS_VALIDOS.map((t) => (
-                  <option key={t} value={t} className="capitalize">
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <h2 className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
-                Zona / Municipio
-              </h2>
-              <input
-                type="text"
-                name="zona"
-                defaultValue={sp.zona ?? ""}
-                placeholder="Alcalá de Henares"
-                className="mt-3 w-full rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full rounded-full bg-navy px-5 py-2.5 font-body text-sm font-medium text-white hover:bg-navy-medium"
-            >
-              Aplicar filtros
-            </button>
-            <Link
-              href="/inmuebles"
-              className="block text-center font-body text-xs text-gray-text underline-offset-4 hover:text-navy hover:underline"
-            >
-              Limpiar filtros
-            </Link>
-          </form>
+                Aplicar filtros
+              </button>
+              {filtrosActivos > 0 && (
+                <Link
+                  href="/inmuebles"
+                  className="block text-center font-body text-xs text-gray-text underline-offset-4 hover:text-navy hover:underline"
+                >
+                  Limpiar filtros
+                </Link>
+              )}
+            </form>
+          </details>
         </aside>
 
         {/* GRID */}
         <section>
+          {/* Barra de ordenación */}
+          <div className="mb-6 flex items-center justify-between gap-3 rounded-xl bg-white p-3 shadow-sm">
+            <OrdenarSelect valor={filtros.orden ?? "recientes"} />
+            <p className="font-body text-xs text-gray-text">
+              {inmuebles.length}{" "}
+              {inmuebles.length === 1 ? "resultado" : "resultados"}
+            </p>
+          </div>
+
           {inmuebles.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-navy/20 bg-cream p-16 text-center">
+            <div className="rounded-2xl border border-dashed border-navy/20 bg-cream p-12 text-center sm:p-16">
               <p className="font-display text-2xl font-semibold text-navy">
                 Sin resultados
               </p>

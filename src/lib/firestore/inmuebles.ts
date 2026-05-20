@@ -74,6 +74,12 @@ export interface FiltrosPublicos {
   operacion?: Operacion;
   tipo?: TipoInmueble;
   municipio?: string;
+  precioMin?: number;
+  precioMax?: number;
+  habitacionesMin?: number;
+  banosMin?: number;
+  metrosMin?: number;
+  orden?: "recientes" | "precio_asc" | "precio_desc" | "metros_asc" | "metros_desc";
 }
 
 export interface InmueblePublicoListado extends InmuebleListadoItem {
@@ -145,7 +151,47 @@ export async function listarInmueblesPublicos(
 
   const q = query(collection(db, COL), ...constraints);
   const snap = await getDocs(q);
-  return ordenarPorRecientesDesc(snap.docs.map(mapPublicoListado));
+
+  let items = snap.docs.map(mapPublicoListado);
+
+  // Filtros numéricos en JS (evitan requerir índices compuestos).
+  if (typeof filtros.precioMin === "number") {
+    items = items.filter((i) => i.precio >= filtros.precioMin!);
+  }
+  if (typeof filtros.precioMax === "number") {
+    items = items.filter((i) => i.precio <= filtros.precioMax!);
+  }
+  if (typeof filtros.habitacionesMin === "number") {
+    items = items.filter((i) => i.habitaciones >= filtros.habitacionesMin!);
+  }
+  if (typeof filtros.banosMin === "number") {
+    items = items.filter((i) => i.banos >= filtros.banosMin!);
+  }
+  if (typeof filtros.metrosMin === "number") {
+    items = items.filter((i) => i.metrosConstruidos >= filtros.metrosMin!);
+  }
+
+  // Ordenación.
+  switch (filtros.orden) {
+    case "precio_asc":
+      items.sort((a, b) => a.precio - b.precio);
+      break;
+    case "precio_desc":
+      items.sort((a, b) => b.precio - a.precio);
+      break;
+    case "metros_asc":
+      items.sort((a, b) => a.metrosConstruidos - b.metrosConstruidos);
+      break;
+    case "metros_desc":
+      items.sort((a, b) => b.metrosConstruidos - a.metrosConstruidos);
+      break;
+    case "recientes":
+    default:
+      items = ordenarPorRecientesDesc(items);
+      break;
+  }
+
+  return items;
 }
 
 export async function listarDestacados(
