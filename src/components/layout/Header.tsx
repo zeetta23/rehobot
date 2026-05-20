@@ -1,4 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { href: "/inmuebles", label: "Inmuebles" },
@@ -8,14 +12,41 @@ const NAV_ITEMS = [
 ];
 
 export function Header() {
+  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Cierra el menú al navegar.
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // Cierra con Escape y bloquea scroll cuando está abierto.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-        <Link href="/" className="flex flex-col leading-none">
-          <span className="font-display text-2xl font-semibold tracking-tight text-navy">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5">
+        <Link
+          href="/"
+          className="flex flex-col leading-none"
+          onClick={() => setOpen(false)}
+        >
+          <span className="font-display text-xl font-semibold tracking-tight text-navy sm:text-2xl">
             Rehobot
           </span>
-          <span className="font-body text-[10px] uppercase tracking-[0.3em] text-gold">
+          <span className="font-body text-[9px] uppercase tracking-[0.3em] text-gold sm:text-[10px]">
             Real Estate
           </span>
         </Link>
@@ -32,7 +63,7 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <a
             href="tel:+34916000000"
             className="hidden font-body text-sm font-medium text-gray-text transition-colors hover:text-navy lg:inline"
@@ -41,12 +72,89 @@ export function Header() {
           </a>
           <Link
             href="/vender"
-            className="rounded-full bg-gold px-5 py-2.5 font-body text-sm font-medium text-navy transition-colors hover:bg-gold-light"
+            className="hidden rounded-full bg-gold px-4 py-2 font-body text-xs font-medium text-navy transition-colors hover:bg-gold-light sm:inline-flex sm:px-5 sm:py-2.5 sm:text-sm"
           >
             Valoración gratis
           </Link>
+          <button
+            type="button"
+            aria-label={open ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={open}
+            onClick={() => setOpen((o) => !o)}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-navy md:hidden"
+          >
+            {open ? (
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            ) : (
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            )}
+          </button>
         </div>
       </div>
+
+      {/* Drawer móvil */}
+      {open && (
+        <div
+          className="fixed inset-x-0 top-[64px] z-40 max-h-[calc(100vh-64px)] overflow-y-auto border-t border-black/5 bg-white shadow-2xl md:hidden"
+          role="dialog"
+          aria-label="Menú principal"
+        >
+          <nav className="mx-auto max-w-7xl px-4 py-6">
+            <ul className="space-y-1">
+              {NAV_ITEMS.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="block rounded-lg px-4 py-3 font-body text-base font-medium text-dark hover:bg-cream"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-6 space-y-3 border-t border-black/5 pt-6">
+              <a
+                href="tel:+34916000000"
+                className="flex items-center justify-center gap-2 rounded-full border border-navy/15 px-5 py-3 font-body text-sm font-medium text-navy"
+              >
+                Llamar +34 916 00 00 00
+              </a>
+              <Link
+                href="/vender"
+                className="flex items-center justify-center rounded-full bg-gold px-5 py-3 font-body text-sm font-medium text-navy"
+              >
+                Solicitar valoración gratis
+              </Link>
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

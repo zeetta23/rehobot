@@ -158,61 +158,63 @@ export default function AdminLeadsPage() {
       </div>
 
       {/* Filtros */}
-      <div className="mt-8 grid grid-cols-1 gap-3 rounded-2xl border border-black/5 bg-white p-4 lg:grid-cols-[1fr_180px_180px_160px_160px_auto]">
+      <div className="mt-8 rounded-2xl border border-black/5 bg-white p-4">
         <input
           type="text"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Buscar por nombre, email o teléfono…"
-          className="rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
+          className="w-full rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
         />
-        <select
-          value={filtroEstado}
-          onChange={(e) => setFiltroEstado(e.target.value as EstadoLead | "")}
-          className="rounded-lg border border-black/10 bg-white px-3 py-2 font-body text-sm"
-        >
-          {ESTADOS.map((e) => (
-            <option key={e.value || "todos"} value={e.value}>
-              {e.label}
-            </option>
-          ))}
-        </select>
-        <select
-          value={filtroTipo}
-          onChange={(e) => setFiltroTipo(e.target.value as TipoLead | "")}
-          className="rounded-lg border border-black/10 bg-white px-3 py-2 font-body text-sm"
-        >
-          {TIPOS.map((t) => (
-            <option key={t.value || "todos"} value={t.value}>
-              {t.label}
-            </option>
-          ))}
-        </select>
-        <label className="flex items-center gap-2">
-          <span className="font-body text-xs text-gray-text">Desde</span>
-          <input
-            type="date"
-            value={desde}
-            onChange={(e) => setDesde(e.target.value)}
-            className="flex-1 rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
-          />
-        </label>
-        <label className="flex items-center gap-2">
-          <span className="font-body text-xs text-gray-text">Hasta</span>
-          <input
-            type="date"
-            value={hasta}
-            onChange={(e) => setHasta(e.target.value)}
-            className="flex-1 rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
-          />
-        </label>
-        <button
-          type="button"
-          onClick={limpiarFiltros}
-          className="rounded-lg border border-navy/15 px-3 py-2 font-body text-sm text-navy hover:bg-cream"
-        >
-          Limpiar
-        </button>
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <select
+            value={filtroEstado}
+            onChange={(e) => setFiltroEstado(e.target.value as EstadoLead | "")}
+            className="rounded-lg border border-black/10 bg-white px-3 py-2 font-body text-sm"
+          >
+            {ESTADOS.map((e) => (
+              <option key={e.value || "todos"} value={e.value}>
+                {e.label}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filtroTipo}
+            onChange={(e) => setFiltroTipo(e.target.value as TipoLead | "")}
+            className="rounded-lg border border-black/10 bg-white px-3 py-2 font-body text-sm"
+          >
+            {TIPOS.map((t) => (
+              <option key={t.value || "todos"} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+          <label className="flex items-center gap-2">
+            <span className="font-body text-xs text-gray-text">Desde</span>
+            <input
+              type="date"
+              value={desde}
+              onChange={(e) => setDesde(e.target.value)}
+              className="min-w-0 flex-1 rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
+            />
+          </label>
+          <label className="flex items-center gap-2">
+            <span className="font-body text-xs text-gray-text">Hasta</span>
+            <input
+              type="date"
+              value={hasta}
+              onChange={(e) => setHasta(e.target.value)}
+              className="min-w-0 flex-1 rounded-lg border border-black/10 px-3 py-2 font-body text-sm"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={limpiarFiltros}
+            className="rounded-lg border border-navy/15 px-3 py-2 font-body text-sm text-navy hover:bg-cream"
+          >
+            Limpiar
+          </button>
+        </div>
       </div>
 
       {error && (

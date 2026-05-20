@@ -45,14 +45,14 @@ export default function VenderPage() {
     <>
       {/* HERO con formulario integrado */}
       <section className="bg-navy text-white">
-        <div className="mx-auto max-w-7xl px-6 py-16 lg:py-24">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_460px] lg:items-start">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:py-24">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_460px] lg:items-start lg:gap-12">
             {/* Texto */}
             <div>
               <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
                 Para propietarios
               </p>
-              <h1 className="mt-4 max-w-2xl font-display text-5xl font-semibold leading-tight sm:text-6xl">
+              <h1 className="mt-4 max-w-2xl font-display text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
                 Vendemos tu casa al{" "}
                 <span className="text-gold">mejor precio</span>
               </h1>

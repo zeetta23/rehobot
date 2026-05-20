@@ -45,13 +45,13 @@ export default async function InmueblesPage({
   const inmuebles = await listarInmueblesPublicos(filtros);
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-12">
+    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
       {/* HEAD */}
-      <header className="mb-10 border-b border-black/5 pb-8">
+      <header className="mb-8 border-b border-black/5 pb-6 sm:mb-10 sm:pb-8">
         <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
           Catálogo
         </p>
-        <h1 className="mt-3 font-display text-4xl font-semibold text-navy">
+        <h1 className="mt-3 font-display text-3xl font-semibold text-navy sm:text-4xl">
           Inmuebles disponibles
         </h1>
         <p className="mt-2 font-body text-sm text-gray-text">

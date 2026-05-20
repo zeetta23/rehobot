@@ -45,11 +45,11 @@ export default async function HomePage() {
     <>
       {/* HERO */}
       <section className="relative bg-navy text-white">
-        <div className="mx-auto max-w-7xl px-6 pb-24 pt-20 sm:pt-28">
+        <div className="mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-20 lg:pt-28">
           <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
             Inmobiliaria del Corredor del Henares
           </p>
-          <h1 className="mt-6 max-w-3xl font-display text-5xl font-semibold leading-tight sm:text-6xl">
+          <h1 className="mt-6 max-w-3xl font-display text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
             Encuentra tu próximo hogar en el{" "}
             <span className="text-gold">Corredor del Henares</span>
           </h1>
@@ -61,7 +61,7 @@ export default async function HomePage() {
           {/* BUSCADOR */}
           <form
             action="/inmuebles"
-            className="mt-10 grid max-w-4xl grid-cols-1 gap-3 rounded-2xl bg-white p-4 shadow-2xl sm:grid-cols-4"
+            className="mt-8 grid max-w-4xl grid-cols-1 gap-3 rounded-2xl bg-white p-4 shadow-2xl sm:mt-10 sm:grid-cols-2 lg:grid-cols-4"
           >
             <label className="flex flex-col">
               <span className="font-body text-[10px] uppercase tracking-widest text-gray-text">

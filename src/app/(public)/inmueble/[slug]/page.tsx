@@ -43,7 +43,7 @@ export default async function FichaInmueblePage({
   return (
     <article>
       {/* Breadcrumb */}
-      <nav className="mx-auto max-w-7xl px-6 pt-6 font-body text-xs text-gray-text">
+      <nav className="mx-auto max-w-7xl px-4 pt-6 font-body text-xs text-gray-text sm:px-6">
         <Link href="/" className="hover:text-navy">
           Inicio
         </Link>{" "}
@@ -55,7 +55,7 @@ export default async function FichaInmueblePage({
       </nav>
 
       {/* GALERÍA */}
-      <section className="mx-auto mt-4 max-w-7xl px-6">
+      <section className="mx-auto mt-4 max-w-7xl px-4 sm:px-6">
         <div className="grid grid-cols-4 gap-2">
           {/* Foto principal */}
           <div className="relative col-span-4 aspect-[16/9] overflow-hidden rounded-2xl bg-cream sm:col-span-3 sm:row-span-2 sm:aspect-auto">
@@ -118,17 +118,17 @@ export default async function FichaInmueblePage({
         )}
       </section>
 
-      <div className="mx-auto mt-10 grid max-w-7xl grid-cols-1 gap-12 px-6 lg:grid-cols-[1fr_360px]">
+      <div className="mx-auto mt-10 grid max-w-7xl grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_360px] lg:gap-12">
         {/* CONTENIDO PRINCIPAL */}
         <div>
           <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
             {inmueble.municipio}
             {inmueble.zona && ` · ${inmueble.zona}`}
           </p>
-          <h1 className="mt-3 font-display text-4xl font-semibold text-navy">
+          <h1 className="mt-3 font-display text-3xl font-semibold text-navy sm:text-4xl">
             {inmueble.titulo}
           </h1>
-          <p className="mt-4 font-display text-3xl font-semibold text-navy">
+          <p className="mt-4 font-display text-2xl font-semibold text-navy sm:text-3xl">
             {formatPrecio(inmueble.precio)}
           </p>
           {inmueble.estado !== "activo" && (

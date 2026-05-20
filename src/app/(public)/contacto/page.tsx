@@ -5,11 +5,11 @@ export default function ContactoPage() {
     <>
       {/* HERO */}
       <section className="bg-navy text-white">
-        <div className="mx-auto max-w-7xl px-6 py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
           <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
             Contacto
           </p>
-          <h1 className="mt-4 max-w-3xl font-display text-5xl font-semibold leading-tight sm:text-6xl">
+          <h1 className="mt-4 max-w-3xl font-display text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
             Hablemos
           </h1>
           <p className="mt-4 max-w-xl font-body text-base text-white/70 sm:text-lg">
