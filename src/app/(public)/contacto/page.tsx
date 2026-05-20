@@ -1,7 +1,15 @@
+import type { Metadata } from "next";
 import { ContactoForm } from "@/components/forms/ContactoForm";
 import { obtenerConfiguracion } from "@/lib/firestore/configuracion";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Contacto — Rehobot Real Estate",
+  description:
+    "Contacta con Rehobot Real Estate. Estamos en Alcalá de Henares y atendemos toda la zona del Corredor del Henares. Teléfono, WhatsApp, email y formulario.",
+  alternates: { canonical: "/contacto" },
+};
 
 export default async function ContactoPage() {
   const { empresa } = await obtenerConfiguracion();

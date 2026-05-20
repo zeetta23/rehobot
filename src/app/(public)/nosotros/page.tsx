@@ -1,3 +1,12 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Quiénes somos — Rehobot Real Estate",
+  description:
+    "Inmobiliaria de barrio con +15 años de experiencia en el Corredor del Henares. Conoce nuestro equipo y nuestros valores: cercanía, transparencia y compromiso.",
+  alternates: { canonical: "/nosotros" },
+};
+
 const VALORES = [
   {
     titulo: "Cercanía",

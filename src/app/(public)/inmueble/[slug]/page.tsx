@@ -1,6 +1,8 @@
+import { cache } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import {
   obtenerInmueblePorSlug,
   formatPrecio,
@@ -11,6 +13,86 @@ import { CalculadoraHipoteca } from "@/components/public/CalculadoraHipoteca";
 import type { CalificacionEnergetica } from "@/lib/types";
 
 export const revalidate = 60;
+
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL || "https://rehobot-rose.vercel.app";
+
+// React cache: misma query Firestore se reutiliza dentro del mismo render.
+const obtenerInmuebleCached = cache(obtenerInmueblePorSlug);
+
+function descripcionCorta(texto: string, max = 155): string {
+  if (!texto) return "";
+  const plano = texto.replace(/\s+/g, " ").trim();
+  if (plano.length <= max) return plano;
+  return plano.slice(0, max - 1).replace(/\s+\S*$/, "") + "…";
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const inmueble = await obtenerInmuebleCached(slug);
+  if (!inmueble) {
+    return {
+      title: "Inmueble no encontrado · Rehobot Real Estate",
+      description:
+        "Este inmueble ya no está disponible. Consulta nuestro catálogo completo en Rehobot Real Estate.",
+    };
+  }
+
+  const ubicacion = [inmueble.municipio, inmueble.zona].filter(Boolean).join(", ");
+  const title = `${inmueble.titulo} — ${formatPrecio(inmueble.precio)}${
+    ubicacion ? " · " + ubicacion : ""
+  } · Rehobot Real Estate`;
+
+  const partesDescripcion = [
+    inmueble.titulo,
+    ubicacion,
+    inmueble.habitaciones > 0 ? `${inmueble.habitaciones} hab.` : "",
+    inmueble.banos > 0 ? `${inmueble.banos} baños` : "",
+    inmueble.metrosConstruidos > 0
+      ? `${inmueble.metrosConstruidos} m²`
+      : "",
+  ].filter(Boolean);
+  const fallbackDescripcion =
+    `${partesDescripcion.join(" · ")} · ${formatPrecio(inmueble.precio)}. ` +
+    `Encuentra esta vivienda en Rehobot Real Estate, inmobiliaria del Corredor del Henares.`;
+  const description =
+    descripcionCorta(inmueble.descripcion) || descripcionCorta(fallbackDescripcion);
+
+  const url = `${APP_URL}/inmueble/${inmueble.slug}`;
+  const imagen = inmueble.fotos[0]?.urlLarge || inmueble.fotos[0]?.url;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "Rehobot Real Estate",
+      type: "website",
+      locale: "es_ES",
+      images: imagen
+        ? [
+            {
+              url: imagen,
+              alt: inmueble.titulo,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: imagen ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: imagen ? [imagen] : undefined,
+    },
+  };
+}
 
 function colorCalificacion(c: CalificacionEnergetica): string {
   const map: Record<CalificacionEnergetica, string> = {
@@ -36,14 +118,77 @@ export default async function FichaInmueblePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const inmueble = await obtenerInmueblePorSlug(slug);
+  const inmueble = await obtenerInmuebleCached(slug);
 
   if (!inmueble) {
     notFound();
   }
 
+  // JSON-LD para Google (rich snippets)
+  const ubicacionStr = [inmueble.municipio, inmueble.zona]
+    .filter(Boolean)
+    .join(", ");
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": inmueble.operacion === "venta"
+      ? "RealEstateListing"
+      : "Apartment",
+    name: inmueble.titulo,
+    description: inmueble.descripcion || `${inmueble.titulo} en ${ubicacionStr}`,
+    url: `${APP_URL}/inmueble/${inmueble.slug}`,
+    image: inmueble.fotos
+      .slice(0, 5)
+      .map((f) => f.urlLarge || f.url)
+      .filter(Boolean),
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: inmueble.municipio || undefined,
+      addressRegion: "Madrid",
+      addressCountry: "ES",
+    },
+    geo:
+      inmueble.coordenadas.lat !== 0 && inmueble.coordenadas.lng !== 0
+        ? {
+            "@type": "GeoCoordinates",
+            latitude: inmueble.coordenadas.lat,
+            longitude: inmueble.coordenadas.lng,
+          }
+        : undefined,
+    numberOfRooms:
+      inmueble.habitaciones > 0 ? inmueble.habitaciones : undefined,
+    numberOfBathroomsTotal: inmueble.banos > 0 ? inmueble.banos : undefined,
+    floorSize:
+      inmueble.metrosConstruidos > 0
+        ? {
+            "@type": "QuantitativeValue",
+            value: inmueble.metrosConstruidos,
+            unitCode: "MTK",
+          }
+        : undefined,
+    offers: {
+      "@type": "Offer",
+      price: inmueble.precio,
+      priceCurrency: "EUR",
+      availability:
+        inmueble.estado === "activo"
+          ? "https://schema.org/InStock"
+          : inmueble.estado === "reservado"
+            ? "https://schema.org/LimitedAvailability"
+            : "https://schema.org/SoldOut",
+      seller: {
+        "@type": "RealEstateAgent",
+        name: "Rehobot Real Estate",
+      },
+    },
+  };
+
   return (
     <article>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Breadcrumb */}
       <nav className="mx-auto max-w-7xl px-4 pt-6 font-body text-xs text-gray-text sm:px-6">
         <Link href="/" className="hover:text-navy">

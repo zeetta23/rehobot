@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import {
   listarInmueblesPublicos,
   formatPrecio,
@@ -8,6 +9,13 @@ import {
 import type { Operacion, TipoInmueble } from "@/lib/types";
 import { MUNICIPIOS_CORREDOR } from "@/lib/types";
 import { OrdenarSelect } from "@/components/public/OrdenarSelect";
+
+export const metadata: Metadata = {
+  title: "Inmuebles en venta y alquiler en el Corredor del Henares",
+  description:
+    "Catálogo completo de pisos, chalets, locales y garajes en Alcalá de Henares, Torrejón de Ardoz, Coslada y el resto del Corredor del Henares. Filtra por precio, habitaciones y zona.",
+  alternates: { canonical: "/inmuebles" },
+};
 
 export const revalidate = 60;
 
