@@ -10,6 +10,7 @@ import {
 import { InteresInmuebleForm } from "@/components/forms/InteresInmuebleForm";
 import { MapaUbicacion } from "@/components/maps/MapaUbicacion";
 import { CalculadoraHipoteca } from "@/components/public/CalculadoraHipoteca";
+import { CompartirInmueble } from "@/components/public/CompartirInmueble";
 import type { CalificacionEnergetica } from "@/lib/types";
 
 export const revalidate = 60;
@@ -306,9 +307,19 @@ export default async function FichaInmueblePage({
           <h1 className="mt-3 font-display text-3xl font-semibold text-navy sm:text-4xl">
             {inmueble.titulo}
           </h1>
-          <p className="mt-4 font-display text-2xl font-semibold text-navy sm:text-3xl">
-            {formatPrecio(inmueble.precio)}
-          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="font-display text-2xl font-semibold text-navy sm:text-3xl">
+              {formatPrecio(inmueble.precio)}
+            </p>
+            <CompartirInmueble
+              url={`${APP_URL}/inmueble/${inmueble.slug}`}
+              titulo={inmueble.titulo}
+              precio={formatPrecio(inmueble.precio)}
+              ubicacion={[inmueble.municipio, inmueble.zona]
+                .filter(Boolean)
+                .join(", ")}
+            />
+          </div>
           {inmueble.estado !== "activo" && (
             <p className="mt-3 inline-flex rounded-full bg-yellow-100 px-3 py-1 font-body text-xs font-medium uppercase tracking-widest text-yellow-800">
               {inmueble.estado}
