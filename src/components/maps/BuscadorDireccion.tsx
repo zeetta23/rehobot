@@ -151,7 +151,7 @@ export function BuscadorDireccion({ onSelect }: Props) {
       />
 
       {abierto && (resultados.length > 0 || loading || error) && (
-        <div className="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-lg border border-black/10 bg-white shadow-xl">
+        <div className="absolute left-0 right-0 top-full z-[1100] mt-1 overflow-hidden rounded-lg border border-black/10 bg-white shadow-xl">
           {loading && (
             <p className="px-4 py-3 font-body text-xs text-gray-text">
               Buscando…
