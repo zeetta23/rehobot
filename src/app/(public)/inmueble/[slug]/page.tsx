@@ -1,6 +1,5 @@
 import { cache } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import {
@@ -11,6 +10,7 @@ import { InteresInmuebleForm } from "@/components/forms/InteresInmuebleForm";
 import { MapaUbicacion } from "@/components/maps/MapaUbicacion";
 import { CalculadoraHipoteca } from "@/components/public/CalculadoraHipoteca";
 import { CompartirInmueble } from "@/components/public/CompartirInmueble";
+import { GaleriaInmueble } from "@/components/public/GaleriaInmueble";
 import type { CalificacionEnergetica } from "@/lib/types";
 
 export const revalidate = 60;
@@ -234,68 +234,7 @@ export default async function FichaInmueblePage({
       </nav>
 
       {/* GALERÍA */}
-      <section className="mx-auto mt-4 max-w-7xl px-4 sm:px-6">
-        <div className="grid grid-cols-4 gap-2">
-          {/* Foto principal */}
-          <div className="relative col-span-4 aspect-[16/9] overflow-hidden rounded-2xl bg-cream sm:col-span-3 sm:row-span-2 sm:aspect-auto">
-            {inmueble.fotos[0] ? (
-              <Image
-                src={inmueble.fotos[0].urlLarge || inmueble.fotos[0].url}
-                alt={inmueble.titulo}
-                fill
-                sizes="(min-width: 768px) 75vw, 100vw"
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-navy/10 to-gold/20" />
-            )}
-          </div>
-
-          {/* Hasta 2 fotos secundarias visibles a partir de tablet */}
-          {[1, 2].map((idx) => {
-            const foto = inmueble.fotos[idx];
-            return (
-              <div
-                key={idx}
-                className="relative hidden aspect-square overflow-hidden rounded-2xl bg-cream sm:block"
-              >
-                {foto ? (
-                  <Image
-                    src={foto.urlMedium || foto.url}
-                    alt={`${inmueble.titulo} ${idx + 1}`}
-                    fill
-                    sizes="25vw"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-navy/10 to-gold/20" />
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Galería completa: todas las fotos restantes */}
-        {inmueble.fotos.length > 3 && (
-          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-            {inmueble.fotos.slice(3).map((foto, idx) => (
-              <div
-                key={idx}
-                className="relative aspect-square overflow-hidden rounded-xl bg-cream"
-              >
-                <Image
-                  src={foto.urlMedium || foto.url}
-                  alt={`${inmueble.titulo} ${idx + 4}`}
-                  fill
-                  sizes="(min-width: 1024px) 16vw, (min-width: 640px) 25vw, 50vw"
-                  className="object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      <GaleriaInmueble fotos={inmueble.fotos} titulo={inmueble.titulo} />
 
       <div className="mx-auto mt-10 grid max-w-7xl grid-cols-1 gap-10 px-4 pb-20 sm:px-6 lg:grid-cols-[1fr_360px] lg:gap-12 lg:pb-32">
         {/* CONTENIDO PRINCIPAL */}
