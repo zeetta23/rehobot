@@ -7,6 +7,7 @@ import {
 } from "@/lib/firestore/inmuebles";
 import { InteresInmuebleForm } from "@/components/forms/InteresInmuebleForm";
 import { MapaUbicacion } from "@/components/maps/MapaUbicacion";
+import { CalculadoraHipoteca } from "@/components/public/CalculadoraHipoteca";
 import type { CalificacionEnergetica } from "@/lib/types";
 
 export const revalidate = 60;
@@ -235,6 +236,13 @@ export default async function FichaInmueblePage({
               </div>
             </div>
           </section>
+
+          {/* Calculadora de hipoteca (solo para venta) */}
+          {inmueble.operacion === "venta" && inmueble.precio > 0 && (
+            <section className="mt-10">
+              <CalculadoraHipoteca precioInicial={inmueble.precio} />
+            </section>
+          )}
 
           {/* Mapa */}
           {inmueble.coordenadas.lat !== 0 && inmueble.coordenadas.lng !== 0 && (
