@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { href: "/admin", label: "Resumen", enabled: true },
   { href: "/admin/inmuebles", label: "Inmuebles", enabled: true },
   { href: "/admin/leads", label: "Leads", enabled: true },
-  { href: "/admin/agentes", label: "Agentes", enabled: false },
+  { href: "/admin/agentes", label: "Agentes", enabled: true },
   { href: "/admin/ajustes", label: "Ajustes", enabled: false },
 ];
 
