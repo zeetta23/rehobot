@@ -246,6 +246,24 @@ export default async function FichaInmueblePage({
           <h1 className="mt-3 font-display text-3xl font-semibold text-navy sm:text-4xl">
             {inmueble.titulo}
           </h1>
+          {inmueble.direccionPublica && (
+            <p className="mt-2 inline-flex items-center gap-1.5 font-body text-sm text-gray-text">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4 text-navy"
+              >
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              {inmueble.direccionPublica}
+            </p>
+          )}
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="font-display text-2xl font-semibold text-navy sm:text-3xl">
               {formatPrecio(inmueble.precio)}

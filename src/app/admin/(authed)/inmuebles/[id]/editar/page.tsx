@@ -168,6 +168,8 @@ export default function EditarInmueblePage({
           destacado: data.destacado,
           municipio: data.municipio || MUNICIPIOS_CORREDOR[0],
           zona: data.zona,
+          direccion: data.direccion,
+          mostrarDireccion: data.mostrarDireccion,
           coordenadas: data.coordenadas,
           habitaciones: data.habitaciones,
           banos: data.banos,
@@ -519,6 +521,42 @@ export default function EditarInmueblePage({
                 placeholder="Ensanche, La Garena, Centro…"
                 className="mt-1.5 w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
               />
+            </label>
+          </div>
+
+          {/* Dirección textual + toggle de publicación */}
+          <div className="mt-4 grid grid-cols-1 gap-4">
+            <label className="block">
+              <span className="font-body text-xs font-semibold uppercase tracking-widest text-navy">
+                Dirección (calle y número)
+              </span>
+              <input
+                type="text"
+                value={form.direccion}
+                onChange={(e) => update("direccion", e.target.value)}
+                placeholder="C/ Mayor, 12, 3º A"
+                className="mt-1.5 w-full rounded-lg border border-black/10 px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
+              />
+            </label>
+            <label className="flex items-start gap-3 rounded-lg border border-black/5 bg-cream/40 p-3">
+              <input
+                type="checkbox"
+                checked={form.mostrarDireccion}
+                onChange={(e) =>
+                  update("mostrarDireccion", e.target.checked)
+                }
+                className="mt-0.5 h-4 w-4 accent-navy"
+              />
+              <span className="font-body text-sm">
+                <span className="block font-semibold text-navy">
+                  Publicar dirección en la ficha pública
+                </span>
+                <span className="mt-0.5 block text-xs text-gray-text">
+                  Si está desactivado, los visitantes solo verán municipio y
+                  zona. Útil para ofertas reservadas o para no revelar el
+                  portal hasta contactar.
+                </span>
+              </span>
             </label>
           </div>
 

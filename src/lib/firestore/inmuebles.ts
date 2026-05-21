@@ -217,6 +217,7 @@ export async function listarDestacados(
 // Datos completos para la ficha (serializable: nada de Timestamps raw)
 export interface InmuebleFichaData extends InmueblePublicoListado {
   descripcion: string;
+  direccionPublica: string | null;
   caracteristicas: string[];
   metrosUtiles: number | null;
   planta: string | null;
@@ -265,6 +266,9 @@ export async function obtenerInmueblePorSlug(
     return {
       ...base,
       descripcion: data.descripcion ?? "",
+      direccionPublica: data.ubicacion?.mostrarDireccion
+        ? (data.ubicacion?.direccion ?? "").trim() || null
+        : null,
       caracteristicas: (data.caracteristicas ?? []) as string[],
       metrosUtiles: data.detalles?.metrosUtiles ?? null,
       planta: data.detalles?.planta ?? null,
@@ -313,6 +317,8 @@ export interface NuevoInmuebleInput {
   destacado: boolean;
   municipio: string;
   zona: string;
+  direccion: string;
+  mostrarDireccion: boolean;
   coordenadas: { lat: number; lng: number };
   habitaciones: number;
   banos: number;
@@ -371,7 +377,8 @@ export async function crearInmueble(
     ubicacion: {
       municipio: input.municipio,
       zona: input.zona,
-      direccion: "",
+      direccion: input.direccion?.trim() ?? "",
+      mostrarDireccion: Boolean(input.mostrarDireccion),
       coordenadas: input.coordenadas ?? { lat: 0, lng: 0 },
       radioPrivacidad: 100,
     },
@@ -430,6 +437,8 @@ export interface InmuebleAdminData {
   precio: number;
   municipio: string;
   zona: string;
+  direccion: string;
+  mostrarDireccion: boolean;
   coordenadas: { lat: number; lng: number };
   habitaciones: number;
   banos: number;
@@ -464,6 +473,8 @@ export async function obtenerInmueblePorId(
     precio: data.precio ?? 0,
     municipio: data.ubicacion?.municipio ?? "",
     zona: data.ubicacion?.zona ?? "",
+    direccion: data.ubicacion?.direccion ?? "",
+    mostrarDireccion: Boolean(data.ubicacion?.mostrarDireccion),
     coordenadas: {
       lat: data.ubicacion?.coordenadas?.lat ?? 0,
       lng: data.ubicacion?.coordenadas?.lng ?? 0,
@@ -538,6 +549,8 @@ export async function actualizarInmueble(
     precio: input.precio,
     "ubicacion.municipio": input.municipio,
     "ubicacion.zona": input.zona,
+    "ubicacion.direccion": input.direccion?.trim() ?? "",
+    "ubicacion.mostrarDireccion": Boolean(input.mostrarDireccion),
     "ubicacion.coordenadas": input.coordenadas ?? { lat: 0, lng: 0 },
     "detalles.habitaciones": input.habitaciones,
     "detalles.banos": input.banos,

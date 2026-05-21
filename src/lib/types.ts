@@ -41,6 +41,7 @@ export interface UbicacionInmueble {
   municipio: string;
   zona: string;
   direccion: string;
+  mostrarDireccion: boolean;
   coordenadas: Coordenadas;
   radioPrivacidad: number;
 }
