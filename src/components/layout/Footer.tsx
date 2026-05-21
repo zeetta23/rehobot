@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   obtenerConfiguracion,
@@ -60,13 +61,18 @@ export async function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-16">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <Link href="/" className="flex flex-col leading-none">
-              <span className="font-display text-2xl font-semibold tracking-tight text-white">
-                {empresa.nombre.split(" ")[0] || "Rehobot"}
-              </span>
-              <span className="font-body text-[10px] uppercase tracking-[0.3em] text-gold">
-                Real Estate
-              </span>
+            <Link
+              href="/"
+              className="block"
+              aria-label="Rehobot Real Estate — Inicio"
+            >
+              <Image
+                src="/logo.png"
+                alt="Rehobot Real Estate"
+                width={1536}
+                height={1024}
+                className="h-20 w-auto brightness-0 invert sm:h-28"
+              />
             </Link>
             <p className="mt-6 max-w-xs font-body text-sm leading-relaxed text-white/70">
               Tu inmobiliaria en Madrid y el Corredor del Henares. Compra,
