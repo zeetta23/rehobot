@@ -12,6 +12,7 @@ import {
   resetPasswordUsuario,
 } from "@/lib/api/usuarios-client";
 import { MUNICIPIOS_CORREDOR } from "@/lib/types";
+import { obtenerZonas } from "@/lib/firestore/zonas";
 
 interface FormState {
   rol: "admin" | "agente";
@@ -43,6 +44,13 @@ export default function EditarAgentePage({
   const [reseting, setReseting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mensajeOk, setMensajeOk] = useState<string | null>(null);
+  const [zonas, setZonas] = useState<string[]>([...MUNICIPIOS_CORREDOR]);
+
+  useEffect(() => {
+    obtenerZonas()
+      .then(setZonas)
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     obtenerUsuarioPorId(uid)
@@ -343,7 +351,7 @@ export default function EditarAgentePage({
                 Zonas
               </span>
               <div className="mt-3 flex flex-wrap gap-2">
-                {MUNICIPIOS_CORREDOR.map((m) => {
+                {zonas.map((m) => {
                   const isActive = form.zonas.includes(m);
                   return (
                     <button

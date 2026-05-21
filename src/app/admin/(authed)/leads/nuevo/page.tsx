@@ -13,6 +13,7 @@ import {
   type InmuebleListadoItem,
 } from "@/lib/firestore/inmuebles";
 import { listarStaff, type UsuarioStaff } from "@/lib/firestore/usuarios";
+import { obtenerZonas } from "@/lib/firestore/zonas";
 import {
   FUENTES_LEAD,
   MUNICIPIOS_CORREDOR,
@@ -83,10 +84,12 @@ export default function NuevoLeadPage() {
 
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [zonas, setZonas] = useState<string[]>([...MUNICIPIOS_CORREDOR]);
 
   useEffect(() => {
     listarInmuebles().then(setInmuebles).catch(() => setInmuebles([]));
     listarStaff(true).then(setAgentes).catch(() => setAgentes([]));
+    obtenerZonas().then(setZonas).catch(() => {});
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -418,7 +421,7 @@ export default function NuevoLeadPage() {
                   className="mt-1.5 w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
                 >
                   <option value="">—</option>
-                  {MUNICIPIOS_CORREDOR.map((m) => (
+                  {zonas.map((m) => (
                     <option key={m} value={m}>
                       {m}
                     </option>

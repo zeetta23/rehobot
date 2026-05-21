@@ -256,15 +256,14 @@ export interface Configuracion {
 // ============================================================================
 
 export const MUNICIPIOS_CORREDOR = [
-  // Madrid capital agrupado por zonas cardinales (más manejable que los 21
-  // distritos oficiales). Si en el futuro hace falta afinar a distritos
-  // concretos, se añaden a esta lista.
+  // Esta lista es el FALLBACK que se usa cuando el documento de Firestore
+  // `configuracion/zonas` aún no existe. La lista real se gestiona desde el
+  // panel de admin y se guarda en Firestore.
   "Madrid Centro",
   "Madrid Norte",
   "Madrid Este",
   "Madrid Sur",
   "Madrid Oeste",
-  // Corredor del Henares
   "Alcalá de Henares",
   "Torrejón de Ardoz",
   "Coslada",
@@ -272,6 +271,7 @@ export const MUNICIPIOS_CORREDOR = [
   "Mejorada del Campo",
   "Velilla de San Antonio",
   "Loeches",
+  "Pioz",
 ] as const;
 
 export type MunicipioCorredor = (typeof MUNICIPIOS_CORREDOR)[number];

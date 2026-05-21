@@ -32,6 +32,7 @@ import {
 } from "@/lib/firestore/inmuebles";
 import { SelectorCoordenadas } from "@/components/maps/SelectorCoordenadas";
 import { BuscadorDireccion } from "@/components/maps/BuscadorDireccion";
+import { obtenerZonas } from "@/lib/firestore/zonas";
 import {
   MUNICIPIOS_CORREDOR,
   CARACTERISTICAS_DISPONIBLES,
@@ -149,6 +150,13 @@ export default function EditarInmueblePage({
     }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
+
+  const [zonas, setZonas] = useState<string[]>([...MUNICIPIOS_CORREDOR]);
+  useEffect(() => {
+    obtenerZonas()
+      .then(setZonas)
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     let cancelado = false;
@@ -502,7 +510,7 @@ export default function EditarInmueblePage({
                 onChange={(e) => update("municipio", e.target.value)}
                 className="mt-1.5 w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 font-body text-sm outline-none focus:border-navy"
               >
-                {MUNICIPIOS_CORREDOR.map((m) => (
+                {zonas.map((m) => (
                   <option key={m} value={m}>
                     {m}
                   </option>

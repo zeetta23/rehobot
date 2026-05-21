@@ -5,7 +5,7 @@ import {
   listarInmueblesPublicos,
   formatPrecio,
 } from "@/lib/firestore/inmuebles";
-import { MUNICIPIOS_CORREDOR } from "@/lib/types";
+import { obtenerZonas } from "@/lib/firestore/zonas";
 import { MapaInmuebles } from "@/components/maps/MapaInmuebles";
 
 export const revalidate = 60;
@@ -17,8 +17,6 @@ const TIPOS = [
   { label: "Garajes", href: "/inmuebles?tipo=garaje", count: "—" },
 ];
 
-const ZONAS = MUNICIPIOS_CORREDOR;
-
 function slugifyZona(zona: string) {
   return zona
     .toLowerCase()
@@ -29,7 +27,10 @@ function slugifyZona(zona: string) {
 
 export default async function HomePage() {
   // Trae destacados; si no hay aún, cae a los 3 más recientes publicados.
-  const todosPublicos = await listarInmueblesPublicos();
+  const [todosPublicos, ZONAS] = await Promise.all([
+    listarInmueblesPublicos(),
+    obtenerZonas(),
+  ]);
   let destacados = await listarDestacados(3);
   if (destacados.length === 0) {
     destacados = todosPublicos.slice(0, 3);

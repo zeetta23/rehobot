@@ -87,6 +87,23 @@ export default function AjustesPage() {
         </p>
       </header>
 
+      <section className="mt-8 flex items-center justify-between rounded-2xl border border-black/5 bg-white p-5">
+        <div>
+          <h2 className="font-display text-base font-semibold text-navy">
+            Zonas y municipios
+          </h2>
+          <p className="mt-1 font-body text-xs text-gray-text">
+            Gestiona la lista que se muestra en los selectores y filtros.
+          </p>
+        </div>
+        <Link
+          href="/admin/ajustes/zonas"
+          className="rounded-full border border-navy/15 px-4 py-2 font-body text-sm font-medium text-navy hover:bg-navy hover:text-white"
+        >
+          Gestionar zonas →
+        </Link>
+      </section>
+
       <form onSubmit={handleSubmit} className="mt-8 space-y-8">
         <section className="rounded-2xl border border-black/5 bg-white p-6">
           <h2 className="font-display text-lg font-semibold text-navy">

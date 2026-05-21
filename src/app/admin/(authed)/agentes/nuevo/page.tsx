@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -8,6 +8,7 @@ import {
   type CrearUsuarioResult,
 } from "@/lib/api/usuarios-client";
 import { MUNICIPIOS_CORREDOR } from "@/lib/types";
+import { obtenerZonas } from "@/lib/firestore/zonas";
 
 interface FormState {
   email: string;
@@ -59,6 +60,13 @@ export default function NuevoAgentePage() {
   const [creado, setCreado] = useState<
     (CrearUsuarioResult & { passwordUsada: string }) | null
   >(null);
+
+  const [zonas, setZonas] = useState<string[]>([...MUNICIPIOS_CORREDOR]);
+  useEffect(() => {
+    obtenerZonas()
+      .then(setZonas)
+      .catch(() => {});
+  }, []);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -379,7 +387,7 @@ export default function NuevoAgentePage() {
                 Zonas en las que opera
               </span>
               <div className="mt-3 flex flex-wrap gap-2">
-                {MUNICIPIOS_CORREDOR.map((m) => {
+                {zonas.map((m) => {
                   const isActive = form.zonas.includes(m);
                   return (
                     <button

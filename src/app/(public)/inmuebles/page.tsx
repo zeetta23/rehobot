@@ -7,7 +7,7 @@ import {
   type FiltrosPublicos,
 } from "@/lib/firestore/inmuebles";
 import type { Operacion, TipoInmueble } from "@/lib/types";
-import { MUNICIPIOS_CORREDOR } from "@/lib/types";
+import { obtenerZonas } from "@/lib/firestore/zonas";
 import { OrdenarSelect } from "@/components/public/OrdenarSelect";
 import { VistaToggle } from "@/components/public/VistaToggle";
 import { MapaInmuebles } from "@/components/maps/MapaInmuebles";
@@ -83,7 +83,10 @@ export default async function InmueblesPage({
     filtros.orden = sp.orden as FiltrosPublicos["orden"];
   }
 
-  const inmuebles = await listarInmueblesPublicos(filtros);
+  const [inmuebles, zonas] = await Promise.all([
+    listarInmueblesPublicos(filtros),
+    obtenerZonas(),
+  ]);
   const vista: "grid" | "mapa" = sp.vista === "mapa" ? "mapa" : "grid";
   const inmueblesConCoords = inmuebles.filter(
     (i) => i.coordenadas.lat !== 0 && i.coordenadas.lng !== 0,
@@ -196,7 +199,7 @@ export default async function InmueblesPage({
                   className="mt-3 w-full rounded-lg border border-black/10 bg-white px-3 py-2 font-body text-sm"
                 >
                   <option value="">Todos</option>
-                  {MUNICIPIOS_CORREDOR.map((m) => (
+                  {zonas.map((m) => (
                     <option key={m} value={m}>
                       {m}
                     </option>
