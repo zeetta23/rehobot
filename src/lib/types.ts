@@ -126,7 +126,8 @@ export interface Inmueble {
 export type TipoLead =
   | "interes_inmueble"
   | "valoracion_casa"
-  | "contacto_general";
+  | "contacto_general"
+  | "inversor";
 
 export type EstadoLead =
   | "nuevo"

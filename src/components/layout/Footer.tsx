@@ -22,6 +22,7 @@ const COLUMNAS = {
   Empresa: [
     { href: "/nosotros", label: "Quiénes somos" },
     { href: "/vender", label: "Vende tu casa" },
+    { href: "/inversores", label: "Inversores" },
     { href: "/contacto", label: "Contacto" },
   ],
 };

@@ -36,6 +36,11 @@ const TIPOS: { value: TipoLead; label: string; descripcion: string }[] = [
     label: "Contacto general",
     descripcion: "Otra consulta o duda sin inmueble asociado.",
   },
+  {
+    value: "inversor",
+    label: "Inversor",
+    descripcion: "Interesado en invertir en inmuebles en Madrid.",
+  },
 ];
 
 const TIPOS_VIVIENDA_VENDER = [

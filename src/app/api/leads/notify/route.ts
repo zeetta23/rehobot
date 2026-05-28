@@ -12,6 +12,7 @@ function labelTipo(tipo: string): string {
       interes_inmueble: "Interés en inmueble",
       valoracion_casa: "Valoración de casa",
       contacto_general: "Contacto general",
+      inversor: "Inversor",
     }[tipo] || "Lead"
   );
 }

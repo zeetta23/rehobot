@@ -27,6 +27,7 @@ const TIPOS: { value: TipoLead | ""; label: string }[] = [
   { value: "interes_inmueble", label: "Interés en inmueble" },
   { value: "valoracion_casa", label: "Valoración de casa" },
   { value: "contacto_general", label: "Contacto general" },
+  { value: "inversor", label: "Inversor" },
 ];
 
 function formatearFecha(ms: number): string {

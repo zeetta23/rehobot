@@ -37,6 +37,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${APP_URL}/inversores`,
+      lastModified: ahora,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
       url: `${APP_URL}/nosotros`,
       lastModified: ahora,
       changeFrequency: "yearly",

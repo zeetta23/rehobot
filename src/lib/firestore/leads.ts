@@ -56,10 +56,15 @@ export interface NuevoLeadContactoInput extends BaseLeadInput {
   tipo: "contacto_general";
 }
 
+export interface NuevoLeadInversorInput extends BaseLeadInput {
+  tipo: "inversor";
+}
+
 export type NuevoLeadInput =
   | NuevoLeadInteresInput
   | NuevoLeadValoracionInput
-  | NuevoLeadContactoInput;
+  | NuevoLeadContactoInput
+  | NuevoLeadInversorInput;
 
 export async function crearLead(input: NuevoLeadInput): Promise<string> {
   const fechaCreacion = input.fechaCreacion
@@ -354,6 +359,7 @@ export function labelTipoLead(tipo: TipoLead): string {
     interes_inmueble: "Interés en inmueble",
     valoracion_casa: "Valoración de casa",
     contacto_general: "Contacto general",
+    inversor: "Inversor",
   }[tipo];
 }
 
