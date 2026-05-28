@@ -242,17 +242,16 @@ export default function InversoresPage() {
           >
             Agendar consulta gratuita
           </a>
-        </div>
-      </section>
 
-      {/* Aviso legal sobre cifras */}
-      <section className="mx-auto max-w-7xl px-6 pb-12">
-        <p className="font-body text-xs text-gray-text">
-          * Las rentabilidades indicadas son estimaciones orientativas basadas
-          en operaciones de mercado y no constituyen una garantía de resultados.
-          Toda inversión inmobiliaria conlleva riesgos; los resultados dependen
-          de cada operación y de las condiciones del mercado.
-        </p>
+          {/* Aviso legal sobre cifras */}
+          <p className="mx-auto mt-12 max-w-xl border-t border-white/10 pt-6 font-body text-xs leading-relaxed text-white/40">
+            * Las rentabilidades indicadas son estimaciones orientativas basadas
+            en operaciones de mercado y no constituyen una garantía de
+            resultados. Toda inversión inmobiliaria conlleva riesgos; los
+            resultados dependen de cada operación y de las condiciones del
+            mercado.
+          </p>
+        </div>
       </section>
     </>
   );
