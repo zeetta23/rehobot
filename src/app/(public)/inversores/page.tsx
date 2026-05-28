@@ -23,67 +23,176 @@ const STATS = [
 
 const SERVICIOS = [
   {
+    icono: "sl",
     titulo: "Constitución de Sociedad Limitada (SL)",
     desc: "SL registrada, NIF fiscal y cuenta bancaria. Gestiones con gestoría y notaría, sin complicaciones burocráticas.",
   },
   {
+    icono: "banco",
     titulo: "Apertura de cuenta bancaria",
     desc: "Facilitamos tu apertura de cuenta en entidades españolas, con bancos que trabajan con inversores internacionales.",
   },
   {
+    icono: "legal",
     titulo: "Asesoramiento legal y fiscal",
     desc: "Equipo especializado en inversores internacionales. Trámites notariales, fiscales y legales, optimización fiscal y cumplimiento normativo.",
   },
   {
+    icono: "flipping",
     titulo: "Flipping inmobiliario",
     desc: "Identificación de activos con potencial de revalorización. Análisis de mercado, negociación y estrategia de venta.",
   },
   {
+    icono: "shopper",
     titulo: "Personal shopper inmobiliario",
     desc: "Búsqueda y selección de propiedades según tus criterios. Acceso a oportunidades que no encontrarás en portales públicos.",
   },
   {
+    icono: "alquiler",
     titulo: "Gestión de alquileres de larga estancia",
     desc: "Rentabilidad pasiva mediante alquileres residenciales con inquilinos verificados. Gestión integral de inquilinos, mantenimiento y documentación.",
   },
-];
+] as const;
 
 const VENTAJAS = [
   {
+    icono: "estrella",
     titulo: "Acceso a oportunidades exclusivas",
     desc: "Propiedades que no están en portales públicos. Negociaciones directas con vendedores y desarrolladores.",
   },
   {
+    icono: "chat",
     titulo: "Atención en español",
     desc: "Entendemos tu contexto como inversor latinoamericano y te acompañamos en cada paso del proceso.",
   },
   {
+    icono: "escudo",
     titulo: "Rentabilidad pasiva segura",
     desc: "Estrategias de alquiler de larga estancia con inquilinos verificados para generar ingresos estables.",
   },
   {
+    icono: "capas",
     titulo: "Solución integral",
     desc: "Legal, fiscal, bancaria e inmobiliaria. Todo lo que necesitas para invertir en Madrid en un solo lugar.",
   },
-];
+] as const;
 
 const TESTIMONIOS = [
   {
     texto:
       "Anderson me ayudó a constituir mi SL, abrir cuenta bancaria y encontrar mi primer activo en flipping. En 8 meses ya recuperé mi inversión inicial. Increíble.",
     autor: "Inversor de Colombia",
+    iniciales: "CO",
   },
   {
     texto:
       "Como extranjera, todo parecía complicado. Rehobot manejó todos los trámites legales y fiscales. Ahora tengo 3 propiedades en alquiler generando ingresos pasivos.",
     autor: "Inversora de México",
+    iniciales: "MX",
   },
   {
     texto:
       "El personal shopper inmobiliario encontró exactamente lo que buscaba. Propiedades con potencial real. Muy profesional y confiable.",
     autor: "Inversor internacional",
+    iniciales: "IN",
   },
 ];
+
+function IconoServicio({ tipo }: { tipo: string }) {
+  const comun = {
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.7,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    viewBox: "0 0 24 24",
+    className: "h-6 w-6",
+    "aria-hidden": true,
+  };
+  switch (tipo) {
+    case "sl":
+      return (
+        <svg {...comun}>
+          <rect x="4" y="3" width="16" height="18" rx="1.5" />
+          <path d="M9 7h0M9 11h0M9 15h0M15 7h0M15 11h0M15 15h0" />
+        </svg>
+      );
+    case "banco":
+      return (
+        <svg {...comun}>
+          <path d="M3 10l9-6 9 6" />
+          <path d="M4 10v9M20 10v9M9 19v-6h6v6M3 21h18" />
+        </svg>
+      );
+    case "legal":
+      return (
+        <svg {...comun}>
+          <path d="M12 3l7 3v5c0 4-3 7.5-7 9-4-1.5-7-5-7-9V6l7-3z" />
+          <path d="M9 12l2 2 4-4" />
+        </svg>
+      );
+    case "flipping":
+      return (
+        <svg {...comun}>
+          <path d="M3 17l6-6 4 4 7-7" />
+          <path d="M14 8h6v6" />
+        </svg>
+      );
+    case "shopper":
+      return (
+        <svg {...comun}>
+          <path d="M3 11l9-7 9 7" />
+          <path d="M5 10v10h5v-6h4v6h5V10" />
+        </svg>
+      );
+    case "alquiler":
+      return (
+        <svg {...comun}>
+          <circle cx="8" cy="15" r="4" />
+          <path d="M10.9 12.1L20 3M17 6l2 2M14 9l2 2" />
+        </svg>
+      );
+    case "estrella":
+      return (
+        <svg {...comun}>
+          <path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.2l5.9-.9L12 3z" />
+        </svg>
+      );
+    case "chat":
+      return (
+        <svg {...comun}>
+          <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.9-.9L3 21l1.9-5.1A8.5 8.5 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z" />
+        </svg>
+      );
+    case "escudo":
+      return (
+        <svg {...comun}>
+          <path d="M12 3l7 3v5c0 4-3 7.5-7 9-4-1.5-7-5-7-9V6l7-3z" />
+        </svg>
+      );
+    case "capas":
+      return (
+        <svg {...comun}>
+          <path d="M12 3l9 5-9 5-9-5 9-5z" />
+          <path d="M3 12l9 5 9-5M3 16.5l9 5 9-5" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
+
+function Estrellas() {
+  return (
+    <div className="flex gap-0.5 text-gold" aria-label="5 de 5 estrellas">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <svg key={i} viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+          <path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.2l5.9-.9L12 3z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
 
 export default function InversoresPage() {
   return (
@@ -156,12 +265,16 @@ export default function InversoresPage() {
           {SERVICIOS.map((s) => (
             <div
               key={s.titulo}
-              className="rounded-2xl border border-black/5 bg-white p-6 transition-shadow hover:shadow-lg"
+              className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:border-gold/40 hover:shadow-xl"
             >
-              <h3 className="font-display text-lg font-semibold text-navy">
+              <div className="absolute right-0 top-0 h-24 w-24 -translate-y-10 translate-x-10 rounded-full bg-gold/5 transition-transform duration-500 group-hover:scale-[2.2]" />
+              <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-navy to-navy-medium text-gold shadow-sm transition-transform duration-300 group-hover:scale-110">
+                <IconoServicio tipo={s.icono} />
+              </div>
+              <h3 className="relative mt-5 font-display text-lg font-semibold text-navy">
                 {s.titulo}
               </h3>
-              <p className="mt-3 font-body text-sm leading-relaxed text-gray-text">
+              <p className="relative mt-3 font-body text-sm leading-relaxed text-gray-text">
                 {s.desc}
               </p>
             </div>
@@ -182,14 +295,19 @@ export default function InversoresPage() {
             {VENTAJAS.map((v) => (
               <div
                 key={v.titulo}
-                className="rounded-2xl border border-black/5 bg-white p-6"
+                className="flex gap-5 rounded-2xl border border-black/5 bg-white p-6 transition-shadow duration-300 hover:shadow-lg"
               >
-                <h3 className="font-display text-lg font-semibold text-navy">
-                  {v.titulo}
-                </h3>
-                <p className="mt-2 font-body text-sm leading-relaxed text-gray-text">
-                  {v.desc}
-                </p>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold/15 text-navy">
+                  <IconoServicio tipo={v.icono} />
+                </div>
+                <div>
+                  <h3 className="font-display text-lg font-semibold text-navy">
+                    {v.titulo}
+                  </h3>
+                  <p className="mt-2 font-body text-sm leading-relaxed text-gray-text">
+                    {v.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -212,13 +330,25 @@ export default function InversoresPage() {
           {TESTIMONIOS.map((t) => (
             <figure
               key={t.autor}
-              className="flex flex-col rounded-2xl border border-black/5 bg-white p-6"
+              className="relative flex flex-col rounded-2xl border border-black/5 bg-white p-7 transition-shadow duration-300 hover:shadow-lg"
             >
-              <blockquote className="flex-1 font-body text-sm italic leading-relaxed text-dark">
-                “{t.texto}”
+              <span
+                className="absolute right-6 top-2 font-display text-7xl leading-none text-gold/20 select-none"
+                aria-hidden
+              >
+                &rdquo;
+              </span>
+              <Estrellas />
+              <blockquote className="relative mt-4 flex-1 font-body text-sm leading-relaxed text-dark">
+                {t.texto}
               </blockquote>
-              <figcaption className="mt-4 font-body text-sm font-semibold text-navy">
-                {t.autor}
+              <figcaption className="mt-6 flex items-center gap-3 border-t border-black/5 pt-4">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-navy to-navy-medium font-body text-xs font-semibold text-gold">
+                  {t.iniciales}
+                </span>
+                <span className="font-body text-sm font-semibold text-navy">
+                  {t.autor}
+                </span>
               </figcaption>
             </figure>
           ))}
