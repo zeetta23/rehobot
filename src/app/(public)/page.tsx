@@ -214,6 +214,7 @@ export default async function HomePage() {
                         fill
                         sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                         className="object-cover"
+                        unoptimized
                       />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-navy/10 to-gold/20" />

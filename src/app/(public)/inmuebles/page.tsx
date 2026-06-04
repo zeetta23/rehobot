@@ -387,6 +387,7 @@ export default async function InmueblesPage({
                         fill
                         sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
                         className="object-cover"
+                        unoptimized
                       />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-navy/10 to-gold/20" />

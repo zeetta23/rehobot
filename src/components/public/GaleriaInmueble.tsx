@@ -92,6 +92,7 @@ export function GaleriaInmueble({ fotos, titulo }: GaleriaInmuebleProps) {
               src={f.urlLarge || f.url}
               alt={`${titulo} — foto ${idx + 1} de ${total}`}
               fill
+              unoptimized
               sizes="(min-width: 1024px) 1024px, 100vw"
               className={`object-cover transition-opacity duration-150 ${
                 idx === indice ? "opacity-100" : "pointer-events-none opacity-0"
@@ -174,6 +175,7 @@ export function GaleriaInmueble({ fotos, titulo }: GaleriaInmuebleProps) {
                   fill
                   sizes="96px"
                   className="object-cover"
+                  unoptimized
                 />
               </button>
             ))}
@@ -280,6 +282,7 @@ function Lightbox({
           sizes="100vw"
           className="object-contain"
           priority
+          unoptimized
         />
       </div>
 
@@ -364,6 +367,7 @@ function Lightbox({
                 fill
                 sizes="80px"
                 className="object-cover"
+                unoptimized
               />
             </button>
           ))}
