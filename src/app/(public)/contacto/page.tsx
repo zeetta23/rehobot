@@ -61,8 +61,8 @@ export default async function ContactoPage() {
       </section>
 
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-16 px-6 py-24 lg:grid-cols-[1fr_400px]">
-        {/* INFO + MAPA */}
-        <div className="space-y-12">
+        {/* INFO */}
+        <div>
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
             {bloques.map((b) => (
               <div key={b.titulo}>
@@ -79,17 +79,6 @@ export default async function ContactoPage() {
                 ))}
               </div>
             ))}
-          </div>
-
-          <div>
-            <p className="font-body text-xs uppercase tracking-[0.3em] text-gold">
-              Cómo llegar
-            </p>
-            <div className="mt-3 aspect-[16/10] rounded-2xl border border-dashed border-navy/20 bg-cream">
-              <div className="flex h-full items-center justify-center font-body text-sm text-gray-text">
-                [ Mapa de Google · próximamente ]
-              </div>
-            </div>
           </div>
         </div>
 
