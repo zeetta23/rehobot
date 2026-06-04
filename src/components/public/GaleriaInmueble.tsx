@@ -22,6 +22,34 @@ export function GaleriaInmueble({ fotos, titulo }: GaleriaInmuebleProps) {
 
   const total = fotos.length;
 
+  // Set de índices ya "tocados" para mantenerlos montados (cache de DOM).
+  // Solo se renderizan las imágenes que han estado activas alguna vez +
+  // las adyacentes para precarga. El resto no se descarga del CDN.
+  const [montadas, setMontadas] = useState<Set<number>>(() => {
+    const s = new Set<number>();
+    if (fotos.length > 0) s.add(0);
+    if (fotos.length > 1) s.add(1);
+    return s;
+  });
+
+  useEffect(() => {
+    if (total === 0) return;
+    setMontadas((prev) => {
+      if (
+        prev.has(indice) &&
+        prev.has((indice - 1 + total) % total) &&
+        prev.has((indice + 1) % total)
+      ) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.add(indice);
+      next.add((indice - 1 + total) % total);
+      next.add((indice + 1) % total);
+      return next;
+    });
+  }, [indice, total]);
+
   const ir = useCallback(
     (delta: number) => {
       if (total === 0) return;
@@ -86,20 +114,25 @@ export function GaleriaInmueble({ fotos, titulo }: GaleriaInmuebleProps) {
           role="button"
           aria-label="Ampliar foto"
         >
-          {fotos.map((f, idx) => (
-            <Image
-              key={idx}
-              src={f.urlLarge || f.url}
-              alt={`${titulo} — foto ${idx + 1} de ${total}`}
-              fill
-              unoptimized
-              sizes="(min-width: 1024px) 1024px, 100vw"
-              className={`object-cover transition-opacity duration-150 ${
-                idx === indice ? "opacity-100" : "pointer-events-none opacity-0"
-              }`}
-              priority={idx === 0}
-            />
-          ))}
+          {fotos.map((f, idx) => {
+            if (!montadas.has(idx)) return null;
+            return (
+              <Image
+                key={idx}
+                src={f.urlLarge || f.url}
+                alt={`${titulo} — foto ${idx + 1} de ${total}`}
+                fill
+                unoptimized
+                sizes="(min-width: 1024px) 1024px, 100vw"
+                className={`object-cover transition-opacity duration-150 ${
+                  idx === indice
+                    ? "opacity-100"
+                    : "pointer-events-none opacity-0"
+                }`}
+                priority={idx === 0}
+              />
+            );
+          })}
 
           {total > 1 && (
             <>
@@ -176,6 +209,7 @@ export function GaleriaInmueble({ fotos, titulo }: GaleriaInmuebleProps) {
                   sizes="96px"
                   className="object-cover"
                   unoptimized
+                  loading={idx < 6 ? "eager" : "lazy"}
                 />
               </button>
             ))}
@@ -368,6 +402,7 @@ function Lightbox({
                 sizes="80px"
                 className="object-cover"
                 unoptimized
+                loading={idx < 8 ? "eager" : "lazy"}
               />
             </button>
           ))}
