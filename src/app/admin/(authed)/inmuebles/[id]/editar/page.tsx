@@ -33,6 +33,7 @@ import {
 import { SelectorCoordenadas } from "@/components/maps/SelectorCoordenadas";
 import { BuscadorDireccion } from "@/components/maps/BuscadorDireccion";
 import { obtenerZonas } from "@/lib/firestore/zonas";
+import { comprimirImagen } from "@/lib/imagen/comprimir";
 import {
   MUNICIPIOS_CORREDOR,
   CARACTERISTICAS_DISPONIBLES,
@@ -139,6 +140,10 @@ export default function EditarInmueblePage({
     subidas: number;
     total: number;
   } | null>(null);
+  const [comprimiendo, setComprimiendo] = useState<{
+    actual: number;
+    total: number;
+  } | null>(null);
 
   const [form, setForm] = useState<NuevoInmuebleInput | null>(null);
   const [fotos, setFotos] = useState<FotoEditorItem[]>([]);
@@ -236,15 +241,16 @@ export default function EditarInmueblePage({
     });
   }
 
-  function handleAddFotos(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleAddFotos(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files ? Array.from(e.target.files) : [];
+    e.target.value = "";
     if (files.length === 0) return;
 
-    const nuevas: FotoEditorItem[] = [];
     const errores: string[] = [];
-
+    const validas: File[] = [];
+    const cuenta = fotos.length;
     for (const file of files) {
-      if (fotos.length + nuevas.length >= MAX_FOTOS) {
+      if (cuenta + validas.length >= MAX_FOTOS) {
         errores.push(`Máximo ${MAX_FOTOS} fotos por inmueble.`);
         break;
       }
@@ -256,18 +262,28 @@ export default function EditarInmueblePage({
         errores.push(`"${file.name}" supera ${TAMANO_MAX_MB} MB.`);
         continue;
       }
-      nuevas.push({
-        id: `nueva-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        item: { tipo: "nueva", file },
-        previewUrl: URL.createObjectURL(file),
-      });
+      validas.push(file);
     }
 
     if (errores.length > 0) setError(errores.join(" "));
     else setError(null);
 
+    if (validas.length === 0) return;
+
+    setComprimiendo({ actual: 0, total: validas.length });
+    const nuevas: FotoEditorItem[] = [];
+    for (let i = 0; i < validas.length; i++) {
+      setComprimiendo({ actual: i, total: validas.length });
+      const comprimida = await comprimirImagen(validas[i]);
+      nuevas.push({
+        id: `nueva-${Date.now()}-${i}-${Math.random().toString(36).slice(2)}`,
+        item: { tipo: "nueva", file: comprimida },
+        previewUrl: URL.createObjectURL(comprimida),
+      });
+    }
+    setComprimiendo(null);
+
     setFotos((prev) => [...prev, ...nuevas]);
-    e.target.value = "";
   }
 
   function eliminarFoto(id: string) {
@@ -885,6 +901,13 @@ export default function EditarInmueblePage({
               + Añadir fotos
             </label>
           </div>
+
+          {comprimiendo && (
+            <p className="mt-4 rounded-lg bg-navy/5 px-4 py-3 font-body text-sm text-navy">
+              Comprimiendo fotos… ({comprimiendo.actual + 1} de{" "}
+              {comprimiendo.total})
+            </p>
+          )}
 
           {fotos.length === 0 ? (
             <div className="mt-6 rounded-xl border border-dashed border-navy/20 bg-cream/50 px-6 py-12 text-center">
