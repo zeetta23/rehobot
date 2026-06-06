@@ -107,11 +107,12 @@ export async function GET(request: Request, { params }: RouteCtx) {
     year: "numeric",
   }).format(new Date());
 
-  // Pre-descargamos las primeras 9 fotos en paralelo (portada + 8 galería).
+  // Pre-descargamos hasta 24 fotos en paralelo (portada + 8 grandes en
+  // galería + hasta 16 más para el índice fotográfico en mosaico).
   // react-pdf no soporta WebP y a veces tampoco resuelve URLs externas
   // dentro del runtime serverless, así que las traemos nosotros y las
   // reencodamos a JPEG con sharp.
-  const fotosParaDescargar = inmueble.fotos.slice(0, 9);
+  const fotosParaDescargar = inmueble.fotos.slice(0, 24);
   const imagenes = await Promise.all(
     fotosParaDescargar.map((f) => fetchImagenParaPdf(f.url)),
   );

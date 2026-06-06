@@ -162,6 +162,11 @@ function calcHipoteca(
   return (importe * i) / (1 - Math.pow(1 + i, -n));
 }
 
+function humanizar(s: string): string {
+  const limpio = s.replace(/[_-]+/g, " ").trim();
+  return limpio.charAt(0).toUpperCase() + limpio.slice(1);
+}
+
 function iniciales(nombre: string): string {
   return nombre
     .split(/\s+/)
@@ -267,10 +272,16 @@ export function DossierInmueble({
   ahora,
 }: DossierProps) {
   const portadaImg = imagenes[0] ?? null;
-  const galeriaImgs = imagenes
+  // Imágenes válidas después de la portada
+  const todasGaleria = imagenes
     .slice(1)
-    .filter((i): i is ImagenPdf => i !== null)
-    .slice(0, 6); // hasta 3 páginas de galería (2 fotos por pág)
+    .filter((i): i is ImagenPdf => i !== null);
+  // Hasta 8 fotos grandes (4 páginas) en formato "presentación"
+  const galeriaImgs = todasGaleria.slice(0, 8);
+  // El resto va en una página de "índice fotográfico" en miniatura.
+  // Incluimos también las 8 grandes para que el mosaico final sea
+  // un resumen visual completo del inmueble.
+  const mosaicoImgs = todasGaleria;
 
   const tipoLabel = TIPO_LABEL[inmueble.tipo] ?? inmueble.tipo;
   const ubicacion = [inmueble.zona, inmueble.municipio]
@@ -298,11 +309,13 @@ export function DossierInmueble({
     1 + // portada
     1 + // 01 asesor
     1 + // 02 vivienda highlights
-    1 + // 03 detalles
-    1 + // 04 ubicacion
-    Math.ceil(galeriaImgs.length / 2) +
-    (inmueble.caracteristicas.length > 0 ? 1 : 0) +
-    (inmueble.operacion === "venta" && inmueble.precio > 0 ? 1 : 0) +
+    (inmueble.descripcion ? 1 : 0) + // 03 descripción
+    1 + // 04 detalles
+    1 + // 05 ubicacion
+    Math.ceil(galeriaImgs.length / 2) + // 06 galería
+    (mosaicoImgs.length > 2 ? 1 : 0) + // 06b índice fotográfico
+    (inmueble.caracteristicas.length > 0 ? 1 : 0) + // 07 características
+    (inmueble.operacion === "venta" && inmueble.precio > 0 ? 1 : 0) + // 08 financiación
     1; // siguiente paso
 
   let page = 0;
@@ -959,47 +972,164 @@ export function DossierInmueble({
               </View>
             </View>
 
-            {/* Banda de descripción corta */}
-            {inmueble.descripcion ? (
-              <View
-                style={{
-                  marginTop: 22,
-                  backgroundColor: C.cream,
-                  padding: 16,
-                  borderRadius: 6,
-                  borderLeftWidth: 3,
-                  borderLeftColor: C.gold,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 7,
-                    color: C.gold,
-                    letterSpacing: 2,
-                  }}
-                >
-                  DESCRIPCIÓN
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 10,
-                    color: C.textDark,
-                    marginTop: 6,
-                    lineHeight: 1.55,
-                  }}
-                >
-                  {inmueble.descripcion.length > 600
-                    ? inmueble.descripcion.slice(0, 600).trim() + "…"
-                    : inmueble.descripcion}
-                </Text>
-              </View>
-            ) : null}
-
             <View style={s.decoBarBottom} />
             <PageNum n={n} total={numPaginas} />
           </Page>
         );
       })()}
+
+      {/* ============ 3. DESCRIPCIÓN COMPLETA ============ */}
+      {inmueble.descripcion ? (
+        (() => {
+          const n = next();
+          // Partimos en párrafos para que respiren visualmente.
+          const parrafos = inmueble.descripcion
+            .split(/\n\s*\n|\r\n\s*\r\n/)
+            .map((p) => p.trim())
+            .filter(Boolean);
+          // Primer párrafo destacado (cita), resto en cuerpo.
+          const destacado = parrafos[0] || inmueble.descripcion;
+          const resto = parrafos.slice(1);
+          return (
+            <Page size="A4" orientation="landscape" style={s.page}>
+              <View style={s.decoTriangle} />
+              <SectionHeader
+                num="03"
+                eyebrow="LA VIVIENDA POR DENTRO"
+                title="Descripción"
+                subtitle="Lo que el inmueble cuenta sobre sí mismo."
+              />
+
+              <View
+                style={{
+                  marginTop: 24,
+                  flexDirection: "row",
+                  gap: 28,
+                  flex: 1,
+                }}
+              >
+                {/* Bloque destacado izquierda (cita) */}
+                <View style={{ width: 240 }}>
+                  <View
+                    style={{
+                      backgroundColor: C.navy,
+                      padding: 22,
+                      borderRadius: 8,
+                      borderBottomWidth: 3,
+                      borderBottomColor: C.gold,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "Times-Bold",
+                        fontSize: 26,
+                        color: C.gold,
+                        lineHeight: 1,
+                      }}
+                    >
+                      &ldquo;
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: "Times-Italic",
+                        fontSize: 13,
+                        color: C.white,
+                        marginTop: 4,
+                        lineHeight: 1.55,
+                      }}
+                    >
+                      {destacado.length > 240
+                        ? destacado.slice(0, 240).trim() + "…"
+                        : destacado}
+                    </Text>
+                  </View>
+
+                  {/* Mini-resumen visual debajo */}
+                  <View
+                    style={{
+                      marginTop: 14,
+                      backgroundColor: C.cream,
+                      borderRadius: 8,
+                      padding: 16,
+                      borderLeftWidth: 3,
+                      borderLeftColor: C.gold,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 7,
+                        color: C.gold,
+                        letterSpacing: 2,
+                      }}
+                    >
+                      EN UNA LÍNEA
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: "Helvetica-Bold",
+                        fontSize: 11,
+                        color: C.navy,
+                        marginTop: 6,
+                      }}
+                    >
+                      {tipoLabel}
+                      {inmueble.metrosConstruidos
+                        ? ` de ${inmueble.metrosConstruidos} m²`
+                        : ""}
+                      {inmueble.habitaciones
+                        ? ` · ${inmueble.habitaciones} hab.`
+                        : ""}
+                      {inmueble.banos ? ` · ${inmueble.banos} baños` : ""}
+                    </Text>
+                    {ubicacion ? (
+                      <Text
+                        style={{
+                          fontSize: 9,
+                          color: C.textMuted,
+                          marginTop: 4,
+                        }}
+                      >
+                        {ubicacion}
+                      </Text>
+                    ) : null}
+                  </View>
+                </View>
+
+                {/* Cuerpo del texto a la derecha */}
+                <View style={{ flex: 1 }}>
+                  {/* Primer párrafo siempre va destacado pero también en
+                      cuerpo por si el lector se salta la cita */}
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      color: C.textDark,
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    {destacado}
+                  </Text>
+                  {resto.map((p, i) => (
+                    <Text
+                      key={i}
+                      style={{
+                        fontSize: 11,
+                        color: C.textDark,
+                        lineHeight: 1.7,
+                        marginTop: 12,
+                      }}
+                    >
+                      {p}
+                    </Text>
+                  ))}
+                </View>
+              </View>
+
+              <View style={s.decoBarBottom} />
+              <PageNum n={n} total={numPaginas} />
+            </Page>
+          );
+        })()
+      ) : null}
 
       {/* ============ 4. DETALLES DEL ACTIVO ============ */}
       {(() => {
@@ -1035,15 +1165,13 @@ export function DossierInmueble({
           {
             l: "Cocina",
             v: inmueble.tipoCocina
-              ? inmueble.tipoCocina.charAt(0).toUpperCase() +
-                inmueble.tipoCocina.slice(1)
+              ? humanizar(inmueble.tipoCocina)
               : "—",
           },
           {
             l: "Calefacción",
             v: inmueble.tipoCalefaccion
-              ? inmueble.tipoCalefaccion.charAt(0).toUpperCase() +
-                inmueble.tipoCalefaccion.slice(1)
+              ? humanizar(inmueble.tipoCalefaccion)
               : "—",
           },
         ];
@@ -1051,7 +1179,7 @@ export function DossierInmueble({
           <Page size="A4" orientation="landscape" style={s.page}>
             <View style={s.decoTriangle} />
             <SectionHeader
-              num="03"
+              num="04"
               eyebrow="DETALLES DEL ACTIVO"
               title="Ficha técnica completa"
               subtitle="Información detallada del inmueble, libre de cargas y lista para escriturar."
@@ -1124,15 +1252,13 @@ export function DossierInmueble({
                 <Text
                   style={{
                     fontFamily: "Times-Bold",
-                    fontSize: 18,
+                    fontSize: 16,
                     color: C.white,
                     marginTop: 10,
                     lineHeight: 1.25,
                   }}
                 >
-                  {inmueble.titulo.length > 60
-                    ? inmueble.titulo.slice(0, 60) + "…"
-                    : inmueble.titulo}
+                  {inmueble.titulo}
                 </Text>
 
                 <View style={{ flexDirection: "row", gap: 10, marginTop: 18 }}>
@@ -1253,7 +1379,7 @@ export function DossierInmueble({
           <Page size="A4" orientation="landscape" style={s.page}>
             <View style={s.decoTriangle} />
             <SectionHeader
-              num="04"
+              num="05"
               eyebrow="UBICACIÓN"
               title={inmueble.municipio || "Madrid"}
               subtitle={
@@ -1500,7 +1626,7 @@ export function DossierInmueble({
                 <View style={s.decoTriangle} />
                 {pageIdx === 0 && (
                   <SectionHeader
-                    num="05"
+                    num="06"
                     eyebrow="GALERÍA"
                     title="El inmueble en imágenes"
                     subtitle="Cada espacio cuenta una historia. Estas son las nuestras."
@@ -1544,6 +1670,77 @@ export function DossierInmueble({
           },
         )}
 
+      {/* ============ 6b. ÍNDICE FOTOGRÁFICO (MOSAICO) ============ */}
+      {mosaicoImgs.length > 2 &&
+        (() => {
+          const n = next();
+          // Grid 4×N: 4 fotos por fila, hasta 16 fotos visibles en una página
+          const FOTOS_POR_PAGINA = 16;
+          const fotosMostradas = mosaicoImgs.slice(0, FOTOS_POR_PAGINA);
+          return (
+            <Page size="A4" orientation="landscape" style={s.page}>
+              <View style={s.decoTriangle} />
+              <SectionHeader
+                num="06"
+                eyebrow="ÍNDICE FOTOGRÁFICO"
+                title={`Todas las fotos (${mosaicoImgs.length})`}
+                subtitle="Vista en miniatura del reportaje completo del inmueble."
+              />
+
+              <View
+                style={{
+                  marginTop: 22,
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  gap: 8,
+                }}
+              >
+                {fotosMostradas.map((img, idx) => (
+                  <View
+                    key={idx}
+                    style={{
+                      width: "23.5%",
+                      borderRadius: 4,
+                      overflow: "hidden",
+                      backgroundColor: C.panel,
+                      borderWidth: 1,
+                      borderColor: C.panelDark,
+                    }}
+                  >
+                    <PdfImage
+                      src={{ data: img.data, format: img.format }}
+                      style={{
+                        width: "100%",
+                        height: 100,
+                        objectFit: "cover",
+                      }}
+                    />
+                  </View>
+                ))}
+              </View>
+
+              {mosaicoImgs.length > FOTOS_POR_PAGINA ? (
+                <Text
+                  style={{
+                    marginTop: 12,
+                    fontSize: 9,
+                    color: C.textMuted,
+                    fontStyle: "italic",
+                  }}
+                >
+                  Se muestran las {FOTOS_POR_PAGINA} primeras fotos del
+                  inmueble. El reportaje completo ({mosaicoImgs.length}
+                  {" "}fotos en total) está disponible en la ficha del inmueble
+                  o solicitándolo al asesor.
+                </Text>
+              ) : null}
+
+              <View style={s.decoBarBottom} />
+              <PageNum n={n} total={numPaginas} />
+            </Page>
+          );
+        })()}
+
       {/* ============ 7. CARACTERÍSTICAS ============ */}
       {inmueble.caracteristicas.length > 0 &&
         (() => {
@@ -1555,7 +1752,7 @@ export function DossierInmueble({
             <Page size="A4" orientation="landscape" style={s.page}>
               <View style={s.decoTriangle} />
               <SectionHeader
-                num="06"
+                num="07"
                 eyebrow="CARACTERÍSTICAS"
                 title="Lo que ofrece este inmueble"
                 subtitle="Las prestaciones que marcan la diferencia."
@@ -1690,7 +1887,7 @@ export function DossierInmueble({
             <Page size="A4" orientation="landscape" style={s.page}>
               <View style={s.decoTriangle} />
               <SectionHeader
-                num="07"
+                num="08"
                 eyebrow="FINANCIACIÓN"
                 title="Simulación orientativa"
                 subtitle="Cifras estándar de mercado · no constituye oferta vinculante."
@@ -1860,15 +2057,15 @@ export function DossierInmueble({
                   borderLeftColor: C.red,
                 }}
               >
-                <Text style={{ fontSize: 8, color: C.red, letterSpacing: 1.5 }}>
+                <Text style={{ fontSize: 9, color: C.red, letterSpacing: 1.5 }}>
                   AVISO LEGAL
                 </Text>
                 <Text
                   style={{
-                    fontSize: 8,
-                    color: C.textMuted,
-                    marginTop: 4,
-                    lineHeight: 1.5,
+                    fontSize: 10,
+                    color: C.textDark,
+                    marginTop: 6,
+                    lineHeight: 1.55,
                   }}
                 >
                   Simulación orientativa con valores estándar de mercado. No
@@ -1918,52 +2115,21 @@ export function DossierInmueble({
               >
                 SIGUIENTE PASO
               </Text>
-              <View
+              <Text
                 style={{
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  alignItems: "baseline",
                   marginTop: 16,
+                  textAlign: "center",
+                  fontFamily: "Times-Bold",
+                  fontSize: 52,
+                  color: C.white,
                 }}
               >
-                <Text
-                  style={{
-                    fontFamily: "Times-Bold",
-                    fontSize: 52,
-                    color: C.white,
-                  }}
-                >
-                  ¿
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: "Times-BoldItalic",
-                    fontSize: 52,
-                    color: C.gold,
-                  }}
-                >
+                ¿
+                <Text style={{ fontFamily: "Times-BoldItalic", color: C.gold }}>
                   Concertamos
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: "Times-Bold",
-                    fontSize: 52,
-                    color: C.white,
-                  }}
-                >
-                  {" "}
-                  una visita
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: "Times-Bold",
-                    fontSize: 52,
-                    color: C.white,
-                  }}
-                >
-                  ?
-                </Text>
-              </View>
+                </Text>{" "}
+                una visita?
+              </Text>
               <Text
                 style={{
                   textAlign: "center",
