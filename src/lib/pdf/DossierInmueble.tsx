@@ -9,313 +9,212 @@ import {
 import type { InmuebleAdminData } from "@/lib/firestore/inmuebles";
 import type { ImagenPdf } from "@/lib/pdf/fetch-imagen";
 
+// =============================================================================
+// Paleta
+// =============================================================================
 const C = {
   navy: "#0A1F44",
-  navyMedium: "#1E3A6F",
+  navyDeep: "#06173A",
+  navyMid: "#142A55",
+  navyLight: "#1E3A6F",
   gold: "#C9A96E",
   goldLight: "#E4C896",
-  cream: "#FAF6EE",
-  gray: "#6B7280",
-  grayLight: "#E5E7EB",
-  dark: "#111827",
+  goldSoft: "rgba(201, 169, 110, 0.15)",
+  cream: "#F8F4EC",
+  creamSoft: "#FDFBF6",
+  panel: "#F2F5FA",
+  panelDark: "#E6EBF3",
+  textLight: "#9AAFC8",
+  textMuted: "#6E809B",
+  textDark: "#0F1A2C",
+  green: "#3F8F5F",
+  red: "#C2473F",
   white: "#FFFFFF",
 };
 
+// =============================================================================
+// Estilos compartidos
+// =============================================================================
 const s = StyleSheet.create({
+  // -------- Página base (apaisada) --------
   page: {
     fontFamily: "Helvetica",
     backgroundColor: C.white,
-    color: C.dark,
+    color: C.textDark,
     fontSize: 10,
-    paddingHorizontal: 40,
-    paddingVertical: 40,
+    paddingHorizontal: 50,
+    paddingTop: 40,
+    paddingBottom: 50,
   },
-  pageNumber: {
+  // Decoración: triángulo diagonal pálido en la esquina superior derecha
+  decoTriangle: {
     position: "absolute",
-    bottom: 20,
-    left: 0,
+    top: 0,
     right: 0,
-    textAlign: "center",
-    fontSize: 9,
-    color: C.gray,
+    width: 220,
+    height: 220,
+    backgroundColor: C.panel,
+    transform: "skewY(-15deg)",
+    transformOrigin: "top right",
   },
-  pageFooter: {
+  decoBarBottom: {
     position: "absolute",
-    bottom: 20,
-    left: 40,
-    right: 40,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    fontSize: 8,
-    color: C.gray,
+    bottom: 24,
+    left: 50,
+    width: 60,
+    height: 3,
+    backgroundColor: C.gold,
   },
 
-  // Portada
-  coverPage: {
-    fontFamily: "Helvetica",
-    backgroundColor: C.navy,
-    color: C.white,
-    padding: 0,
-  },
-  coverImage: { width: "100%", height: 480, objectFit: "cover" },
-  coverImagePlaceholder: {
-    width: "100%",
-    height: 480,
-    backgroundColor: C.navyMedium,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  coverContent: {
-    padding: 40,
-    flexGrow: 1,
-    justifyContent: "space-between",
-  },
-  coverEyebrow: {
-    fontSize: 10,
-    letterSpacing: 4,
-    color: C.gold,
-    textTransform: "uppercase",
-  },
-  coverTitle: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 26,
-    marginTop: 12,
-    lineHeight: 1.25,
-    maxWidth: 480,
-  },
-  coverPrice: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 28,
-    color: C.gold,
-    marginTop: 18,
-  },
-  coverMeta: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    marginTop: 24,
-  },
-  coverMetaLeft: { fontSize: 10, color: "#9AB1D4" },
-  coverBrand: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 14,
-    color: C.gold,
-    letterSpacing: 3,
-  },
-  coverBrandSub: {
-    fontSize: 8,
-    color: C.gold,
-    letterSpacing: 3,
-    marginTop: 2,
-  },
-
-  // Cabeceras de página
+  // -------- Header de sección --------
   sectionEyebrow: {
     fontSize: 8,
     letterSpacing: 3,
     color: C.gold,
     textTransform: "uppercase",
   },
-  sectionTitle: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 22,
-    color: C.navy,
-    marginTop: 6,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: C.grayLight,
-    marginVertical: 20,
-  },
-
-  // Resumen
-  refLine: {
-    fontSize: 9,
-    color: C.gray,
-    marginTop: 4,
-  },
-  resumenGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  resumenCard: {
-    width: "33.33%",
-    paddingHorizontal: 6,
-    marginBottom: 14,
-  },
-  resumenLabel: {
-    fontSize: 8,
-    color: C.gray,
-    textTransform: "uppercase",
-    letterSpacing: 1.5,
-  },
-  resumenValue: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 16,
-    color: C.navy,
-    marginTop: 4,
-  },
-  precioBig: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 30,
-    color: C.navy,
-  },
-  precioSub: {
-    fontSize: 10,
-    color: C.gray,
-    marginTop: 3,
-  },
-
-  // Descripción
-  bloqueDescripcion: {
-    backgroundColor: C.cream,
-    padding: 24,
-    borderRadius: 6,
-    marginTop: 8,
-  },
-  descripcionTexto: {
-    fontSize: 11,
-    lineHeight: 1.6,
-    color: C.dark,
-  },
-
-  // Características
-  caracteristicasGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: 8,
-  },
-  caracteristicaPill: {
-    width: "50%",
+  sectionTitleRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 4,
+    marginTop: 8,
   },
-  pillBullet: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+  sectionTitleBar: {
+    width: 4,
+    height: 26,
     backgroundColor: C.gold,
-    marginRight: 8,
+    marginRight: 12,
   },
-  pillText: {
+  sectionTitle: {
+    fontFamily: "Times-Bold",
+    fontSize: 24,
+    color: C.navy,
+  },
+  sectionSubtitle: {
     fontSize: 10,
-    color: C.dark,
+    fontStyle: "italic",
+    color: C.textMuted,
+    marginTop: 6,
+    marginLeft: 16,
   },
 
-  // Galería
-  galeriaPage: {
-    fontFamily: "Helvetica",
-    backgroundColor: C.white,
-    color: C.dark,
-    paddingHorizontal: 40,
-    paddingTop: 30,
-    paddingBottom: 40,
-  },
-  galeriaCol: {
-    flexDirection: "column",
-    marginTop: 12,
-  },
-  fotoGaleria: {
-    width: "100%",
-    height: 350,
-    objectFit: "cover",
-    borderRadius: 4,
-    marginBottom: 10,
+  // -------- Footer fijo --------
+  pageNum: {
+    position: "absolute",
+    right: 50,
+    bottom: 24,
+    fontSize: 8,
+    letterSpacing: 2,
+    color: C.textMuted,
   },
 
-  // Hipoteca
-  hipotecaCard: {
+  // -------- Card navy --------
+  cardNavy: {
     backgroundColor: C.navy,
     color: C.white,
     padding: 22,
+    borderRadius: 8,
+  },
+  cardCream: {
+    backgroundColor: C.cream,
+    padding: 14,
     borderRadius: 6,
-    marginTop: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: C.gold,
   },
-  hipotecaCuota: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 34,
-    color: C.gold,
-  },
-  hipotecaCuotaLabel: {
-    fontSize: 10,
-    color: C.cream,
-    marginTop: 4,
-    letterSpacing: 1,
-  },
-  hipotecaParams: {
-    flexDirection: "row",
-    marginTop: 22,
-    justifyContent: "space-between",
-  },
-  hipotecaParam: {
-    width: "32%",
-  },
-  hipotecaParamLabel: {
-    fontSize: 8,
-    color: "#9AB1D4",
-    textTransform: "uppercase",
-    letterSpacing: 1.5,
-  },
-  hipotecaParamValue: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 16,
-    color: C.white,
-    marginTop: 4,
-  },
-  hipotecaDisclaimer: {
-    fontSize: 8,
-    color: C.gray,
-    marginTop: 14,
-    lineHeight: 1.5,
+  cardSoft: {
+    backgroundColor: C.panel,
+    padding: 16,
+    borderRadius: 6,
   },
 
-  // Contacto
-  contactoBox: {
-    backgroundColor: C.cream,
-    padding: 28,
+  // -------- Cita destacada --------
+  quoteBox: {
+    backgroundColor: C.navyDeep,
+    padding: 18,
+    paddingLeft: 26,
     borderRadius: 6,
-    marginTop: 16,
-  },
-  contactoLine: {
-    fontSize: 13,
-    color: C.dark,
-    marginBottom: 8,
-  },
-  contactoLabel: {
-    fontSize: 8,
-    color: C.gray,
-    textTransform: "uppercase",
-    letterSpacing: 1.5,
-    marginBottom: 2,
+    borderLeftWidth: 3,
+    borderLeftColor: C.gold,
   },
 });
 
-interface DossierProps {
-  inmueble: InmuebleAdminData;
-  /** Imágenes ya descargadas y convertidas a JPG/PNG, en el mismo orden que
-   * las fotos del inmueble. Los slots null se omiten en el render. */
-  imagenes: (ImagenPdf | null)[];
-  agente: {
-    nombre: string;
-    email: string;
-    telefono: string;
-    cargo: string;
-  } | null;
-  empresa: {
-    nombre: string;
-    telefono: string;
-    email: string;
-    whatsapp: string;
-  };
-  ahora: string; // fecha legible
+// =============================================================================
+// Helpers visuales
+// =============================================================================
+function fmtPrecio(n: number, conSimbolo = true): string {
+  if (!n || n <= 0) return "Consultar";
+  const num = new Intl.NumberFormat("es-ES", {
+    maximumFractionDigits: 0,
+  }).format(n);
+  return conSimbolo ? `${num} €` : num;
 }
 
+function calcHipoteca(
+  precio: number,
+  entradaPct: number,
+  anos: number,
+  tin: number,
+): number {
+  const importe = precio * (1 - entradaPct);
+  const i = tin / 12;
+  const n = anos * 12;
+  if (importe <= 0 || i <= 0) return 0;
+  return (importe * i) / (1 - Math.pow(1 + i, -n));
+}
+
+function iniciales(nombre: string): string {
+  return nombre
+    .split(/\s+/)
+    .map((p) => p.charAt(0))
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+// Header reutilizable de página interior
+function SectionHeader({
+  num,
+  eyebrow,
+  title,
+  subtitle,
+}: {
+  num: string;
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+}) {
+  return (
+    <View>
+      <Text style={s.sectionEyebrow}>
+        {num} · {eyebrow}
+      </Text>
+      <View style={s.sectionTitleRow}>
+        <View style={s.sectionTitleBar} />
+        <Text style={s.sectionTitle}>{title}</Text>
+      </View>
+      {subtitle ? <Text style={s.sectionSubtitle}>{subtitle}</Text> : null}
+    </View>
+  );
+}
+
+function PageNum({ n, total }: { n: number; total: number }) {
+  const pad = (x: number) => String(x).padStart(2, "0");
+  return (
+    <Text style={s.pageNum}>
+      {pad(n)} / {pad(total)}
+    </Text>
+  );
+}
+
+// =============================================================================
+// Datos mapeados
+// =============================================================================
 const TIPO_LABEL: Record<string, string> = {
   piso: "Piso",
   chalet: "Chalet",
-  local: "Local",
-  garaje: "Garaje",
+  local: "Local comercial",
+  garaje: "Plaza de garaje",
   trastero: "Trastero",
   terreno: "Terreno",
   oficina: "Oficina",
@@ -342,26 +241,22 @@ const CARAC_LABEL: Record<string, string> = {
   puerta_blindada: "Puerta blindada",
 };
 
-function fmtPrecio(n: number): string {
-  if (!n) return "Consultar";
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
-function calcHipoteca(
-  precio: number,
-  entradaPct = 0.2,
-  anos = 30,
-  tin = 0.03,
-) {
-  const importe = precio * (1 - entradaPct);
-  const i = tin / 12;
-  const n = anos * 12;
-  if (importe <= 0 || i <= 0) return 0;
-  return (importe * i) / (1 - Math.pow(1 + i, -n));
+interface DossierProps {
+  inmueble: InmuebleAdminData;
+  imagenes: (ImagenPdf | null)[];
+  agente: {
+    nombre: string;
+    email: string;
+    telefono: string;
+    cargo: string;
+  } | null;
+  empresa: {
+    nombre: string;
+    telefono: string;
+    email: string;
+    whatsapp: string;
+  };
+  ahora: string;
 }
 
 export function DossierInmueble({
@@ -372,65 +267,46 @@ export function DossierInmueble({
   ahora,
 }: DossierProps) {
   const portadaImg = imagenes[0] ?? null;
-  // Aplanamos las imágenes restantes válidas (filtramos nulls). Limitamos a
-  // 8 para no pasar de 4 páginas de galería.
   const galeriaImgs = imagenes
     .slice(1)
     .filter((i): i is ImagenPdf => i !== null)
-    .slice(0, 8);
+    .slice(0, 6); // hasta 3 páginas de galería (2 fotos por pág)
+
+  const tipoLabel = TIPO_LABEL[inmueble.tipo] ?? inmueble.tipo;
   const ubicacion = [inmueble.zona, inmueble.municipio]
     .filter(Boolean)
     .join(", ");
-  const tipoLabel = TIPO_LABEL[inmueble.tipo] ?? inmueble.tipo;
+  const precioM2 =
+    inmueble.metrosConstruidos > 0
+      ? Math.round(inmueble.precio / inmueble.metrosConstruidos)
+      : 0;
+
+  // Datos del agente / fallback empresa
+  const agNombre = agente?.nombre || empresa.nombre || "Equipo Rehobot";
+  const agCargo = agente?.cargo || "Asesor inmobiliario";
+  const agTel = agente?.telefono || empresa.telefono || "";
+  const agEmail = agente?.email || empresa.email || "";
+
+  // Hipoteca
   const entradaPct = 0.2;
   const anos = 30;
   const tin = 0.03;
-  const cuota = calcHipoteca(inmueble.precio, entradaPct, anos, tin);
+  const cuotaMensual = calcHipoteca(inmueble.precio, entradaPct, anos, tin);
 
-  const datos: { label: string; value: string }[] = [
-    { label: "Habitaciones", value: String(inmueble.habitaciones || "—") },
-    { label: "Baños", value: String(inmueble.banos || "—") },
-    {
-      label: "Superficie",
-      value: inmueble.metrosConstruidos
-        ? `${inmueble.metrosConstruidos} m²`
-        : "—",
-    },
-    {
-      label: "Año construcción",
-      value: inmueble.anoConstruccion
-        ? String(inmueble.anoConstruccion)
-        : "—",
-    },
-    { label: "Tipo", value: tipoLabel },
-    {
-      label: "Certificado energético",
-      value:
-        inmueble.consumoEnergetico === "en_tramite"
-          ? "En trámite"
-          : inmueble.consumoEnergetico.toUpperCase(),
-    },
-    {
-      label: "Gastos comunidad",
-      value: inmueble.gastosComunidad
-        ? `${inmueble.gastosComunidad} €/mes`
-        : "—",
-    },
-    {
-      label: "Cocina",
-      value: inmueble.tipoCocina
-        ? inmueble.tipoCocina.charAt(0).toUpperCase() +
-          inmueble.tipoCocina.slice(1)
-        : "—",
-    },
-    {
-      label: "Calefacción",
-      value: inmueble.tipoCalefaccion
-        ? inmueble.tipoCalefaccion.charAt(0).toUpperCase() +
-          inmueble.tipoCalefaccion.slice(1)
-        : "—",
-    },
-  ];
+  // Calculamos número total de páginas a mano para el footer "0X / 0N"
+  const numPaginas =
+    1 + // portada
+    1 + // 01 asesor
+    1 + // 02 vivienda highlights
+    1 + // 03 detalles
+    1 + // 04 ubicacion
+    Math.ceil(galeriaImgs.length / 2) +
+    (inmueble.caracteristicas.length > 0 ? 1 : 0) +
+    (inmueble.operacion === "venta" && inmueble.precio > 0 ? 1 : 0) +
+    1; // siguiente paso
+
+  let page = 0;
+  const next = () => ++page;
 
   return (
     <Document
@@ -438,321 +314,1801 @@ export function DossierInmueble({
       author={empresa.nombre}
       subject={`Dossier comercial · ${inmueble.ref}`}
     >
-      {/* ============ PORTADA ============ */}
-      <Page size="A4" style={s.coverPage}>
-        {portadaImg ? (
-          <PdfImage
-            src={{ data: portadaImg.data, format: portadaImg.format }}
-            style={s.coverImage}
-          />
-        ) : (
-          <View style={s.coverImagePlaceholder} />
-        )}
-        <View style={s.coverContent}>
-          <View>
-            <Text style={s.coverEyebrow}>
-              {ubicacion || "Madrid"} · Ref. {inmueble.ref}
+      {/* ============ 1. PORTADA ============ */}
+      {(() => {
+        next();
+        return (
+          <Page size="A4" orientation="landscape" style={{ padding: 0 }}>
+            {/* Mitad izquierda: contenido sobre fondo navy */}
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "60%",
+                height: "100%",
+                backgroundColor: C.navy,
+              }}
+            />
+            {/* Mitad derecha: imagen del inmueble */}
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                width: "45%",
+                height: "100%",
+                backgroundColor: C.navyDeep,
+              }}
+            >
+              {portadaImg ? (
+                <PdfImage
+                  src={{ data: portadaImg.data, format: portadaImg.format }}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : null}
+              {/* Velo navy sobre la imagen para integrar con el fondo */}
+              <View
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: 80,
+                  height: "100%",
+                  backgroundColor: C.navy,
+                  opacity: 0.95,
+                  transform: "skewX(-12deg)",
+                  transformOrigin: "top left",
+                }}
+              />
+            </View>
+
+            {/* Contenido textual sobre el azul */}
+            <View
+              style={{
+                position: "absolute",
+                top: 60,
+                left: 60,
+                right: 360,
+                color: C.white,
+              }}
+            >
+              {/* Logo "RR" */}
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 18,
+                    backgroundColor: C.gold,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontFamily: "Times-Bold",
+                      color: C.navy,
+                      fontSize: 14,
+                    }}
+                  >
+                    R
+                  </Text>
+                </View>
+                <View style={{ marginLeft: 12 }}>
+                  <Text
+                    style={{
+                      fontFamily: "Times-Bold",
+                      fontSize: 16,
+                      color: C.white,
+                      letterSpacing: 2,
+                    }}
+                  >
+                    REHOBOT
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 7,
+                      color: C.gold,
+                      letterSpacing: 3,
+                      marginTop: 2,
+                    }}
+                  >
+                    REAL ESTATE
+                  </Text>
+                </View>
+              </View>
+
+              <Text
+                style={{
+                  marginTop: 50,
+                  fontSize: 9,
+                  color: C.gold,
+                  letterSpacing: 3,
+                }}
+              >
+                DOSSIER COMERCIAL · CONFIDENCIAL
+              </Text>
+
+              <Text
+                style={{
+                  marginTop: 22,
+                  fontFamily: "Times-Bold",
+                  fontSize: 52,
+                  lineHeight: 1.1,
+                }}
+              >
+                Dossier
+              </Text>
+              <Text
+                style={{
+                  fontFamily: "Times-BoldItalic",
+                  fontSize: 52,
+                  color: C.gold,
+                  lineHeight: 1.1,
+                }}
+              >
+                de Compra
+              </Text>
+
+              <Text
+                style={{
+                  marginTop: 26,
+                  fontSize: 14,
+                  color: C.textLight,
+                }}
+              >
+                {inmueble.titulo}
+              </Text>
+
+              {/* Divider dorado */}
+              <View
+                style={{
+                  width: 140,
+                  height: 1,
+                  backgroundColor: C.gold,
+                  marginTop: 32,
+                }}
+              />
+
+              {/* Meta inferior */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: 22,
+                }}
+              >
+                <View style={{ width: 130 }}>
+                  <Text
+                    style={{
+                      fontSize: 7,
+                      color: C.gold,
+                      letterSpacing: 2,
+                    }}
+                  >
+                    UBICACIÓN
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      color: C.white,
+                      marginTop: 4,
+                    }}
+                  >
+                    {ubicacion || "Madrid"}
+                  </Text>
+                </View>
+                <View style={{ width: 130 }}>
+                  <Text
+                    style={{
+                      fontSize: 7,
+                      color: C.gold,
+                      letterSpacing: 2,
+                    }}
+                  >
+                    TIPOLOGÍA
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      color: C.white,
+                      marginTop: 4,
+                    }}
+                  >
+                    {tipoLabel}
+                    {inmueble.metrosConstruidos
+                      ? ` · ${inmueble.metrosConstruidos} m²`
+                      : ""}
+                  </Text>
+                </View>
+                <View>
+                  <Text
+                    style={{
+                      fontSize: 7,
+                      color: C.gold,
+                      letterSpacing: 2,
+                    }}
+                  >
+                    PRECIO
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      color: C.white,
+                      marginTop: 4,
+                    }}
+                  >
+                    {fmtPrecio(inmueble.precio)}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <Text
+              style={{
+                position: "absolute",
+                bottom: 30,
+                left: 60,
+                fontSize: 8,
+                color: C.textLight,
+                letterSpacing: 2,
+              }}
+            >
+              REF. {inmueble.ref || "—"} · {ahora.toUpperCase()}
             </Text>
-            <Text style={s.coverTitle}>{inmueble.titulo}</Text>
-            <Text style={s.coverPrice}>{fmtPrecio(inmueble.precio)}</Text>
-          </View>
-          <View style={s.coverMeta}>
-            <Text style={s.coverMetaLeft}>
-              {tipoLabel}
-              {inmueble.metrosConstruidos
-                ? ` · ${inmueble.metrosConstruidos} m²`
-                : ""}
-              {inmueble.habitaciones
-                ? ` · ${inmueble.habitaciones} hab.`
-                : ""}
-            </Text>
-            <View>
-              <Text style={s.coverBrand}>REHOBOT</Text>
-              <Text style={s.coverBrandSub}>REAL ESTATE</Text>
+          </Page>
+        );
+      })()}
+
+      {/* ============ 2. ASESORÍA ============ */}
+      {(() => {
+        const n = next();
+        return (
+          <Page size="A4" orientation="landscape" style={s.page}>
+            <View style={s.decoTriangle} />
+
+            <SectionHeader
+              num="01"
+              eyebrow="QUIÉN TE ACOMPAÑA"
+              title="Asesoría de confianza"
+              subtitle="Conocimiento local, trato cercano y acompañamiento durante todo el proceso."
+            />
+
+            <View style={{ flexDirection: "row", marginTop: 28 }}>
+              {/* Card del agente */}
+              <View
+                style={{
+                  width: 220,
+                  backgroundColor: C.navy,
+                  borderRadius: 8,
+                  padding: 22,
+                  alignItems: "center",
+                  borderBottomWidth: 3,
+                  borderBottomColor: C.gold,
+                }}
+              >
+                <View
+                  style={{
+                    width: 90,
+                    height: 90,
+                    borderRadius: 45,
+                    backgroundColor: C.gold,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop: 6,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontFamily: "Times-Bold",
+                      fontSize: 28,
+                      color: C.navy,
+                    }}
+                  >
+                    {iniciales(agNombre)}
+                  </Text>
+                </View>
+                <Text
+                  style={{
+                    fontFamily: "Times-Bold",
+                    color: C.white,
+                    fontSize: 14,
+                    marginTop: 14,
+                    textAlign: "center",
+                  }}
+                >
+                  {agNombre}
+                </Text>
+                <Text
+                  style={{
+                    color: C.gold,
+                    fontSize: 8,
+                    letterSpacing: 2,
+                    marginTop: 4,
+                    textAlign: "center",
+                  }}
+                >
+                  {agCargo.toUpperCase()}
+                </Text>
+              </View>
+
+              {/* Texto derecha */}
+              <View style={{ flex: 1, marginLeft: 28 }}>
+                <Text
+                  style={{
+                    fontFamily: "Times-Bold",
+                    fontSize: 22,
+                    color: C.navy,
+                  }}
+                >
+                  {agNombre}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 9,
+                    color: C.navy,
+                    fontFamily: "Helvetica-Bold",
+                    letterSpacing: 2,
+                    marginTop: 4,
+                  }}
+                >
+                  {agCargo.toUpperCase()} · {empresa.nombre.toUpperCase()}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 10,
+                    color: C.textDark,
+                    marginTop: 14,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  En {empresa.nombre} acompañamos a cada comprador de forma
+                  personalizada. Te ayudamos a entender la operación, a
+                  negociar con criterio y a cerrar la compra con todas las
+                  garantías legales y fiscales.
+                </Text>
+
+                <View style={[s.quoteBox, { marginTop: 18 }]}>
+                  <Text
+                    style={{
+                      fontFamily: "Times-Italic",
+                      color: C.white,
+                      fontSize: 11,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    “Acompañamos cada compra como si fuera la nuestra. Sin
+                    prisa, sin atajos, sin sorpresas.”
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 8,
+                      color: C.gold,
+                      letterSpacing: 2,
+                      marginTop: 8,
+                    }}
+                  >
+                    — {agNombre.toUpperCase()}
+                  </Text>
+                </View>
+              </View>
             </View>
-          </View>
-        </View>
-      </Page>
 
-      {/* ============ RESUMEN + DESCRIPCIÓN ============ */}
-      <Page size="A4" style={s.page}>
-        <Text style={s.sectionEyebrow}>Resumen</Text>
-        <Text style={s.sectionTitle}>Datos del inmueble</Text>
-        <Text style={s.refLine}>
-          {ubicacion}
-          {inmueble.ref ? ` · Ref. ${inmueble.ref}` : ""}
-        </Text>
-
-        <View style={{ marginTop: 24, marginBottom: 8 }}>
-          <Text style={s.precioBig}>{fmtPrecio(inmueble.precio)}</Text>
-          <Text style={s.precioSub}>
-            {inmueble.operacion === "alquiler"
-              ? "Renta mensual"
-              : "Precio de venta"}
-          </Text>
-        </View>
-
-        <View style={s.divider} />
-
-        <View style={s.resumenGrid}>
-          {datos.map((d) => (
-            <View key={d.label} style={s.resumenCard}>
-              <Text style={s.resumenLabel}>{d.label}</Text>
-              <Text style={s.resumenValue}>{d.value}</Text>
+            {/* Tres ventajas */}
+            <View
+              style={{
+                flexDirection: "row",
+                marginTop: 32,
+                gap: 14,
+              }}
+            >
+              {[
+                {
+                  n: "01",
+                  t: "Conocimiento del mercado",
+                  d: "Operamos en Madrid y el Corredor del Henares todos los días del año.",
+                },
+                {
+                  n: "02",
+                  t: "Transparencia total",
+                  d: "Te explicamos cada paso: precio, gastos, plazos y opciones de financiación.",
+                },
+                {
+                  n: "03",
+                  t: "Acompañamiento completo",
+                  d: "De la visita a la firma ante notario, incluyendo trámites y asesoría.",
+                },
+              ].map((v) => (
+                <View
+                  key={v.n}
+                  style={{
+                    flex: 1,
+                    backgroundColor: C.cream,
+                    padding: 14,
+                    borderRadius: 6,
+                    borderLeftWidth: 3,
+                    borderLeftColor: C.gold,
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "Times-Bold",
+                        fontSize: 14,
+                        color: C.gold,
+                        marginRight: 8,
+                      }}
+                    >
+                      {v.n}
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: "Helvetica-Bold",
+                        fontSize: 10,
+                        color: C.navy,
+                      }}
+                    >
+                      {v.t}
+                    </Text>
+                  </View>
+                  <Text
+                    style={{
+                      fontSize: 9,
+                      color: C.textMuted,
+                      marginTop: 6,
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {v.d}
+                  </Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
 
-        {inmueble.descripcion ? (
-          <>
-            <View style={s.divider} />
-            <Text style={s.sectionEyebrow}>Descripción</Text>
-            <View style={s.bloqueDescripcion}>
-              <Text style={s.descripcionTexto}>{inmueble.descripcion}</Text>
+            <View style={s.decoBarBottom} />
+            <PageNum n={n} total={numPaginas} />
+          </Page>
+        );
+      })()}
+
+      {/* ============ 3. LA VIVIENDA · HIGHLIGHTS ============ */}
+      {(() => {
+        const n = next();
+        return (
+          <Page size="A4" orientation="landscape" style={s.page}>
+            <View style={s.decoTriangle} />
+            <SectionHeader
+              num="02"
+              eyebrow="LA VIVIENDA"
+              title="Resumen de un vistazo"
+              subtitle={
+                ubicacion
+                  ? `Vivienda en ${ubicacion}.`
+                  : "Una oportunidad bien situada."
+              }
+            />
+
+            <View
+              style={{
+                flexDirection: "row",
+                marginTop: 30,
+                gap: 16,
+              }}
+            >
+              {/* Card grande izquierda */}
+              <View
+                style={{
+                  flex: 1,
+                  backgroundColor: C.navy,
+                  borderRadius: 10,
+                  padding: 28,
+                  borderBottomWidth: 4,
+                  borderBottomColor: C.gold,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 8,
+                    color: C.gold,
+                    letterSpacing: 2,
+                  }}
+                >
+                  PRECIO DE {inmueble.operacion === "alquiler"
+                    ? "ALQUILER"
+                    : "VENTA"}
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: "Times-Bold",
+                    color: C.white,
+                    fontSize: 48,
+                    marginTop: 8,
+                  }}
+                >
+                  {fmtPrecio(inmueble.precio)}
+                </Text>
+                {precioM2 > 0 ? (
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      color: C.textLight,
+                      marginTop: 6,
+                    }}
+                  >
+                    {fmtPrecio(precioM2)}/m² construido
+                  </Text>
+                ) : null}
+
+                <View
+                  style={{
+                    height: 1,
+                    backgroundColor: "#23386a",
+                    marginVertical: 22,
+                  }}
+                />
+
+                {/* Métricas dentro */}
+                <View style={{ flexDirection: "row", gap: 16 }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 7, color: C.gold, letterSpacing: 1.5 }}>
+                      HABITACIONES
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: "Times-Bold",
+                        fontSize: 22,
+                        color: C.white,
+                        marginTop: 4,
+                      }}
+                    >
+                      {inmueble.habitaciones || "—"}
+                    </Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 7, color: C.gold, letterSpacing: 1.5 }}>
+                      BAÑOS
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: "Times-Bold",
+                        fontSize: 22,
+                        color: C.white,
+                        marginTop: 4,
+                      }}
+                    >
+                      {inmueble.banos || "—"}
+                    </Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 7, color: C.gold, letterSpacing: 1.5 }}>
+                      SUPERFICIE
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: "Times-Bold",
+                        fontSize: 22,
+                        color: C.white,
+                        marginTop: 4,
+                      }}
+                    >
+                      {inmueble.metrosConstruidos
+                        ? `${inmueble.metrosConstruidos} m²`
+                        : "—"}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Foto destacada derecha */}
+              <View
+                style={{
+                  width: 280,
+                  borderRadius: 10,
+                  overflow: "hidden",
+                  backgroundColor: C.panel,
+                }}
+              >
+                {galeriaImgs[0] || portadaImg ? (
+                  <PdfImage
+                    src={{
+                      data: (galeriaImgs[0] ?? portadaImg!).data,
+                      format: (galeriaImgs[0] ?? portadaImg!).format,
+                    }}
+                    style={{ width: "100%", height: 280, objectFit: "cover" }}
+                  />
+                ) : null}
+                <View style={{ padding: 14, backgroundColor: C.navy }}>
+                  <Text
+                    style={{
+                      fontSize: 7,
+                      color: C.gold,
+                      letterSpacing: 2,
+                    }}
+                  >
+                    VENTAJAS DESTACADAS
+                  </Text>
+                  <View style={{ marginTop: 6 }}>
+                    {inmueble.caracteristicas
+                      .slice(0, 3)
+                      .map((c) => (
+                        <Text
+                          key={c}
+                          style={{
+                            color: C.white,
+                            fontSize: 9,
+                            marginTop: 4,
+                          }}
+                        >
+                          ✓ {CARAC_LABEL[c] ?? c}
+                        </Text>
+                      ))}
+                    {inmueble.caracteristicas.length === 0 ? (
+                      <Text
+                        style={{ color: C.textLight, fontSize: 9, marginTop: 4 }}
+                      >
+                        —
+                      </Text>
+                    ) : null}
+                  </View>
+                </View>
+              </View>
             </View>
-          </>
-        ) : null}
 
-        <Text
-          style={s.pageFooter}
-          render={({ pageNumber, totalPages }) =>
-            `${empresa.nombre} · Dossier comercial · Pág. ${pageNumber} de ${totalPages}`
-          }
-          fixed
-        />
-      </Page>
+            {/* Banda de descripción corta */}
+            {inmueble.descripcion ? (
+              <View
+                style={{
+                  marginTop: 22,
+                  backgroundColor: C.cream,
+                  padding: 16,
+                  borderRadius: 6,
+                  borderLeftWidth: 3,
+                  borderLeftColor: C.gold,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 7,
+                    color: C.gold,
+                    letterSpacing: 2,
+                  }}
+                >
+                  DESCRIPCIÓN
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 10,
+                    color: C.textDark,
+                    marginTop: 6,
+                    lineHeight: 1.55,
+                  }}
+                >
+                  {inmueble.descripcion.length > 600
+                    ? inmueble.descripcion.slice(0, 600).trim() + "…"
+                    : inmueble.descripcion}
+                </Text>
+              </View>
+            ) : null}
 
-      {/* ============ CARACTERÍSTICAS + UBICACIÓN ============ */}
-      {(inmueble.caracteristicas.length > 0 || ubicacion) && (
-        <Page size="A4" style={s.page}>
-          {inmueble.caracteristicas.length > 0 && (
-            <>
-              <Text style={s.sectionEyebrow}>Características</Text>
-              <Text style={s.sectionTitle}>Lo que ofrece este inmueble</Text>
-              <View style={s.caracteristicasGrid}>
-                {inmueble.caracteristicas.map((c) => (
-                  <View key={c} style={s.caracteristicaPill}>
-                    <View style={s.pillBullet} />
-                    <Text style={s.pillText}>{CARAC_LABEL[c] ?? c}</Text>
+            <View style={s.decoBarBottom} />
+            <PageNum n={n} total={numPaginas} />
+          </Page>
+        );
+      })()}
+
+      {/* ============ 4. DETALLES DEL ACTIVO ============ */}
+      {(() => {
+        const n = next();
+        const filas = [
+          { l: "Ubicación", v: ubicacion || "—" },
+          {
+            l: "Superficie",
+            v: inmueble.metrosConstruidos
+              ? `${inmueble.metrosConstruidos} m² construidos`
+              : "—",
+          },
+          {
+            l: "Construcción",
+            v: inmueble.anoConstruccion
+              ? String(inmueble.anoConstruccion)
+              : "—",
+          },
+          { l: "Tipología", v: tipoLabel },
+          {
+            l: "Certificado energético",
+            v:
+              inmueble.consumoEnergetico === "en_tramite"
+                ? "En trámite"
+                : inmueble.consumoEnergetico.toUpperCase(),
+          },
+          {
+            l: "Gastos comunidad",
+            v: inmueble.gastosComunidad
+              ? `${inmueble.gastosComunidad} €/mes`
+              : "—",
+          },
+          {
+            l: "Cocina",
+            v: inmueble.tipoCocina
+              ? inmueble.tipoCocina.charAt(0).toUpperCase() +
+                inmueble.tipoCocina.slice(1)
+              : "—",
+          },
+          {
+            l: "Calefacción",
+            v: inmueble.tipoCalefaccion
+              ? inmueble.tipoCalefaccion.charAt(0).toUpperCase() +
+                inmueble.tipoCalefaccion.slice(1)
+              : "—",
+          },
+        ];
+        return (
+          <Page size="A4" orientation="landscape" style={s.page}>
+            <View style={s.decoTriangle} />
+            <SectionHeader
+              num="03"
+              eyebrow="DETALLES DEL ACTIVO"
+              title="Ficha técnica completa"
+              subtitle="Información detallada del inmueble, libre de cargas y lista para escriturar."
+            />
+
+            <View style={{ flexDirection: "row", marginTop: 26, gap: 22 }}>
+              {/* Tabla izquierda */}
+              <View
+                style={{
+                  flex: 1.2,
+                  borderWidth: 1,
+                  borderColor: C.panelDark,
+                  borderRadius: 8,
+                }}
+              >
+                {filas.map((f, i) => (
+                  <View
+                    key={f.l}
+                    style={{
+                      flexDirection: "row",
+                      padding: 12,
+                      borderBottomWidth: i < filas.length - 1 ? 1 : 0,
+                      borderBottomColor: C.panelDark,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        width: 150,
+                        fontSize: 8,
+                        color: C.textMuted,
+                        letterSpacing: 1.5,
+                      }}
+                    >
+                      {f.l.toUpperCase()}
+                    </Text>
+                    <Text
+                      style={{
+                        flex: 1,
+                        fontFamily: "Helvetica-Bold",
+                        fontSize: 10,
+                        color: C.navy,
+                      }}
+                    >
+                      {f.v}
+                    </Text>
                   </View>
                 ))}
               </View>
-              <View style={s.divider} />
-            </>
-          )}
 
-          <Text style={s.sectionEyebrow}>Ubicación</Text>
-          <Text style={s.sectionTitle}>
-            {inmueble.municipio || "Madrid"}
-          </Text>
-          {inmueble.zona ? (
-            <Text style={{ marginTop: 8, fontSize: 12, color: C.dark }}>
-              Zona: {inmueble.zona}
-            </Text>
-          ) : null}
-          {inmueble.mostrarDireccion && inmueble.direccion ? (
-            <Text style={{ marginTop: 6, fontSize: 12, color: C.dark }}>
-              Dirección: {inmueble.direccion}
-            </Text>
-          ) : null}
+              {/* Sidebar síntesis derecha */}
+              <View
+                style={{
+                  width: 280,
+                  backgroundColor: C.navy,
+                  borderRadius: 8,
+                  padding: 22,
+                  borderBottomWidth: 3,
+                  borderBottomColor: C.gold,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 8,
+                    color: C.gold,
+                    letterSpacing: 2,
+                  }}
+                >
+                  SÍNTESIS DEL ACTIVO
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: "Times-Bold",
+                    fontSize: 18,
+                    color: C.white,
+                    marginTop: 10,
+                    lineHeight: 1.25,
+                  }}
+                >
+                  {inmueble.titulo.length > 60
+                    ? inmueble.titulo.slice(0, 60) + "…"
+                    : inmueble.titulo}
+                </Text>
 
-          <Text
-            style={s.pageFooter}
-            render={({ pageNumber, totalPages }) =>
-              `${empresa.nombre} · Dossier comercial · Pág. ${pageNumber} de ${totalPages}`
-            }
-            fixed
-          />
-        </Page>
-      )}
+                <View style={{ flexDirection: "row", gap: 10, marginTop: 18 }}>
+                  <View
+                    style={{
+                      flex: 1,
+                      backgroundColor: C.navyDeep,
+                      padding: 14,
+                      borderRadius: 6,
+                      borderLeftWidth: 3,
+                      borderLeftColor: C.gold,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "Times-Bold",
+                        fontSize: 18,
+                        color: C.gold,
+                      }}
+                    >
+                      {inmueble.metrosConstruidos || "—"}
+                      <Text style={{ fontSize: 11 }}> m²</Text>
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 7,
+                        color: C.textLight,
+                        letterSpacing: 1.5,
+                        marginTop: 4,
+                      }}
+                    >
+                      SUPERFICIE
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      backgroundColor: C.navyDeep,
+                      padding: 14,
+                      borderRadius: 6,
+                      borderLeftWidth: 3,
+                      borderLeftColor: C.gold,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "Times-Bold",
+                        fontSize: 18,
+                        color: C.gold,
+                      }}
+                    >
+                      €{precioM2 > 0 ? precioM2.toLocaleString("es-ES") : "—"}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 7,
+                        color: C.textLight,
+                        letterSpacing: 1.5,
+                        marginTop: 4,
+                      }}
+                    >
+                      PRECIO €/M²
+                    </Text>
+                  </View>
+                </View>
 
-      {/* ============ GALERÍA ============ */}
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 6,
+                    marginTop: 16,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {[
+                    inmueble.estado === "activo" ? "DISPONIBLE" : null,
+                    inmueble.destacado ? "DESTACADO" : null,
+                    "LIBRE DE CARGAS",
+                  ]
+                    .filter((x): x is string => Boolean(x))
+                    .map((b) => (
+                      <View
+                        key={b}
+                        style={{
+                          backgroundColor: C.navyDeep,
+                          paddingVertical: 6,
+                          paddingHorizontal: 10,
+                          borderRadius: 4,
+                          borderWidth: 1,
+                          borderColor: "#1c3060",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 7,
+                            color: C.gold,
+                            letterSpacing: 1.5,
+                          }}
+                        >
+                          {b}
+                        </Text>
+                      </View>
+                    ))}
+                </View>
+              </View>
+            </View>
+
+            <View style={s.decoBarBottom} />
+            <PageNum n={n} total={numPaginas} />
+          </Page>
+        );
+      })()}
+
+      {/* ============ 5. UBICACIÓN ============ */}
+      {(() => {
+        const n = next();
+        return (
+          <Page size="A4" orientation="landscape" style={s.page}>
+            <View style={s.decoTriangle} />
+            <SectionHeader
+              num="04"
+              eyebrow="UBICACIÓN"
+              title={inmueble.municipio || "Madrid"}
+              subtitle={
+                inmueble.zona
+                  ? `Zona ${inmueble.zona}. Información de la microzona.`
+                  : "Información de la microzona y conexiones."
+              }
+            />
+
+            <View style={{ flexDirection: "row", marginTop: 26, gap: 22 }}>
+              {/* Lista de 3 puntos izquierda */}
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    fontSize: 11,
+                    color: C.textDark,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  La vivienda se sitúa en {ubicacion || "una zona consolidada"},
+                  un entorno valorado por su tranquilidad, sus servicios y la
+                  conexión directa con Madrid.
+                </Text>
+
+                {[
+                  {
+                    n: "1",
+                    t: "Servicios y comercio cercano",
+                    d: "Supermercados, panaderías, farmacias y tiendas de cercanía en pocos minutos andando.",
+                  },
+                  {
+                    n: "2",
+                    t: "Comunicaciones",
+                    d: "Conexiones directas con Madrid mediante Cercanías, autobús y A-2 según municipio.",
+                  },
+                  {
+                    n: "3",
+                    t: "Colegios y zonas verdes",
+                    d: "Colegios públicos y concertados, parques y áreas deportivas en el entorno inmediato.",
+                  },
+                ].map((p) => (
+                  <View
+                    key={p.n}
+                    style={{
+                      flexDirection: "row",
+                      marginTop: 20,
+                      paddingBottom: 14,
+                      borderBottomWidth: 1,
+                      borderBottomColor: C.panelDark,
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 14,
+                        backgroundColor: C.gold,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginRight: 12,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: "Times-Bold",
+                          fontSize: 12,
+                          color: C.navy,
+                        }}
+                      >
+                        {p.n}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          fontFamily: "Helvetica-Bold",
+                          fontSize: 11,
+                          color: C.navy,
+                        }}
+                      >
+                        {p.t}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 9,
+                          color: C.textMuted,
+                          marginTop: 4,
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        {p.d}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+
+              {/* Sidebar derecha */}
+              <View
+                style={{
+                  width: 280,
+                  backgroundColor: C.navy,
+                  borderRadius: 8,
+                  padding: 22,
+                  borderBottomWidth: 3,
+                  borderBottomColor: C.gold,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 8,
+                    color: C.gold,
+                    letterSpacing: 2,
+                  }}
+                >
+                  UBICACIÓN ESTRATÉGICA
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: "Times-Bold",
+                    fontSize: 22,
+                    color: C.white,
+                    marginTop: 8,
+                  }}
+                >
+                  {inmueble.municipio || "Madrid"}
+                </Text>
+                {inmueble.zona ? (
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      color: C.textLight,
+                      marginTop: 2,
+                    }}
+                  >
+                    Zona {inmueble.zona}
+                  </Text>
+                ) : null}
+
+                {inmueble.mostrarDireccion && inmueble.direccion ? (
+                  <View
+                    style={{
+                      marginTop: 18,
+                      padding: 12,
+                      backgroundColor: C.navyDeep,
+                      borderRadius: 6,
+                      borderLeftWidth: 3,
+                      borderLeftColor: C.gold,
+                    }}
+                  >
+                    <Text style={{ fontSize: 7, color: C.gold, letterSpacing: 2 }}>
+                      DIRECCIÓN
+                    </Text>
+                    <Text style={{ fontSize: 10, color: C.white, marginTop: 4 }}>
+                      {inmueble.direccion}
+                    </Text>
+                  </View>
+                ) : null}
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 10,
+                    marginTop: 18,
+                  }}
+                >
+                  <View
+                    style={{
+                      flex: 1,
+                      backgroundColor: C.navyDeep,
+                      padding: 12,
+                      borderRadius: 6,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "Times-Bold",
+                        fontSize: 16,
+                        color: C.white,
+                      }}
+                    >
+                      Madrid
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 8,
+                        color: C.textLight,
+                        marginTop: 4,
+                      }}
+                    >
+                      Comunidad y entorno
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      backgroundColor: C.navyDeep,
+                      padding: 12,
+                      borderRadius: 6,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "Times-Bold",
+                        fontSize: 16,
+                        color: C.white,
+                      }}
+                    >
+                      {tipoLabel}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 8,
+                        color: C.textLight,
+                        marginTop: 4,
+                      }}
+                    >
+                      Tipología
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            <View style={s.decoBarBottom} />
+            <PageNum n={n} total={numPaginas} />
+          </Page>
+        );
+      })()}
+
+      {/* ============ 6. GALERÍA ============ */}
       {galeriaImgs.length > 0 &&
         Array.from({ length: Math.ceil(galeriaImgs.length / 2) }).map(
           (_, pageIdx) => {
+            const n = next();
             const fotosPage = galeriaImgs.slice(pageIdx * 2, pageIdx * 2 + 2);
             return (
               <Page
                 key={`galeria-${pageIdx}`}
                 size="A4"
-                style={s.galeriaPage}
+                orientation="landscape"
+                style={s.page}
               >
+                <View style={s.decoTriangle} />
                 {pageIdx === 0 && (
-                  <>
-                    <Text style={s.sectionEyebrow}>Galería</Text>
-                    <Text style={s.sectionTitle}>El inmueble en imágenes</Text>
-                  </>
+                  <SectionHeader
+                    num="05"
+                    eyebrow="GALERÍA"
+                    title="El inmueble en imágenes"
+                    subtitle="Cada espacio cuenta una historia. Estas son las nuestras."
+                  />
                 )}
-                <View style={s.galeriaCol}>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 16,
+                    marginTop: pageIdx === 0 ? 24 : 0,
+                    flex: 1,
+                  }}
+                >
                   {fotosPage.map((img, idx) => (
-                    <PdfImage
+                    <View
                       key={idx}
-                      src={{ data: img.data, format: img.format }}
-                      style={s.fotoGaleria}
-                    />
+                      style={{
+                        flex: 1,
+                        borderRadius: 8,
+                        overflow: "hidden",
+                        backgroundColor: C.panel,
+                      }}
+                    >
+                      <PdfImage
+                        src={{ data: img.data, format: img.format }}
+                        style={{
+                          width: "100%",
+                          height: 380,
+                          objectFit: "cover",
+                        }}
+                      />
+                    </View>
                   ))}
                 </View>
-                <Text
-                  style={s.pageFooter}
-                  render={({ pageNumber, totalPages }) =>
-                    `${empresa.nombre} · Dossier comercial · Pág. ${pageNumber} de ${totalPages}`
-                  }
-                  fixed
-                />
+
+                <View style={s.decoBarBottom} />
+                <PageNum n={n} total={numPaginas} />
               </Page>
             );
           },
         )}
 
-      {/* ============ HIPOTECA + CONTACTO ============ */}
-      {inmueble.operacion === "venta" && inmueble.precio > 0 && (
-        <Page size="A4" style={s.page}>
-          <Text style={s.sectionEyebrow}>Financiación</Text>
-          <Text style={s.sectionTitle}>Simulación orientativa de hipoteca</Text>
+      {/* ============ 7. CARACTERÍSTICAS ============ */}
+      {inmueble.caracteristicas.length > 0 &&
+        (() => {
+          const n = next();
+          const mitad = Math.ceil(inmueble.caracteristicas.length / 2);
+          const col1 = inmueble.caracteristicas.slice(0, mitad);
+          const col2 = inmueble.caracteristicas.slice(mitad);
+          return (
+            <Page size="A4" orientation="landscape" style={s.page}>
+              <View style={s.decoTriangle} />
+              <SectionHeader
+                num="06"
+                eyebrow="CARACTERÍSTICAS"
+                title="Lo que ofrece este inmueble"
+                subtitle="Las prestaciones que marcan la diferencia."
+              />
 
-          <View style={s.hipotecaCard}>
-            <Text style={s.hipotecaCuotaLabel}>Cuota mensual estimada</Text>
-            <Text style={s.hipotecaCuota}>{fmtPrecio(cuota)}/mes</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: 28,
+                  gap: 22,
+                }}
+              >
+                {/* Lista izquierda */}
+                <View style={{ flex: 1, flexDirection: "row", gap: 20 }}>
+                  {[col1, col2].map((col, ci) => (
+                    <View key={ci} style={{ flex: 1 }}>
+                      {col.map((c) => (
+                        <View
+                          key={c}
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            paddingVertical: 7,
+                            borderBottomWidth: 1,
+                            borderBottomColor: C.panelDark,
+                          }}
+                        >
+                          <View
+                            style={{
+                              width: 18,
+                              height: 18,
+                              borderRadius: 9,
+                              backgroundColor: C.gold,
+                              justifyContent: "center",
+                              alignItems: "center",
+                              marginRight: 10,
+                            }}
+                          >
+                            <Text
+                              style={{
+                                fontSize: 10,
+                                color: C.navy,
+                                fontFamily: "Helvetica-Bold",
+                              }}
+                            >
+                              ✓
+                            </Text>
+                          </View>
+                          <Text style={{ fontSize: 10, color: C.textDark }}>
+                            {CARAC_LABEL[c] ?? c}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  ))}
+                </View>
 
-            <View style={s.hipotecaParams}>
-              <View style={s.hipotecaParam}>
-                <Text style={s.hipotecaParamLabel}>Entrada (20%)</Text>
-                <Text style={s.hipotecaParamValue}>
-                  {fmtPrecio(inmueble.precio * entradaPct)}
+                {/* Sidebar derecha */}
+                <View
+                  style={{
+                    width: 280,
+                    backgroundColor: C.navy,
+                    borderRadius: 8,
+                    padding: 22,
+                    borderBottomWidth: 3,
+                    borderBottomColor: C.gold,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 8,
+                      color: C.gold,
+                      letterSpacing: 2,
+                    }}
+                  >
+                    POR QUÉ ESTE INMUEBLE
+                  </Text>
+                  <Text
+                    style={{
+                      fontFamily: "Times-Bold",
+                      fontSize: 18,
+                      color: C.white,
+                      marginTop: 10,
+                      lineHeight: 1.25,
+                    }}
+                  >
+                    Una vivienda con todo lo que importa.
+                  </Text>
+                  <View style={{ marginTop: 16 }}>
+                    {[
+                      `${inmueble.caracteristicas.length} prestaciones marcadas`,
+                      "Ubicación en zona consolidada",
+                      "Documentación lista para revisar",
+                      "Acompañamiento integral del agente",
+                    ].map((b) => (
+                      <View
+                        key={b}
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          paddingVertical: 6,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: C.gold,
+                            marginRight: 8,
+                            fontFamily: "Helvetica-Bold",
+                          }}
+                        >
+                          ✓
+                        </Text>
+                        <Text style={{ fontSize: 9, color: C.white }}>{b}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </View>
+
+              <View style={s.decoBarBottom} />
+              <PageNum n={n} total={numPaginas} />
+            </Page>
+          );
+        })()}
+
+      {/* ============ 8. FINANCIACIÓN ============ */}
+      {inmueble.operacion === "venta" &&
+        inmueble.precio > 0 &&
+        (() => {
+          const n = next();
+          return (
+            <Page size="A4" orientation="landscape" style={s.page}>
+              <View style={s.decoTriangle} />
+              <SectionHeader
+                num="07"
+                eyebrow="FINANCIACIÓN"
+                title="Simulación orientativa"
+                subtitle="Cifras estándar de mercado · no constituye oferta vinculante."
+              />
+
+              {/* 3 cards grandes */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 14,
+                  marginTop: 30,
+                }}
+              >
+                {[
+                  {
+                    label: "PRECIO TOTAL",
+                    valor: fmtPrecio(inmueble.precio),
+                    sub: "Valor de venta",
+                    bg: C.navyDeep,
+                    fg: C.white,
+                    accent: C.gold,
+                  },
+                  {
+                    label: "ENTRADA 20%",
+                    valor: fmtPrecio(inmueble.precio * entradaPct),
+                    sub: "Ahorro inicial recomendado",
+                    bg: C.navyLight,
+                    fg: C.white,
+                    accent: C.goldLight,
+                  },
+                  {
+                    label: "CUOTA MENSUAL",
+                    valor: `${fmtPrecio(cuotaMensual)}/mes`,
+                    sub: `${anos} años · TIN ${(tin * 100).toFixed(2)}%`,
+                    bg: C.gold,
+                    fg: C.navy,
+                    accent: C.navy,
+                  },
+                ].map((c) => (
+                  <View
+                    key={c.label}
+                    style={{
+                      flex: 1,
+                      backgroundColor: c.bg,
+                      padding: 24,
+                      borderRadius: 10,
+                      borderBottomWidth: 4,
+                      borderBottomColor: c.accent,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 8,
+                        color: c.accent,
+                        letterSpacing: 2,
+                      }}
+                    >
+                      {c.label}
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: "Times-Bold",
+                        fontSize: 30,
+                        color: c.fg,
+                        marginTop: 8,
+                      }}
+                    >
+                      {c.valor}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 9,
+                        color: c.fg === C.white ? C.textLight : C.navy,
+                        marginTop: 6,
+                      }}
+                    >
+                      {c.sub}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* Parámetros de la simulación */}
+              <View
+                style={{
+                  marginTop: 22,
+                  flexDirection: "row",
+                  gap: 14,
+                }}
+              >
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: C.cream,
+                    padding: 16,
+                    borderRadius: 6,
+                    borderLeftWidth: 3,
+                    borderLeftColor: C.gold,
+                  }}
+                >
+                  <Text style={{ fontSize: 7, color: C.gold, letterSpacing: 2 }}>
+                    PARÁMETROS USADOS
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      marginTop: 8,
+                      gap: 20,
+                    }}
+                  >
+                    <View>
+                      <Text style={{ fontSize: 8, color: C.textMuted }}>
+                        ENTRADA
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Helvetica-Bold",
+                          fontSize: 12,
+                          color: C.navy,
+                          marginTop: 2,
+                        }}
+                      >
+                        {(entradaPct * 100).toFixed(0)}%
+                      </Text>
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: 8, color: C.textMuted }}>
+                        PLAZO
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Helvetica-Bold",
+                          fontSize: 12,
+                          color: C.navy,
+                          marginTop: 2,
+                        }}
+                      >
+                        {anos} años
+                      </Text>
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: 8, color: C.textMuted }}>
+                        TIN ORIENTATIVO
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Helvetica-Bold",
+                          fontSize: 12,
+                          color: C.navy,
+                          marginTop: 2,
+                        }}
+                      >
+                        {(tin * 100).toFixed(2)}%
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              <View
+                style={{
+                  marginTop: 18,
+                  padding: 12,
+                  backgroundColor: C.creamSoft,
+                  borderRadius: 4,
+                  borderLeftWidth: 3,
+                  borderLeftColor: C.red,
+                }}
+              >
+                <Text style={{ fontSize: 8, color: C.red, letterSpacing: 1.5 }}>
+                  AVISO LEGAL
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 8,
+                    color: C.textMuted,
+                    marginTop: 4,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  Simulación orientativa con valores estándar de mercado. No
+                  incluye gastos asociados (ITP, notaría, registro, gestoría).
+                  Las condiciones reales dependerán de la entidad financiera y
+                  del perfil del solicitante.
                 </Text>
               </View>
-              <View style={s.hipotecaParam}>
-                <Text style={s.hipotecaParamLabel}>Plazo</Text>
-                <Text style={s.hipotecaParamValue}>{anos} años</Text>
-              </View>
-              <View style={s.hipotecaParam}>
-                <Text style={s.hipotecaParamLabel}>TIN</Text>
-                <Text style={s.hipotecaParamValue}>
-                  {(tin * 100).toFixed(2)}%
-                </Text>
-              </View>
-            </View>
-          </View>
 
-          <Text style={s.hipotecaDisclaimer}>
-            * Simulación orientativa con valores de mercado estándar (20% de
-            entrada, 30 años, TIN 3%). No constituye oferta vinculante. Las
-            condiciones reales dependerán de la entidad financiera y del perfil
-            del solicitante.
-          </Text>
+              <View style={s.decoBarBottom} />
+              <PageNum n={n} total={numPaginas} />
+            </Page>
+          );
+        })()}
 
-          <View style={s.divider} />
-
-          <Text style={s.sectionEyebrow}>Contacto</Text>
-          <Text style={s.sectionTitle}>
-            {agente?.nombre || empresa.nombre}
-          </Text>
-
-          <View style={s.contactoBox}>
-            {agente?.cargo ? (
-              <>
-                <Text style={s.contactoLabel}>Cargo</Text>
-                <Text style={s.contactoLine}>{agente.cargo}</Text>
-              </>
-            ) : null}
-            <Text style={s.contactoLabel}>Teléfono</Text>
-            <Text style={s.contactoLine}>
-              {agente?.telefono || empresa.telefono || "—"}
-            </Text>
-            <Text style={s.contactoLabel}>Email</Text>
-            <Text style={s.contactoLine}>
-              {agente?.email || empresa.email || "—"}
-            </Text>
-            {empresa.whatsapp ? (
-              <>
-                <Text style={s.contactoLabel}>WhatsApp</Text>
-                <Text style={s.contactoLine}>{empresa.whatsapp}</Text>
-              </>
-            ) : null}
-          </View>
-
-          <Text
-            style={s.pageFooter}
-            render={({ pageNumber, totalPages }) =>
-              `${empresa.nombre} · Dossier comercial · Pág. ${pageNumber} de ${totalPages}`
-            }
-            fixed
-          />
-        </Page>
-      )}
-
-      {/* ============ CONTRAPORTADA ============ */}
-      <Page size="A4" style={s.coverPage}>
-        <View
-          style={{
-            flexGrow: 1,
-            padding: 60,
-            justifyContent: "space-between",
-          }}
-        >
-          <View>
-            <Text style={[s.coverBrand, { fontSize: 18 }]}>REHOBOT</Text>
-            <Text style={[s.coverBrandSub, { fontSize: 10, marginTop: 4 }]}>
-              REAL ESTATE
-            </Text>
-          </View>
-
-          <View>
-            <Text
-              style={[
-                s.coverEyebrow,
-                { letterSpacing: 3, marginBottom: 10 },
-              ]}
-            >
-              Gracias por tu interés
-            </Text>
-            <Text
+      {/* ============ 9. SIGUIENTE PASO ============ */}
+      {(() => {
+        const n = next();
+        return (
+          <Page size="A4" orientation="landscape" style={{ padding: 0 }}>
+            <View
               style={{
-                fontFamily: "Helvetica-Bold",
-                fontSize: 22,
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: C.navy,
+              }}
+            />
+            <View
+              style={{
+                paddingHorizontal: 80,
+                paddingTop: 60,
+                paddingBottom: 50,
                 color: C.white,
-                lineHeight: 1.4,
+                flexGrow: 1,
               }}
             >
-              Estamos aquí para acompañarte en cada paso de la compra.
-            </Text>
-            <Text
-              style={{
-                fontSize: 11,
-                color: "#9AB1D4",
-                marginTop: 16,
-                lineHeight: 1.6,
-              }}
-            >
-              Llámanos al {empresa.telefono || "—"}, escríbenos a{" "}
-              {empresa.email || "—"} o ven a vernos al{" "}
-              {empresa.whatsapp ? `WhatsApp ${empresa.whatsapp}` : "WhatsApp"}.
-              Te respondemos lo antes posible.
-            </Text>
-          </View>
+              <Text
+                style={{
+                  fontSize: 9,
+                  color: C.gold,
+                  letterSpacing: 3,
+                  textAlign: "center",
+                }}
+              >
+                SIGUIENTE PASO
+              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "baseline",
+                  marginTop: 16,
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: "Times-Bold",
+                    fontSize: 52,
+                    color: C.white,
+                  }}
+                >
+                  ¿
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: "Times-BoldItalic",
+                    fontSize: 52,
+                    color: C.gold,
+                  }}
+                >
+                  Concertamos
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: "Times-Bold",
+                    fontSize: 52,
+                    color: C.white,
+                  }}
+                >
+                  {" "}
+                  una visita
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: "Times-Bold",
+                    fontSize: 52,
+                    color: C.white,
+                  }}
+                >
+                  ?
+                </Text>
+              </View>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: 12,
+                  color: C.textLight,
+                  marginTop: 14,
+                  lineHeight: 1.5,
+                  maxWidth: 540,
+                  marginHorizontal: "auto",
+                }}
+              >
+                Visita el inmueble, resuelve tus dudas y revisa la
+                documentación con tu asesor. Sin compromiso y con todo el
+                tiempo que necesites.
+              </Text>
 
-          <View>
-            <Text style={{ fontSize: 8, color: "#7D90B3" }}>
-              Documento generado el {ahora} · Ref. {inmueble.ref}
-            </Text>
-            <Text
-              style={{
-                fontSize: 7,
-                color: "#5E709B",
-                marginTop: 8,
-                lineHeight: 1.5,
-                maxWidth: 420,
-              }}
-            >
-              La información de este dossier tiene carácter informativo y no
-              constituye oferta vinculante. Los datos están sujetos a
-              comprobación. Para acceder al certificado energético definitivo y
-              a la documentación legal del inmueble, póngase en contacto con
-              nosotros.
-            </Text>
-          </View>
-        </View>
-      </Page>
+              <View
+                style={{
+                  marginTop: 40,
+                  marginHorizontal: 80,
+                  backgroundColor: C.navyDeep,
+                  borderRadius: 10,
+                  padding: 28,
+                  borderWidth: 1,
+                  borderColor: C.navyLight,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 8,
+                    color: C.gold,
+                    letterSpacing: 3,
+                    textAlign: "center",
+                  }}
+                >
+                  {empresa.nombre.toUpperCase()}
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: "Times-Bold",
+                    fontSize: 22,
+                    color: C.white,
+                    textAlign: "center",
+                    marginTop: 8,
+                  }}
+                >
+                  {agNombre}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 9,
+                    color: C.gold,
+                    letterSpacing: 2,
+                    textAlign: "center",
+                    marginTop: 4,
+                  }}
+                >
+                  {agCargo.toUpperCase()}
+                </Text>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    gap: 36,
+                    marginTop: 26,
+                  }}
+                >
+                  <View>
+                    <Text
+                      style={{ fontSize: 7, color: C.gold, letterSpacing: 2 }}
+                    >
+                      TELÉFONO
+                    </Text>
+                    <Text
+                      style={{
+                        color: C.white,
+                        fontSize: 10,
+                        marginTop: 4,
+                      }}
+                    >
+                      {agTel || "—"}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text
+                      style={{ fontSize: 7, color: C.gold, letterSpacing: 2 }}
+                    >
+                      EMAIL
+                    </Text>
+                    <Text
+                      style={{
+                        color: C.white,
+                        fontSize: 10,
+                        marginTop: 4,
+                      }}
+                    >
+                      {agEmail || "—"}
+                    </Text>
+                  </View>
+                  {empresa.whatsapp ? (
+                    <View>
+                      <Text
+                        style={{
+                          fontSize: 7,
+                          color: C.gold,
+                          letterSpacing: 2,
+                        }}
+                      >
+                        WHATSAPP
+                      </Text>
+                      <Text
+                        style={{
+                          color: C.white,
+                          fontSize: 10,
+                          marginTop: 4,
+                        }}
+                      >
+                        {empresa.whatsapp}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+              </View>
+
+              <Text
+                style={{
+                  position: "absolute",
+                  bottom: 30,
+                  left: 0,
+                  right: 0,
+                  fontSize: 7,
+                  color: C.textMuted,
+                  letterSpacing: 3,
+                  textAlign: "center",
+                }}
+              >
+                DOSSIER CONFIDENCIAL · {empresa.nombre.toUpperCase()} ·{" "}
+                {ahora.toUpperCase()} · REF. {inmueble.ref || "—"}
+              </Text>
+            </View>
+            <PageNum n={n} total={numPaginas} />
+          </Page>
+        );
+      })()}
     </Document>
   );
 }
