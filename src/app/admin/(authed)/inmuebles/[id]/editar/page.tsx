@@ -134,6 +134,7 @@ export default function EditarInmueblePage({
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [descargandoDossier, setDescargandoDossier] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [progreso, setProgreso] = useState<{
@@ -988,6 +989,55 @@ export default function EditarInmueblePage({
                 ? `Subiendo fotos… (${progreso.subidas}/${progreso.total})`
                 : "Guardando cambios…"
               : "Guardar cambios"}
+          </button>
+          <button
+            type="button"
+            disabled={descargandoDossier || submitting || deleting}
+            onClick={async () => {
+              if (!user) {
+                setError("Sesión no válida. Vuelve a iniciar sesión.");
+                return;
+              }
+              setError(null);
+              setDescargandoDossier(true);
+              try {
+                const token = await user.getIdToken();
+                const resp = await fetch(
+                  `/api/admin/inmuebles/${id}/dossier`,
+                  {
+                    headers: { Authorization: `Bearer ${token}` },
+                  },
+                );
+                if (!resp.ok) {
+                  const data = await resp.json().catch(() => ({}));
+                  throw new Error(
+                    data?.error || `Error ${resp.status} generando el PDF`,
+                  );
+                }
+                const blob = await resp.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                const cd = resp.headers.get("content-disposition") || "";
+                const match = cd.match(/filename="([^"]+)"/);
+                a.download = match?.[1] || `dossier-${id}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+              } catch (err) {
+                setError(
+                  err instanceof Error
+                    ? err.message
+                    : "No se pudo descargar el dossier.",
+                );
+              } finally {
+                setDescargandoDossier(false);
+              }
+            }}
+            className="rounded-full border border-gold bg-gold/10 px-6 py-3 font-body text-sm font-medium text-navy transition-colors hover:bg-gold hover:text-navy disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {descargandoDossier ? "Generando PDF…" : "↓ Descargar dossier"}
           </button>
           <Link
             href="/admin/inmuebles"
