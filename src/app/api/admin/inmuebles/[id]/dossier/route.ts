@@ -3,6 +3,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { verificarAuth } from "@/lib/auth/api-auth";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { DossierInmueble } from "@/lib/pdf/DossierInmueble";
+import { fetchImagenParaPdf } from "@/lib/pdf/fetch-imagen";
 import type { InmuebleAdminData } from "@/lib/firestore/inmuebles";
 import type { FotoInmueble, CalificacionEnergetica } from "@/lib/types";
 
@@ -106,8 +107,17 @@ export async function GET(request: Request, { params }: RouteCtx) {
     year: "numeric",
   }).format(new Date());
 
+  // Pre-descargamos las primeras 9 fotos en paralelo (portada + 8 galería).
+  // react-pdf no soporta WebP y a veces tampoco resuelve URLs externas
+  // dentro del runtime serverless, así que las traemos nosotros y las
+  // reencodamos a JPEG con sharp.
+  const fotosParaDescargar = inmueble.fotos.slice(0, 9);
+  const imagenes = await Promise.all(
+    fotosParaDescargar.map((f) => fetchImagenParaPdf(f.url)),
+  );
+
   const pdf = await renderToBuffer(
-    DossierInmueble({ inmueble, agente, empresa, ahora }),
+    DossierInmueble({ inmueble, imagenes, agente, empresa, ahora }),
   );
 
   const fileName = `dossier-${inmueble.ref || inmueble.slug || inmueble.id}.pdf`;

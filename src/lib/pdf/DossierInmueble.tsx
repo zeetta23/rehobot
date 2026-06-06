@@ -7,6 +7,7 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 import type { InmuebleAdminData } from "@/lib/firestore/inmuebles";
+import type { ImagenPdf } from "@/lib/pdf/fetch-imagen";
 
 const C = {
   navy: "#0A1F44",
@@ -292,6 +293,9 @@ const s = StyleSheet.create({
 
 interface DossierProps {
   inmueble: InmuebleAdminData;
+  /** Imágenes ya descargadas y convertidas a JPG/PNG, en el mismo orden que
+   * las fotos del inmueble. Los slots null se omiten en el render. */
+  imagenes: (ImagenPdf | null)[];
   agente: {
     nombre: string;
     email: string;
@@ -362,13 +366,18 @@ function calcHipoteca(
 
 export function DossierInmueble({
   inmueble,
+  imagenes,
   agente,
   empresa,
   ahora,
 }: DossierProps) {
-  const fotos = inmueble.fotos.slice(0, 9); // portada + 8 galería
-  const portada = fotos[0];
-  const galeria = fotos.slice(1);
+  const portadaImg = imagenes[0] ?? null;
+  // Aplanamos las imágenes restantes válidas (filtramos nulls). Limitamos a
+  // 8 para no pasar de 4 páginas de galería.
+  const galeriaImgs = imagenes
+    .slice(1)
+    .filter((i): i is ImagenPdf => i !== null)
+    .slice(0, 8);
   const ubicacion = [inmueble.zona, inmueble.municipio]
     .filter(Boolean)
     .join(", ");
@@ -431,8 +440,11 @@ export function DossierInmueble({
     >
       {/* ============ PORTADA ============ */}
       <Page size="A4" style={s.coverPage}>
-        {portada?.url ? (
-          <PdfImage src={portada.url} style={s.coverImage} />
+        {portadaImg ? (
+          <PdfImage
+            src={{ data: portadaImg.data, format: portadaImg.format }}
+            style={s.coverImage}
+          />
         ) : (
           <View style={s.coverImagePlaceholder} />
         )}
@@ -555,75 +567,42 @@ export function DossierInmueble({
       )}
 
       {/* ============ GALERÍA ============ */}
-      {galeria.length > 0 && (
-        <Page size="A4" style={s.galeriaPage}>
-          <Text style={s.sectionEyebrow}>Galería</Text>
-          <Text style={s.sectionTitle}>El inmueble en imágenes</Text>
-          <View style={s.galeriaCol}>
-            {galeria.slice(0, 2).map((f, idx) => (
-              <PdfImage key={idx} src={f.url} style={s.fotoGaleria} />
-            ))}
-          </View>
-          <Text
-            style={s.pageFooter}
-            render={({ pageNumber, totalPages }) =>
-              `${empresa.nombre} · Dossier comercial · Pág. ${pageNumber} de ${totalPages}`
-            }
-            fixed
-          />
-        </Page>
-      )}
-
-      {galeria.length > 2 && (
-        <Page size="A4" style={s.galeriaPage}>
-          <View style={s.galeriaCol}>
-            {galeria.slice(2, 4).map((f, idx) => (
-              <PdfImage key={idx} src={f.url} style={s.fotoGaleria} />
-            ))}
-          </View>
-          <Text
-            style={s.pageFooter}
-            render={({ pageNumber, totalPages }) =>
-              `${empresa.nombre} · Dossier comercial · Pág. ${pageNumber} de ${totalPages}`
-            }
-            fixed
-          />
-        </Page>
-      )}
-
-      {galeria.length > 4 && (
-        <Page size="A4" style={s.galeriaPage}>
-          <View style={s.galeriaCol}>
-            {galeria.slice(4, 6).map((f, idx) => (
-              <PdfImage key={idx} src={f.url} style={s.fotoGaleria} />
-            ))}
-          </View>
-          <Text
-            style={s.pageFooter}
-            render={({ pageNumber, totalPages }) =>
-              `${empresa.nombre} · Dossier comercial · Pág. ${pageNumber} de ${totalPages}`
-            }
-            fixed
-          />
-        </Page>
-      )}
-
-      {galeria.length > 6 && (
-        <Page size="A4" style={s.galeriaPage}>
-          <View style={s.galeriaCol}>
-            {galeria.slice(6, 8).map((f, idx) => (
-              <PdfImage key={idx} src={f.url} style={s.fotoGaleria} />
-            ))}
-          </View>
-          <Text
-            style={s.pageFooter}
-            render={({ pageNumber, totalPages }) =>
-              `${empresa.nombre} · Dossier comercial · Pág. ${pageNumber} de ${totalPages}`
-            }
-            fixed
-          />
-        </Page>
-      )}
+      {galeriaImgs.length > 0 &&
+        Array.from({ length: Math.ceil(galeriaImgs.length / 2) }).map(
+          (_, pageIdx) => {
+            const fotosPage = galeriaImgs.slice(pageIdx * 2, pageIdx * 2 + 2);
+            return (
+              <Page
+                key={`galeria-${pageIdx}`}
+                size="A4"
+                style={s.galeriaPage}
+              >
+                {pageIdx === 0 && (
+                  <>
+                    <Text style={s.sectionEyebrow}>Galería</Text>
+                    <Text style={s.sectionTitle}>El inmueble en imágenes</Text>
+                  </>
+                )}
+                <View style={s.galeriaCol}>
+                  {fotosPage.map((img, idx) => (
+                    <PdfImage
+                      key={idx}
+                      src={{ data: img.data, format: img.format }}
+                      style={s.fotoGaleria}
+                    />
+                  ))}
+                </View>
+                <Text
+                  style={s.pageFooter}
+                  render={({ pageNumber, totalPages }) =>
+                    `${empresa.nombre} · Dossier comercial · Pág. ${pageNumber} de ${totalPages}`
+                  }
+                  fixed
+                />
+              </Page>
+            );
+          },
+        )}
 
       {/* ============ HIPOTECA + CONTACTO ============ */}
       {inmueble.operacion === "venta" && inmueble.precio > 0 && (
