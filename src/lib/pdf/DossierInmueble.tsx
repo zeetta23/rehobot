@@ -1000,128 +1000,128 @@ export function DossierInmueble({
                 subtitle="Lo que el inmueble cuenta sobre sí mismo."
               />
 
+              {/* Banner superior con cita + resumen en una línea.
+                  wrap={false} para que no se parta entre páginas. */}
               <View
+                wrap={false}
                 style={{
-                  marginTop: 24,
+                  marginTop: 22,
                   flexDirection: "row",
-                  gap: 28,
-                  flex: 1,
+                  gap: 14,
                 }}
               >
-                {/* Bloque destacado izquierda (cita) */}
-                <View style={{ width: 240 }}>
-                  <View
+                <View
+                  style={{
+                    flex: 2,
+                    backgroundColor: C.navy,
+                    padding: 18,
+                    borderRadius: 8,
+                    borderBottomWidth: 3,
+                    borderBottomColor: C.gold,
+                  }}
+                >
+                  <Text
                     style={{
-                      backgroundColor: C.navy,
-                      padding: 22,
-                      borderRadius: 8,
-                      borderBottomWidth: 3,
-                      borderBottomColor: C.gold,
+                      fontFamily: "Times-Bold",
+                      fontSize: 22,
+                      color: C.gold,
+                      lineHeight: 1,
                     }}
                   >
-                    <Text
-                      style={{
-                        fontFamily: "Times-Bold",
-                        fontSize: 26,
-                        color: C.gold,
-                        lineHeight: 1,
-                      }}
-                    >
-                      &ldquo;
-                    </Text>
-                    <Text
-                      style={{
-                        fontFamily: "Times-Italic",
-                        fontSize: 13,
-                        color: C.white,
-                        marginTop: 4,
-                        lineHeight: 1.55,
-                      }}
-                    >
-                      {destacado.length > 240
-                        ? destacado.slice(0, 240).trim() + "…"
-                        : destacado}
-                    </Text>
-                  </View>
-
-                  {/* Mini-resumen visual debajo */}
-                  <View
+                    &ldquo;
+                  </Text>
+                  <Text
                     style={{
-                      marginTop: 14,
-                      backgroundColor: C.cream,
-                      borderRadius: 8,
-                      padding: 16,
-                      borderLeftWidth: 3,
-                      borderLeftColor: C.gold,
+                      fontFamily: "Times-Italic",
+                      fontSize: 12,
+                      color: C.white,
+                      marginTop: 2,
+                      lineHeight: 1.5,
                     }}
                   >
-                    <Text
-                      style={{
-                        fontSize: 7,
-                        color: C.gold,
-                        letterSpacing: 2,
-                      }}
-                    >
-                      EN UNA LÍNEA
-                    </Text>
-                    <Text
-                      style={{
-                        fontFamily: "Helvetica-Bold",
-                        fontSize: 11,
-                        color: C.navy,
-                        marginTop: 6,
-                      }}
-                    >
-                      {tipoLabel}
-                      {inmueble.metrosConstruidos
-                        ? ` de ${inmueble.metrosConstruidos} m²`
-                        : ""}
-                      {inmueble.habitaciones
-                        ? ` · ${inmueble.habitaciones} hab.`
-                        : ""}
-                      {inmueble.banos ? ` · ${inmueble.banos} baños` : ""}
-                    </Text>
-                    {ubicacion ? (
-                      <Text
-                        style={{
-                          fontSize: 9,
-                          color: C.textMuted,
-                          marginTop: 4,
-                        }}
-                      >
-                        {ubicacion}
-                      </Text>
-                    ) : null}
-                  </View>
+                    {destacado.length > 200
+                      ? destacado.slice(0, 200).replace(/\s+\S*$/, "") + "…"
+                      : destacado}
+                  </Text>
                 </View>
 
-                {/* Cuerpo del texto a la derecha */}
-                <View style={{ flex: 1 }}>
-                  {/* Primer párrafo siempre va destacado pero también en
-                      cuerpo por si el lector se salta la cita */}
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: C.cream,
+                    borderRadius: 8,
+                    padding: 16,
+                    borderLeftWidth: 3,
+                    borderLeftColor: C.gold,
+                    justifyContent: "center",
+                  }}
+                >
                   <Text
+                    style={{
+                      fontSize: 7,
+                      color: C.gold,
+                      letterSpacing: 2,
+                    }}
+                  >
+                    EN UNA LÍNEA
+                  </Text>
+                  <Text
+                    style={{
+                      fontFamily: "Helvetica-Bold",
+                      fontSize: 11,
+                      color: C.navy,
+                      marginTop: 6,
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {tipoLabel}
+                    {inmueble.metrosConstruidos
+                      ? ` de ${inmueble.metrosConstruidos} m²`
+                      : ""}
+                    {inmueble.habitaciones
+                      ? ` · ${inmueble.habitaciones} hab.`
+                      : ""}
+                    {inmueble.banos ? ` · ${inmueble.banos} baños` : ""}
+                  </Text>
+                  {ubicacion ? (
+                    <Text
+                      style={{
+                        fontSize: 9,
+                        color: C.textMuted,
+                        marginTop: 4,
+                      }}
+                    >
+                      {ubicacion}
+                    </Text>
+                  ) : null}
+                </View>
+              </View>
+
+              {/* Cuerpo del texto a ancho completo. Aquí sí se permite el
+                  reparto automático en páginas si la descripción es larga. */}
+              <View style={{ marginTop: 20 }}>
+                <Text
+                  style={{
+                    fontSize: 11,
+                    color: C.textDark,
+                    lineHeight: 1.7,
+                  }}
+                >
+                  {destacado}
+                </Text>
+                {resto.map((p, i) => (
+                  <Text
+                    key={i}
                     style={{
                       fontSize: 11,
                       color: C.textDark,
                       lineHeight: 1.7,
+                      marginTop: 12,
                     }}
                   >
-                    {destacado}
+                    {p}
                   </Text>
-                  {resto.map((p, i) => (
-                    <Text
-                      key={i}
-                      style={{
-                        fontSize: 11,
-                        color: C.textDark,
-                        lineHeight: 1.7,
-                        marginTop: 12,
-                      }}
-                    >
-                      {p}
-                    </Text>
-                  ))}
-                </View>
+                ))}
               </View>
 
               <View style={s.decoBarBottom} />
